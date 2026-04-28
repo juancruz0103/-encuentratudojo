@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EncuentraTuDojo — Acceder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:           #0e0c0b;
+  --ink-mid:       #2a2622;
+  --ink-soft:      #4a4540;
+  --parchment:     #faf8f4;
+  --parchment-dark:#f0ece3;
+  --wood:          #7a5c3a;
+  --wood-light:    #a87c50;
+  --crimson:       #8b1a1a;
+  --crimson-bright:#c0392b;
+  --crimson-pale:  rgba(139,26,26,0.07);
+  --gold:          #c8a96e;
+  --success:       #2d6a4f;
+  --success-pale:  rgba(45,106,79,0.08);
+  --success-bright:#27ae60;
+  --error:         #c0392b;
+  --error-pale:    rgba(192,57,43,0.07);
+  --white:         #ffffff;
+  --font-display:  'Cormorant Garamond', serif;
+  --font-jp:       'Noto Serif JP', serif;
+  --font-body:     'DM Sans', sans-serif;
+  --ease:          cubic-bezier(0.4,0,0.2,1);
+  --radius:        4px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--ink);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ══════════════════════════
+   LEFT PANEL — decorativo
+══════════════════════════ */
+.left-panel {
+  width: 48%;
+  min-height: 100vh;
+  background: var(--ink);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Grid pattern */
+.left-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,169,110,0.04) 59px, rgba(200,169,110,0.04) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,169,110,0.04) 59px, rgba(200,169,110,0.04) 60px);
+  pointer-events: none;
+}
+
+/* Red accent line */
+.left-panel::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(200,169,110,0.15) 30%, rgba(200,169,110,0.15) 70%, transparent);
+}
+
+/* Big kanji watermark */
+.panel-kanji-bg {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-jp);
+  font-size: 340px;
+  color: rgba(200,169,110,0.04);
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+  letter-spacing: -10px;
+}
+
+.panel-top { position: relative; z-index: 2; }
+.panel-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.panel-kanji { font-family: var(--font-jp); font-size: 24px; color: var(--crimson-bright); }
+.panel-name  { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--parchment); letter-spacing: 0.08em; }
+
+.panel-center {
+  position: relative; z-index: 2;
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 40px 0;
+}
+
+.panel-eyebrow {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+.panel-eyebrow-line { width: 32px; height: 1px; background: var(--crimson-bright); }
+.panel-eyebrow-text { font-size: 10px; color: var(--gold); letter-spacing: 0.22em; text-transform: uppercase; }
+
+.panel-headline {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 300;
+  color: var(--parchment);
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+.panel-headline em { font-style: italic; color: var(--crimson-bright); }
+
+.panel-desc {
+  font-size: 14px; font-weight: 300;
+  color: rgba(250,248,244,0.45);
+  line-height: 1.75; max-width: 360px; margin-bottom: 40px;
+}
+
+/* Discipline pills */
+.panel-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11px; color: rgba(250,248,244,0.5);
+  border: 1px solid rgba(200,169,110,0.12);
+  padding: 5px 13px; border-radius: 20px;
+  letter-spacing: 0.06em;
+}
+.pill-kanji { font-family: var(--font-jp); font-size: 13px; color: rgba(200,169,110,0.5); }
+
+/* Testimonial */
+.panel-testimonial {
+  position: relative; z-index: 2;
+  border-top: 1px solid rgba(200,169,110,0.08);
+  padding-top: 24px;
+}
+.testimonial-text {
+  font-family: var(--font-display);
+  font-size: 16px; font-style: italic; font-weight: 300;
+  color: rgba(250,248,244,0.5);
+  line-height: 1.6; margin-bottom: 14px;
+}
+.testimonial-author {
+  display: flex; align-items: center; gap: 10px;
+}
+.testimonial-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(139,26,26,0.2);
+  border: 1px solid rgba(200,169,110,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-jp); font-size: 13px; color: var(--gold);
+}
+.testimonial-name  { font-size: 12px; font-weight: 500; color: rgba(250,248,244,0.6); }
+.testimonial-sub   { font-size: 10px; color: rgba(250,248,244,0.3); letter-spacing: 0.05em; }
+
+/* ══════════════════════════
+   RIGHT PANEL — formularios
+══════════════════════════ */
+.right-panel {
+  flex: 1;
+  background: var(--parchment);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Subtle texture */
+.right-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; opacity: 0.5;
+}
+
+.form-container {
+  width: 100%; max-width: 400px; position: relative; z-index: 1;
+}
+
+/* ── VIEW SWITCHER ── */
+.view { display: none; animation: slideUp 0.3s var(--ease) both; }
+.view.active { display: block; }
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* Form header */
+.form-header { margin-bottom: 32px; }
+.form-title {
+  font-family: var(--font-display);
+  font-size: 30px; font-weight: 400; color: var(--ink);
+  letter-spacing: -0.01em; margin-bottom: 6px;
+}
+.form-title em { font-style: italic; color: var(--crimson); }
+.form-subtitle { font-size: 14px; color: var(--wood-light); font-weight: 300; line-height: 1.5; }
+
+/* ── TABS (login type) ── */
+.auth-tabs {
+  display: flex; gap: 0;
+  background: var(--parchment-dark);
+  border: 1px solid rgba(122,92,58,0.15);
+  border-radius: var(--radius);
+  padding: 3px;
+  margin-bottom: 28px;
+}
+.auth-tab {
+  flex: 1; padding: 9px; text-align: center;
+  font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--wood-light); cursor: pointer;
+  border-radius: 3px; transition: all 0.2s;
+  border: none; background: transparent; font-family: var(--font-body);
+}
+.auth-tab.active {
+  background: var(--white); color: var(--ink);
+  box-shadow: 0 1px 4px rgba(14,12,11,0.08);
+}
+
+/* ── FIELDS ── */
+.field-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.field label {
+  font-size: 11px; font-weight: 500;
+  color: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.field label .opt { font-weight: 400; text-transform: none; color: var(--wood-light); font-size: 10px; margin-left: 4px; letter-spacing: 0; }
+
+.input-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--wood-light); pointer-events: none; transition: color 0.2s;
+}
+.input-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--wood-light);
+  transition: color 0.2s; padding: 2px;
+}
+.input-toggle:hover { color: var(--ink-soft); }
+
+.form-input {
+  width: 100%; font-family: var(--font-body);
+  font-size: 14px; font-weight: 300; color: var(--ink);
+  background: var(--white);
+  border: 1px solid rgba(122,92,58,0.18);
+  border-radius: var(--radius); padding: 12px 14px;
+  outline: none; transition: all 0.2s;
+}
+.form-input.has-icon { padding-left: 40px; }
+.form-input.has-toggle { padding-right: 40px; }
+.form-input:focus { border-color: var(--crimson); box-shadow: 0 0 0 3px rgba(139,26,26,0.07); }
+.form-input::placeholder { color: rgba(74,69,64,0.35); }
+.form-input.error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(192,57,43,0.07); }
+.form-input.success { border-color: var(--success); }
+
+.field:focus-within .input-icon { color: var(--crimson); }
+
+.field-error {
+  font-size: 11px; color: var(--error);
+  display: none; align-items: center; gap: 4px;
+}
+.field-error.visible { display: flex; }
+.field-hint { font-size: 11px; color: var(--wood-light); line-height: 1.5; }
+
+/* Password strength */
+.pwd-strength { margin-top: 6px; }
+.pwd-bars { display: flex; gap: 4px; margin-bottom: 4px; }
+.pwd-bar {
+  height: 3px; flex: 1; border-radius: 2px;
+  background: var(--parchment-dark); transition: background 0.3s;
+}
+.pwd-bar.weak   { background: var(--error); }
+.pwd-bar.medium { background: var(--gold); }
+.pwd-bar.strong { background: var(--success-bright); }
+.pwd-label { font-size: 10px; color: var(--wood-light); letter-spacing: 0.06em; }
+
+/* ── ACCOUNT TYPE SELECTOR ── */
+.account-type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+.type-opt { position: relative; }
+.type-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.type-label {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 12px; border: 1px solid rgba(122,92,58,0.15);
+  border-radius: var(--radius); cursor: pointer; background: var(--white);
+  transition: all 0.2s; text-align: center;
+}
+.type-label:hover { border-color: rgba(139,26,26,0.3); }
+.type-opt input:checked + .type-label {
+  border-color: var(--crimson); background: var(--crimson-pale);
+  box-shadow: 0 0 0 2px rgba(139,26,26,0.08);
+}
+.type-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--parchment-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-jp); font-size: 18px; color: var(--crimson);
+  transition: all 0.2s;
+}
+.type-opt input:checked + .type-label .type-icon {
+  background: rgba(139,26,26,0.1);
+}
+.type-name { font-size: 12px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.04em; }
+.type-sub  { font-size: 10px; color: var(--wood-light); line-height: 1.4; }
+.type-opt input:checked + .type-label .type-name { color: var(--crimson); }
+
+/* ── DIVIDER ── */
+.auth-divider {
+  display: flex; align-items: center; gap: 12px; margin: 20px 0;
+}
+.auth-divider-line { flex: 1; height: 1px; background: rgba(122,92,58,0.12); }
+.auth-divider-text { font-size: 11px; color: var(--wood-light); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+
+/* ── SOCIAL BUTTONS ── */
+.social-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.social-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 11px; border-radius: var(--radius);
+  font-family: var(--font-body); font-size: 13px; font-weight: 400;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
+}
+.social-btn-google {
+  background: var(--white); color: var(--ink-soft);
+  border: 1px solid rgba(122,92,58,0.18);
+}
+.social-btn-google:hover { border-color: rgba(122,92,58,0.35); background: var(--parchment); }
+.social-btn-facebook {
+  background: #1877f2; color: #fff; border: none;
+}
+.social-btn-facebook:hover { background: #1565d8; }
+.google-icon { width: 18px; height: 18px; }
+
+/* ── MAIN SUBMIT BUTTON ── */
+.btn-submit {
+  width: 100%; padding: 13px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #fff; background: var(--crimson);
+  border: none; border-radius: var(--radius);
+  cursor: pointer; transition: all 0.25s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  position: relative; overflow: hidden;
+}
+.btn-submit:hover { background: var(--crimson-bright); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(139,26,26,0.25); }
+.btn-submit:active { transform: translateY(0); }
+.btn-submit.loading { pointer-events: none; opacity: 0.8; }
+
+/* Spinner */
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+  animation: spin 0.7s linear infinite; display: none;
+}
+.btn-submit.loading .spinner { display: block; }
+.btn-submit.loading .btn-text { opacity: 0.7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── FOOTER LINKS ── */
+.form-footer {
+  margin-top: 20px; text-align: center;
+  font-size: 13px; color: var(--wood-light); font-weight: 300;
+}
+.form-footer a, .form-footer button {
+  color: var(--crimson); text-decoration: none; font-weight: 400;
+  background: none; border: none; cursor: pointer; font-family: var(--font-body);
+  font-size: 13px; transition: opacity 0.2s; padding: 0;
+}
+.form-footer a:hover, .form-footer button:hover { opacity: 0.7; }
+
+.forgot-link {
+  font-size: 12px; color: var(--crimson); text-decoration: none;
+  float: right; font-weight: 400; transition: opacity 0.2s;
+}
+.forgot-link:hover { opacity: 0.7; }
+
+/* ── CHECKBOX ── */
+.check-row {
+  display: flex; align-items: flex-start; gap: 10px; margin-bottom: 4px;
+}
+.check-row input[type="checkbox"] {
+  width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;
+  accent-color: var(--crimson); cursor: pointer;
+}
+.check-label {
+  font-size: 12px; color: var(--ink-soft); line-height: 1.55; cursor: pointer;
+}
+.check-label a { color: var(--crimson); text-decoration: none; }
+.check-label a:hover { text-decoration: underline; }
+
+/* ── ALERTS ── */
+.alert {
+  display: none; padding: 12px 14px; border-radius: var(--radius);
+  font-size: 13px; margin-bottom: 16px; align-items: flex-start; gap: 10px;
+  animation: fadeIn 0.25s var(--ease);
+}
+.alert.visible { display: flex; }
+.alert.error   { background: var(--error-pale); color: var(--error); border: 1px solid rgba(192,57,43,0.15); }
+.alert.success { background: var(--success-pale); color: var(--success); border: 1px solid rgba(45,106,79,0.15); }
+.alert-icon { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* ── SUCCESS SCREEN ── */
+.success-screen {
+  text-align: center; padding: 20px 0;
+}
+.success-circle {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--success-pale); border: 2px solid rgba(45,106,79,0.2);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px; font-size: 28px;
+  animation: popIn 0.5s var(--ease);
+}
+@keyframes popIn { from { transform:scale(0.5); opacity:0; } to { transform:scale(1); opacity:1; } }
+.success-title {
+  font-family: var(--font-display); font-size: 26px; font-weight: 400;
+  color: var(--ink); margin-bottom: 8px; letter-spacing: -0.01em;
+}
+.success-title em { font-style: italic; color: var(--success); }
+.success-desc { font-size: 14px; color: var(--wood-light); line-height: 1.6; font-weight: 300; margin-bottom: 28px; }
+.success-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; text-align: left; }
+.success-step {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; background: var(--white);
+  border: 1px solid rgba(122,92,58,0.1); border-radius: var(--radius);
+}
+.success-step-num {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  background: var(--success-pale); border: 1px solid rgba(45,106,79,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--success);
+}
+.success-step-text { font-size: 13px; color: var(--ink-soft); }
+
+/* ── CODE INPUT (OTP style) ── */
+.otp-row {
+  display: flex; gap: 8px; justify-content: center; margin: 24px 0;
+}
+.otp-input {
+  width: 48px; height: 56px; text-align: center;
+  font-family: var(--font-display); font-size: 24px; font-weight: 600;
+  color: var(--ink); background: var(--white);
+  border: 1px solid rgba(122,92,58,0.2); border-radius: var(--radius);
+  outline: none; transition: all 0.2s; caret-color: var(--crimson);
+}
+.otp-input:focus { border-color: var(--crimson); box-shadow: 0 0 0 3px rgba(139,26,26,0.07); }
+
+/* ── STEP INDICATOR ── */
+.step-indicator {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 28px;
+}
+.step-ind-item {
+  display: flex; align-items: center;
+}
+.step-ind-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid rgba(122,92,58,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 500; color: var(--wood-light);
+  background: var(--white); transition: all 0.3s; flex-shrink: 0;
+}
+.step-ind-dot.active { background: var(--crimson); border-color: var(--crimson); color: #fff; }
+.step-ind-dot.done   { background: var(--success-bright); border-color: var(--success-bright); color: #fff; font-size: 12px; }
+.step-ind-label { font-size: 10px; color: var(--wood-light); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 4px; }
+.step-ind-line { flex: 1; height: 1px; background: rgba(122,92,58,0.15); margin: 0 6px; min-width: 20px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .left-panel { display: none; }
+  .right-panel { padding: 32px 24px; }
+  .form-container { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LEFT PANEL ══ -->
+<div class="left-panel">
+  <div class="panel-kanji-bg">武道</div>
+
+  <div class="panel-top">
+    <a href="index.html" class="panel-brand">
+      <span class="panel-kanji">武</span>
+      <span class="panel-name">EncuentraTuDojo</span>
+    </a>
+    <a href="javascript:void(0)" onclick="history.length > 1 ? history.back() : window.location.href='index.html'" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-size:12px;color:rgba(250,248,244,0.35);text-decoration:none;transition:color 0.2s;letter-spacing:0.06em;" onmouseover="this.style.color='rgba(200,169,110,0.7)'" onmouseout="this.style.color='rgba(250,248,244,0.35)'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Volver al inicio
+    </a>
+  </div>
+
+  <div class="panel-center">
+    <div class="panel-eyebrow">
+      <div class="panel-eyebrow-line"></div>
+      <span class="panel-eyebrow-text">El directorio de artes marciales</span>
+    </div>
+    <h1 class="panel-headline">
+      Tu camino<br>
+      marcial<br>
+      <em>empieza aquí</em>
+    </h1>
+    <p class="panel-desc">
+      Conectamos alumnos con las mejores escuelas de artes marciales de Latinoamérica. Encontrá tu dojo, reservá clases y comenzá tu entrenamiento.
+    </p>
+    <div class="panel-pills">
+      <span class="pill"><span class="pill-kanji">空</span> Karate</span>
+      <span class="pill"><span class="pill-kanji">道</span> Taekwondo</span>
+      <span class="pill"><span class="pill-kanji">柔道</span> Judo</span>
+      <span class="pill"><span class="pill-kanji">合気</span> Aikido</span>
+      <span class="pill"><span class="pill-kanji">功夫</span> Kung Fu</span>
+      <span class="pill"><span class="pill-kanji">剣</span> Kenjutsu</span>
+      <span class="pill"><span class="pill-kanji">八卦</span> Pakua</span>
+      <span class="pill"><span class="pill-kanji">합기</span> Hapkido</span>
+    </div>
+  </div>
+
+  <div class="panel-testimonial">
+    <div class="testimonial-text">
+      "Encontré mi dojo en 5 minutos. Reservé una clase trial y al mes ya estaba entrenando Karate tres veces por semana."
+    </div>
+    <div class="testimonial-author">
+      <div class="testimonial-avatar">道</div>
+      <div>
+        <div class="testimonial-name">Valentina R. — Buenos Aires</div>
+        <div class="testimonial-sub">Alumna activa desde enero 2025</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RIGHT PANEL ══ -->
+<div class="right-panel">
+  <div class="form-container">
+
+    <!-- ════════════════ VIEW: LOGIN ════════════════ -->
+    <div class="view active" id="view-login">
+      <div class="form-header">
+        <div class="form-title">Bienvenido <em>de vuelta</em></div>
+        <div class="form-subtitle">Ingresá con tu cuenta para continuar</div>
+      </div>
+
+      <!-- Tabs usuario / escuela -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchLoginType('usuario', this)">Soy alumno</button>
+        <button class="auth-tab" onclick="switchLoginType('escuela', this)">Soy escuela</button>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert error" id="login-alert">
+        <span class="alert-icon">⚠</span>
+        <span id="login-alert-text">Email o contraseña incorrectos.</span>
+      </div>
+
+      <!-- Social login -->
+      <div class="social-btns">
+        <button class="social-btn social-btn-google" onclick="socialLogin('google')">
+          <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continuar con Google
+        </button>
+        <button class="social-btn social-btn-facebook" onclick="socialLogin('facebook')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Continuar con Facebook
+        </button>
+      </div>
+
+      <div class="auth-divider">
+        <div class="auth-divider-line"></div>
+        <span class="auth-divider-text">o con email</span>
+        <div class="auth-divider-line"></div>
+      </div>
+
+      <!-- Login form -->
+      <div class="field-group">
+        <div class="field">
+          <label>Correo electrónico</label>
+          <div class="input-wrap">
+            <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input class="form-input has-icon" type="email" id="login-email" placeholder="tu@email.com" autocomplete="email">
+          </div>
+          <span class="field-error" id="err-login-email">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Ingresá un email válido
+          </span>
+        </div>
+
+        <div class="field">
+          <label>
+            Contraseña
+            <a href="#" class="forgot-link" onclick="showView('forgot'); return false;">¿Olvidaste tu contraseña?</a>
+          </label>
+          <div class="input-wrap">
+            <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input class="form-input has-icon has-toggle" type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
+            <button class="input-toggle" type="button" onclick="togglePwd('login-pwd', this)" title="Ver contraseña">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="field-error" id="err-login-pwd">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Ingresá tu contraseña
+          </span>
+        </div>
+
+        <div class="check-row">
+          <input type="checkbox" id="remember-me">
+          <label class="check-label" for="remember-me">Recordarme en este dispositivo</label>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="btn-login" onclick="submitLogin()">
+        <div class="spinner" id="login-spinner"></div>
+        <span class="btn-text">Ingresar</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+
+      <div class="form-footer">
+        ¿No tenés cuenta? <button onclick="showView('register')">Registrate gratis</button>
+      </div>
+    </div>
+
+    <!-- ════════════════ VIEW: REGISTER ════════════════ -->
+    <div class="view" id="view-register">
+      <div class="form-header">
+        <div class="form-title">Crear <em>cuenta</em></div>
+        <div class="form-subtitle">Gratis, sin tarjeta de crédito</div>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="step-indicator" id="reg-steps">
+        <div class="step-ind-item" style="flex-direction:column;align-items:center;gap:4px">
+          <div class="step-ind-dot active" id="step-dot-1">1</div>
+          <div class="step-ind-label">Tipo</div>
+        </div>
+        <div class="step-ind-line"></div>
+        <div class="step-ind-item" style="flex-direction:column;align-items:center;gap:4px">
+          <div class="step-ind-dot" id="step-dot-2">2</div>
+          <div class="step-ind-label">Datos</div>
+        </div>
+        <div class="step-ind-line"></div>
+        <div class="step-ind-item" style="flex-direction:column;align-items:center;gap:4px">
+          <div class="step-ind-dot" id="step-dot-3">3</div>
+          <div class="step-ind-label">Seguridad</div>
+        </div>
+        <div class="step-ind-line"></div>
+        <div class="step-ind-item" style="flex-direction:column;align-items:center;gap:4px">
+          <div class="step-ind-dot" id="step-dot-4">4</div>
+          <div class="step-ind-label">Listo</div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Tipo de cuenta -->
+      <div id="reg-step-1">
+        <div class="field" style="margin-bottom:20px">
+          <label style="margin-bottom:10px;display:block">¿Cómo querés usar EncuentraTuDojo?</label>
+          <div class="account-type-row">
+            <div class="type-opt">
+              <input type="radio" name="account-type" id="type-alumno" value="alumno" checked>
+              <label class="type-label" for="type-alumno">
+                <div class="type-icon">道</div>
+                <div>
+                  <div class="type-name">Soy alumno</div>
+                  <div class="type-sub">Busco escuelas y clases para practicar</div>
+                </div>
+              </label>
+            </div>
+            <div class="type-opt">
+              <input type="radio" name="account-type" id="type-escuela" value="escuela">
+              <label class="type-label" for="type-escuela">
+                <div class="type-icon">武</div>
+                <div>
+                  <div class="type-name">Soy escuela</div>
+                  <div class="type-sub">Quiero registrar mi academia</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+        <button class="btn-submit" onclick="goRegStep(2)">
+          <span class="btn-text">Continuar</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- STEP 2: Datos personales -->
+      <div id="reg-step-2" style="display:none">
+        <div class="field-group">
+          <div class="field-row">
+            <div class="field">
+              <label>Nombre <span style="color:var(--crimson-bright)">*</span></label>
+              <input class="form-input" type="text" id="reg-nombre" placeholder="Martín" autocomplete="given-name">
+              <span class="field-error" id="err-reg-nombre">Ingresá tu nombre</span>
+            </div>
+            <div class="field">
+              <label>Apellido <span style="color:var(--crimson-bright)">*</span></label>
+              <input class="form-input" type="text" id="reg-apellido" placeholder="González" autocomplete="family-name">
+              <span class="field-error" id="err-reg-apellido">Ingresá tu apellido</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Correo electrónico <span style="color:var(--crimson-bright)">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input class="form-input has-icon" type="email" id="reg-email" placeholder="tu@email.com" autocomplete="email" oninput="validateEmailField()">
+            </div>
+            <span class="field-error" id="err-reg-email">Ingresá un email válido</span>
+          </div>
+          <div class="field">
+            <label>Ciudad <span class="opt">(opcional)</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              <input class="form-input has-icon" type="text" id="reg-ciudad" placeholder="Buenos Aires" autocomplete="address-level2">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-submit" style="background:var(--parchment-dark);color:var(--ink-soft);flex:0 0 auto;padding:13px 18px" onclick="goRegStep(1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="btn-submit" onclick="goRegStep(3)" style="flex:1">
+            <span class="btn-text">Continuar</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Contraseña -->
+      <div id="reg-step-3" style="display:none">
+        <div class="field-group">
+          <div class="field">
+            <label>Contraseña <span style="color:var(--crimson-bright)">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input class="form-input has-icon has-toggle" type="password" id="reg-pwd" placeholder="Mínimo 8 caracteres" autocomplete="new-password" oninput="checkPwdStrength(this.value)">
+              <button class="input-toggle" type="button" onclick="togglePwd('reg-pwd', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="pwd-strength" id="pwd-strength" style="display:none">
+              <div class="pwd-bars">
+                <div class="pwd-bar" id="bar-1"></div>
+                <div class="pwd-bar" id="bar-2"></div>
+                <div class="pwd-bar" id="bar-3"></div>
+                <div class="pwd-bar" id="bar-4"></div>
+              </div>
+              <div class="pwd-label" id="pwd-label">Contraseña débil</div>
+            </div>
+            <span class="field-error" id="err-reg-pwd">La contraseña debe tener al menos 8 caracteres</span>
+          </div>
+          <div class="field">
+            <label>Confirmar contraseña <span style="color:var(--crimson-bright)">*</span></label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input class="form-input has-icon has-toggle" type="password" id="reg-pwd2" placeholder="Repetí tu contraseña" autocomplete="new-password">
+              <button class="input-toggle" type="button" onclick="togglePwd('reg-pwd2', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <span class="field-error" id="err-reg-pwd2">Las contraseñas no coinciden</span>
+          </div>
+          <div class="check-row">
+            <input type="checkbox" id="reg-terms">
+            <label class="check-label" for="reg-terms">
+              Acepto los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a> de EncuentraTuDojo <span style="color:var(--crimson-bright)">*</span>
+            </label>
+          </div>
+          <div class="check-row">
+            <input type="checkbox" id="reg-news">
+            <label class="check-label" for="reg-news">
+              Quiero recibir novedades, promociones y recomendaciones de escuelas <span style="color:var(--wood-light);font-size:10px">(opcional)</span>
+            </label>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-submit" style="background:var(--parchment-dark);color:var(--ink-soft);flex:0 0 auto;padding:13px 18px" onclick="goRegStep(2)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="btn-submit" id="btn-register" onclick="submitRegister()" style="flex:1">
+            <div class="spinner" id="reg-spinner"></div>
+            <span class="btn-text">Crear mi cuenta</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Success -->
+      <div id="reg-step-4" style="display:none">
+        <div class="success-screen">
+          <div class="success-circle">🎉</div>
+          <div class="success-title">¡Bienvenido a<br><em>EncuentraTuDojo</em>!</div>
+          <div class="success-desc">Tu cuenta fue creada. Revisá tu email para verificar tu dirección y empezar a buscar escuelas.</div>
+          <div class="success-steps">
+            <div class="success-step">
+              <div class="success-step-num">1</div>
+              <div class="success-step-text">Verificá tu email haciendo click en el link que te enviamos</div>
+            </div>
+            <div class="success-step">
+              <div class="success-step-num">2</div>
+              <div class="success-step-text">Completá tu perfil para mejores recomendaciones</div>
+            </div>
+            <div class="success-step">
+              <div class="success-step-num">3</div>
+              <div class="success-step-text">Explorá el mapa y encontrá tu escuela ideal</div>
+            </div>
+          </div>
+          <button class="btn-submit" onclick="window.location.href='panel-usuario.html'">
+            <span class="btn-text">Ir a mi panel</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-footer" id="reg-footer">
+        ¿Ya tenés cuenta? <button onclick="showView('login')">Iniciá sesión</button>
+      </div>
+    </div>
+
+    <!-- ════════════════ VIEW: FORGOT PASSWORD ════════════════ -->
+    <div class="view" id="view-forgot">
+
+      <!-- Sub-view 1: Ingresar email -->
+      <div id="forgot-step-1">
+        <div class="form-header">
+          <div class="form-title">Recuperar <em>contraseña</em></div>
+          <div class="form-subtitle">Ingresá tu email y te enviamos un código de verificación</div>
+        </div>
+
+        <div class="field-group">
+          <div class="field">
+            <label>Correo electrónico</label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <input class="form-input has-icon" type="email" id="forgot-email" placeholder="tu@email.com">
+            </div>
+            <span class="field-error" id="err-forgot-email">Ingresá un email válido</span>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="btn-forgot" onclick="submitForgot()">
+          <div class="spinner" id="forgot-spinner"></div>
+          <span class="btn-text">Enviar código</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        </button>
+
+        <div class="form-footer" style="margin-top:16px">
+          <button onclick="showView('login')">← Volver al inicio de sesión</button>
+        </div>
+      </div>
+
+      <!-- Sub-view 2: Código OTP -->
+      <div id="forgot-step-2" style="display:none">
+        <div class="form-header">
+          <div class="form-title">Verificar <em>código</em></div>
+          <div class="form-subtitle">Ingresá el código de 6 dígitos que enviamos a <strong id="forgot-email-display" style="color:var(--ink)"></strong></div>
+        </div>
+
+        <div class="otp-row" id="otp-row">
+          <input class="otp-input" type="text" maxlength="1" oninput="otpNext(this,0)" id="otp-0">
+          <input class="otp-input" type="text" maxlength="1" oninput="otpNext(this,1)" id="otp-1">
+          <input class="otp-input" type="text" maxlength="1" oninput="otpNext(this,2)" id="otp-2">
+          <input class="otp-input" type="text" maxlength="1" oninput="otpNext(this,3)" id="otp-3">
+          <input class="otp-input" type="text" maxlength="1" oninput="otpNext(this,4)" id="otp-4">
+          <input class="otp-input" type="text" maxlength="1" oninput="otpNext(this,5)" id="otp-5">
+        </div>
+
+        <button class="btn-submit" onclick="verifyOtp()">
+          <span class="btn-text">Verificar código</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
+
+        <div class="form-footer" style="margin-top:14px">
+          ¿No llegó el código? <button onclick="resendCode()">Reenviar</button>
+          &nbsp;·&nbsp;
+          <button onclick="showView('login')">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- Sub-view 3: Nueva contraseña -->
+      <div id="forgot-step-3" style="display:none">
+        <div class="form-header">
+          <div class="form-title">Nueva <em>contraseña</em></div>
+          <div class="form-subtitle">Elegí una contraseña segura para tu cuenta</div>
+        </div>
+
+        <div class="field-group">
+          <div class="field">
+            <label>Nueva contraseña</label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input class="form-input has-icon has-toggle" type="password" id="new-pwd" placeholder="Mínimo 8 caracteres" oninput="checkPwdStrength(this.value)">
+              <button class="input-toggle" type="button" onclick="togglePwd('new-pwd', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="pwd-strength" id="pwd-strength-2" style="display:none">
+              <div class="pwd-bars">
+                <div class="pwd-bar" id="bar2-1"></div>
+                <div class="pwd-bar" id="bar2-2"></div>
+                <div class="pwd-bar" id="bar2-3"></div>
+                <div class="pwd-bar" id="bar2-4"></div>
+              </div>
+              <div class="pwd-label" id="pwd-label-2">Contraseña débil</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Confirmar nueva contraseña</label>
+            <div class="input-wrap">
+              <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <input class="form-input has-icon has-toggle" type="password" id="new-pwd2" placeholder="Repetí tu contraseña">
+              <button class="input-toggle" type="button" onclick="togglePwd('new-pwd2', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-submit" onclick="submitNewPwd()">
+          <span class="btn-text">Actualizar contraseña</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        </button>
+      </div>
+
+      <!-- Sub-view 4: Éxito -->
+      <div id="forgot-step-4" style="display:none">
+        <div class="success-screen">
+          <div class="success-circle">🔐</div>
+          <div class="success-title">Contraseña <em>actualizada</em></div>
+          <div class="success-desc">Tu contraseña fue cambiada correctamente. Ya podés iniciar sesión con tu nueva contraseña.</div>
+          <button class="btn-submit" onclick="showView('login')">
+            <span class="btn-text">Ir al inicio de sesión</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /form-container -->
+</div><!-- /right-panel -->
+
+<script>
+// ══════════════════════════════
+// VIEW ROUTER
+// ══════════════════════════════
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${id}`)?.classList.add('active');
+  clearAlerts();
+  window.scrollTo({ top: 0 });
+}
+
+function switchLoginType(type, btn) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function clearAlerts() {
+  document.querySelectorAll('.alert').forEach(a => a.classList.remove('visible'));
+  document.querySelectorAll('.field-error').forEach(e => e.classList.remove('visible'));
+  document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error', 'success'));
+}
+
+// ══════════════════════════════
+// TOGGLE PASSWORD VISIBILITY
+// ══════════════════════════════
+function togglePwd(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isText = input.type === 'text';
+  input.type = isText ? 'password' : 'text';
+  btn.innerHTML = isText
+    ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`
+    : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+}
+
+// ══════════════════════════════
+// PASSWORD STRENGTH
+// ══════════════════════════════
+function checkPwdStrength(val) {
+  const strengthEl = document.getElementById('pwd-strength') || document.getElementById('pwd-strength-2');
+  if (!strengthEl) return;
+  strengthEl.style.display = val ? 'block' : 'none';
+
+  const bars = ['bar-1','bar-2','bar-3','bar-4'];
+  const bars2 = ['bar2-1','bar2-2','bar2-3','bar2-4'];
+  const activeBars = val.length >= 4 ? bars : bars2;
+  const labelId = document.getElementById('pwd-label') ? 'pwd-label' : 'pwd-label-2';
+
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const classMap = ['','weak','medium','medium','strong'];
+  const labels = ['','Muy débil','Débil','Buena','Fuerte 💪'];
+
+  // Reset and apply to whichever bar set exists
+  [...bars, ...bars2].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.className = 'pwd-bar'; }
+  });
+
+  for (let i = 0; i < score; i++) {
+    const el = document.getElementById(bars[i]) || document.getElementById(bars2[i]);
+    if (el) el.classList.add(classMap[score]);
+  }
+
+  const labelEl = document.getElementById(labelId);
+  if (labelEl) labelEl.textContent = labels[score] || '';
+}
+
+// ══════════════════════════════
+// EMAIL VALIDATION
+// ══════════════════════════════
+function validateEmailField() {
+  const email = document.getElementById('reg-email').value;
+  const input = document.getElementById('reg-email');
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  input.classList.toggle('success', valid && email.length > 0);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// ══════════════════════════════
+// SIMULATE LOADING
+// ══════════════════════════════
+function simulateLoading(btnId, spinnerId, duration, callback) {
+  const btn = document.getElementById(btnId);
+  btn.classList.add('loading');
+  setTimeout(() => {
+    btn.classList.remove('loading');
+    callback();
+  }, duration);
+}
+
+// ══════════════════════════════
+// LOGIN SUBMIT
+// ══════════════════════════════
+function submitLogin() {
+  clearAlerts();
+  const email = document.getElementById('login-email').value.trim();
+  const pwd   = document.getElementById('login-pwd').value;
+  let valid = true;
+
+  if (!isValidEmail(email)) {
+    document.getElementById('err-login-email').classList.add('visible');
+    document.getElementById('login-email').classList.add('error');
+    valid = false;
+  }
+  if (!pwd) {
+    document.getElementById('err-login-pwd').classList.add('visible');
+    document.getElementById('login-pwd').classList.add('error');
+    valid = false;
+  }
+  if (!valid) return;
+
+  simulateLoading('btn-login', 'login-spinner', 1400, () => {
+    // Demo: si email no es el de demo, mostrar error
+    if (email !== 'demo@demo.com' && email !== 'escuela@demo.com') {
+      const alert = document.getElementById('login-alert');
+      document.getElementById('login-alert-text').textContent = 'Email o contraseña incorrectos. Probá con demo@demo.com (alumno) o escuela@demo.com (escuela).';
+      alert.classList.add('visible');
+      document.getElementById('login-email').classList.add('error');
+      document.getElementById('login-pwd').classList.add('error');
+    } else if (email === 'escuela@demo.com') {
+      window.location.href = 'dashboard-escuela.html';
+    } else {
+      window.location.href = 'panel-usuario.html';
+    }
+  });
+}
+
+// ══════════════════════════════
+// REGISTER STEPS
+// ══════════════════════════════
+let regStep = 1;
+
+function goRegStep(n) {
+  // Validar el step actual antes de avanzar
+  if (n > regStep && !validateRegStep(regStep)) return;
+
+  document.getElementById(`reg-step-${regStep}`).style.display = 'none';
+  regStep = n;
+  document.getElementById(`reg-step-${n}`).style.display = 'block';
+  updateStepDots(n);
+
+  // Ocultar footer en step 4
+  const footer = document.getElementById('reg-footer');
+  if (footer) footer.style.display = n === 4 ? 'none' : 'block';
+
+  // Focus primer input del step
+  const firstInput = document.querySelector(`#reg-step-${n} input:not([type="radio"]):not([type="checkbox"])`);
+  if (firstInput) setTimeout(() => firstInput.focus(), 100);
+}
+
+function validateRegStep(step) {
+  clearAlerts();
+  if (step === 2) {
+    let ok = true;
+    if (!document.getElementById('reg-nombre').value.trim()) {
+      document.getElementById('err-reg-nombre').classList.add('visible');
+      document.getElementById('reg-nombre').classList.add('error');
+      ok = false;
+    }
+    if (!document.getElementById('reg-apellido').value.trim()) {
+      document.getElementById('err-reg-apellido').classList.add('visible');
+      document.getElementById('reg-apellido').classList.add('error');
+      ok = false;
+    }
+    if (!isValidEmail(document.getElementById('reg-email').value)) {
+      document.getElementById('err-reg-email').classList.add('visible');
+      document.getElementById('reg-email').classList.add('error');
+      ok = false;
+    }
+    return ok;
+  }
+  return true;
+}
+
+function updateStepDots(n) {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById(`step-dot-${i}`);
+    if (!dot) continue;
+    dot.classList.remove('active','done');
+    if (i < n)  dot.classList.add('done'), dot.textContent = '✓';
+    if (i === n) dot.classList.add('active'), dot.textContent = i;
+    if (i > n)  dot.textContent = i;
+  }
+}
+
+function submitRegister() {
+  clearAlerts();
+  const pwd  = document.getElementById('reg-pwd').value;
+  const pwd2 = document.getElementById('reg-pwd2').value;
+  const terms = document.getElementById('reg-terms').checked;
+  let valid = true;
+
+  if (pwd.length < 8) {
+    document.getElementById('err-reg-pwd').classList.add('visible');
+    document.getElementById('reg-pwd').classList.add('error');
+    valid = false;
+  }
+  if (pwd !== pwd2) {
+    document.getElementById('err-reg-pwd2').classList.add('visible');
+    document.getElementById('reg-pwd2').classList.add('error');
+    valid = false;
+  }
+  if (!terms) {
+    alert('Debés aceptar los términos y condiciones para continuar.');
+    valid = false;
+  }
+  if (!valid) return;
+
+  simulateLoading('btn-register', 'reg-spinner', 1600, () => {
+    goRegStep(4);
+    // Redirigir según tipo elegido
+    const isEscuela = document.getElementById('type-escuela').checked;
+    setTimeout(() => {
+      if (isEscuela) {
+        window.location.href = 'registro-escuela.html';
+      }
+    }, 3000);
+  });
+}
+
+// ══════════════════════════════
+// FORGOT PASSWORD
+// ══════════════════════════════
+let forgotSubStep = 1;
+
+function showForgotStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById(`forgot-step-${i}`);
+    if (el) el.style.display = i === n ? 'block' : 'none';
+  }
+  forgotSubStep = n;
+}
+
+function submitForgot() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!isValidEmail(email)) {
+    document.getElementById('err-forgot-email').classList.add('visible');
+    document.getElementById('forgot-email').classList.add('error');
+    return;
+  }
+  document.getElementById('forgot-email-display').textContent = email;
+  simulateLoading('btn-forgot', 'forgot-spinner', 1200, () => showForgotStep(2));
+}
+
+function verifyOtp() {
+  const code = Array.from({length:6}, (_,i) => document.getElementById(`otp-${i}`).value).join('');
+  if (code.length < 6) { alert('Ingresá el código completo de 6 dígitos.'); return; }
+  // Demo: cualquier código de 6 dígitos es válido
+  showForgotStep(3);
+}
+
+function resendCode() {
+  const el = document.querySelector('.form-footer button');
+  if (el) { el.textContent = '✓ Reenviado'; setTimeout(() => el.textContent = 'Reenviar', 3000); }
+}
+
+function submitNewPwd() {
+  const pwd  = document.getElementById('new-pwd').value;
+  const pwd2 = document.getElementById('new-pwd2').value;
+  if (pwd.length < 8)  { alert('La contraseña debe tener al menos 8 caracteres.'); return; }
+  if (pwd !== pwd2)    { alert('Las contraseñas no coinciden.'); return; }
+  showForgotStep(4);
+}
+
+// ══════════════════════════════
+// OTP INPUT NAVIGATION
+// ══════════════════════════════
+function otpNext(input, idx) {
+  input.value = input.value.replace(/[^0-9]/g, '').slice(-1);
+  if (input.value && idx < 5) {
+    document.getElementById(`otp-${idx+1}`)?.focus();
+  }
+  // Auto-verify when complete
+  const code = Array.from({length:6}, (_,i) => document.getElementById(`otp-${i}`).value).join('');
+  if (code.length === 6) {
+    setTimeout(verifyOtp, 300);
+  }
+}
+
+// OTP backspace support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Backspace' && e.target.classList.contains('otp-input')) {
+    const idx = parseInt(e.target.id.split('-')[1]);
+    if (!e.target.value && idx > 0) {
+      document.getElementById(`otp-${idx-1}`)?.focus();
+    }
+  }
+});
+
+// ══════════════════════════════
+// SOCIAL LOGIN (demo)
+// ══════════════════════════════
+function socialLogin(provider) {
+  const btn = document.querySelector(`.social-btn-${provider}`);
+  if (btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span style="opacity:.6">Conectando…</span>';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      // Detectar si está en pestaña escuela
+      const tabEscuela = document.querySelector('.auth-tab:last-child.active');
+      window.location.href = tabEscuela ? 'dashboard-escuela.html' : 'panel-usuario.html';
+    }, 1500);
+  }
+}
+
+// ══════════════════════════════
+// ENTER KEY SUPPORT
+// ══════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.view.active');
+  if (!active) return;
+  if (active.id === 'view-login')  submitLogin();
+  if (active.id === 'view-forgot' && forgotSubStep === 1) submitForgot();
+});
+</script>
+</body>
+</html>

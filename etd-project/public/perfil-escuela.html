@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dragon Gate Dojo — Karate · Palermo, Buenos Aires · EncuentraTuDojo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:            #0e0c0b;
+  --ink-mid:        #2a2622;
+  --ink-soft:       #4a4540;
+  --parchment:      #faf8f4;
+  --parchment-dark: #f0ece3;
+  --parchment-mid:  #e8e2d6;
+  --wood:           #7a5c3a;
+  --wood-light:     #a87c50;
+  --crimson:        #8b1a1a;
+  --crimson-bright: #c0392b;
+  --crimson-pale:   rgba(139,26,26,0.07);
+  --gold:           #c8a96e;
+  --gold-pale:      rgba(200,169,110,0.1);
+  --success:        #2d6a4f;
+  --success-bright: #27ae60;
+  --success-pale:   rgba(45,106,79,0.08);
+  --white:          #ffffff;
+  --font-display:   'Cormorant Garamond', serif;
+  --font-jp:        'Noto Serif JP', serif;
+  --font-body:      'DM Sans', sans-serif;
+  --ease:           cubic-bezier(0.4,0,0.2,1);
+  --radius:         6px;
+  --shadow-sm:      0 1px 4px rgba(14,12,11,0.07);
+  --shadow-md:      0 4px 16px rgba(14,12,11,0.09);
+  --shadow-lg:      0 12px 40px rgba(14,12,11,0.14);
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--parchment); color: var(--ink); }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--parchment-dark); }
+::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 2px; }
+
+/* ══════════════════════════
+   NAV
+══════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 60px; background: rgba(14,12,11,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(200,169,110,0.1);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+}
+
+.nav-left  { display: flex; align-items: center; gap: 20px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+
+.nav-back-btn {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; color: rgba(250,248,244,0.45);
+  background: none; border: none; cursor: pointer;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  font-family: var(--font-body); transition: color 0.2s; padding: 0;
+}
+.nav-back-btn:hover { color: var(--gold); }
+.nav-back-btn svg { transition: transform 0.2s; }
+.nav-back-btn:hover svg { transform: translateX(-3px); }
+
+.nav-divider { width: 1px; height: 20px; background: rgba(200,169,110,0.15); }
+
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-kanji { font-family: var(--font-jp); font-size: 18px; color: var(--crimson-bright); }
+.nav-name  { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--parchment); letter-spacing: 0.07em; }
+
+.nav-share-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(250,248,244,0.5); background: rgba(250,248,244,0.05);
+  border: 1px solid rgba(200,169,110,0.12); border-radius: 3px;
+  padding: 7px 14px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s;
+}
+.nav-share-btn:hover { color: var(--gold); border-color: rgba(200,169,110,0.3); }
+
+.nav-fav-btn {
+  width: 36px; height: 36px; border-radius: 3px;
+  background: rgba(250,248,244,0.05); border: 1px solid rgba(200,169,110,0.12);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; color: rgba(250,248,244,0.45);
+}
+.nav-fav-btn:hover, .nav-fav-btn.active { color: var(--crimson-bright); border-color: rgba(192,57,43,0.3); background: rgba(192,57,43,0.08); }
+
+/* ══════════════════════════
+   HERO COVER
+══════════════════════════ */
+.hero-cover {
+  height: 420px;
+  margin-top: 60px;
+  position: relative;
+  overflow: hidden;
+  background: var(--ink-mid);
+}
+
+.cover-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #1a0a0a 0%, #2a1a10 40%, #0e0c0b 100%);
+}
+
+/* Grid pattern overlay */
+.cover-grid {
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,169,110,0.04) 59px, rgba(200,169,110,0.04) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,169,110,0.04) 59px, rgba(200,169,110,0.04) 60px);
+}
+
+/* Big kanji watermark */
+.cover-kanji-bg {
+  position: absolute; right: 80px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-jp); font-size: 320px;
+  color: rgba(200,169,110,0.05); line-height: 1;
+  user-select: none; pointer-events: none; letter-spacing: -8px;
+}
+
+/* Red left accent */
+.cover-accent {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: linear-gradient(to bottom, transparent, var(--crimson) 20%, var(--crimson-bright) 80%, transparent);
+}
+
+/* Gallery thumbs overlay */
+.cover-gallery-bar {
+  position: absolute; bottom: 0; right: 0;
+  display: flex; gap: 2px; padding: 0;
+}
+.gallery-thumb {
+  width: 100px; height: 70px; overflow: hidden; cursor: pointer;
+  position: relative; filter: brightness(0.7);
+  transition: filter 0.25s;
+}
+.gallery-thumb:hover { filter: brightness(1); }
+.gallery-thumb-inner {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-jp); font-size: 32px;
+}
+.gallery-thumb:last-child { position: relative; }
+.gallery-more-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500; color: #fff; letter-spacing: 0.05em;
+}
+
+/* Cover content */
+.cover-content {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 64px 32px;
+  background: linear-gradient(to top, rgba(14,12,11,0.85) 0%, rgba(14,12,11,0.3) 50%, transparent 100%);
+}
+
+.cover-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: rgba(250,248,244,0.4);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.cover-breadcrumb a { color: inherit; text-decoration: none; transition: color 0.2s; }
+.cover-breadcrumb a:hover { color: var(--gold); }
+
+.cover-disc-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--white); background: var(--crimson);
+  padding: 5px 14px; border-radius: 2px; margin-bottom: 14px;
+}
+.cover-disc-badge .badge-kanji { font-family: var(--font-jp); font-size: 14px; }
+
+.cover-title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 400; color: var(--parchment);
+  line-height: 0.95; letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+
+.cover-meta-row {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.cover-meta-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: rgba(250,248,244,0.6);
+}
+.cover-meta-item svg { color: var(--gold); opacity: 0.7; }
+.cover-rating-stars { color: var(--gold); font-size: 13px; letter-spacing: 1px; }
+.cover-verified {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--success-bright); background: rgba(39,174,96,0.12);
+  border: 1px solid rgba(39,174,96,0.2); padding: 3px 10px; border-radius: 2px;
+}
+
+/* ══════════════════════════
+   LAYOUT: MAIN + STICKY SIDEBAR
+══════════════════════════ */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 40px 80px;
+  align-items: start;
+}
+
+/* ══════════════════════════
+   SECTION CARD
+══════════════════════════ */
+.section-card {
+  background: var(--white);
+  border: 1px solid rgba(122,92,58,0.1);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.section-card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(122,92,58,0.08);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.section-card-title {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 400; color: var(--ink); letter-spacing: -0.01em;
+}
+.section-card-body { padding: 24px; }
+
+/* ── DESCRIPCIÓN ── */
+.desc-text {
+  font-size: 15px; font-weight: 300; color: var(--ink-soft);
+  line-height: 1.75; margin-bottom: 20px;
+}
+.desc-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: rgba(122,92,58,0.08);
+  border: 1px solid rgba(122,92,58,0.08);
+  border-radius: 4px; overflow: hidden;
+}
+.desc-stat {
+  background: var(--parchment);
+  padding: 16px 20px; text-align: center;
+}
+.desc-stat-num {
+  font-family: var(--font-display); font-size: 28px; font-weight: 600;
+  color: var(--crimson); line-height: 1; margin-bottom: 3px;
+}
+.desc-stat-label { font-size: 11px; color: var(--wood-light); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* ── DISCIPLINAS / SUBCATS ── */
+.subcats-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.subcat-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ink-soft);
+  background: var(--parchment); border: 1px solid rgba(122,92,58,0.15);
+  padding: 6px 14px; border-radius: 20px; letter-spacing: 0.03em;
+  transition: all 0.18s;
+}
+.subcat-chip:hover { border-color: rgba(139,26,26,0.3); color: var(--crimson); background: var(--crimson-pale); cursor: default; }
+.subcat-chip.main {
+  background: var(--crimson-pale); border-color: rgba(139,26,26,0.2);
+  color: var(--crimson); font-weight: 500;
+}
+.subcat-chip .chip-kanji { font-family: var(--font-jp); font-size: 14px; }
+
+/* ── HORARIOS ── */
+.schedule-grid { display: flex; flex-direction: column; gap: 2px; }
+.schedule-row {
+  display: flex; align-items: center;
+  padding: 10px 14px; border-radius: 4px;
+  transition: background 0.15s;
+}
+.schedule-row:hover { background: var(--parchment); }
+.schedule-row.closed { opacity: 0.4; }
+.schedule-day {
+  width: 100px; font-size: 13px; font-weight: 500; color: var(--ink);
+}
+.schedule-dot {
+  width: 8px; height: 8px; border-radius: 50%; margin-right: 12px; flex-shrink: 0;
+}
+.schedule-dot.open  { background: var(--success-bright); }
+.schedule-dot.closed{ background: var(--parchment-mid); }
+.schedule-hours { font-size: 13px; color: var(--ink-soft); font-weight: 300; }
+.schedule-closed { font-size: 12px; color: var(--wood-light); letter-spacing: 0.05em; font-style: italic; }
+.schedule-today {
+  margin-left: auto;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--success-bright); background: var(--success-pale);
+  border: 1px solid rgba(39,174,96,0.2); padding: 2px 8px; border-radius: 2px;
+}
+
+/* ── INSTRUCTORES ── */
+.instructors-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.instructor-card {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px; background: var(--parchment);
+  border: 1px solid rgba(122,92,58,0.1); border-radius: 4px;
+  transition: all 0.2s;
+}
+.instructor-card:hover { border-color: rgba(139,26,26,0.2); box-shadow: var(--shadow-sm); }
+.instructor-avatar {
+  width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--crimson), var(--ink-mid));
+  border: 2px solid rgba(200,169,110,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--parchment);
+}
+.instructor-info {}
+.instructor-name { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.instructor-grade { font-size: 12px; color: var(--crimson); margin-bottom: 4px; }
+.instructor-cert  { font-size: 11px; color: var(--wood-light); line-height: 1.5; }
+
+/* ── INSTALACIONES ── */
+.amenities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.amenity-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; background: var(--parchment);
+  border: 1px solid rgba(122,92,58,0.1); border-radius: 4px;
+  font-size: 12px; color: var(--ink-soft);
+  transition: all 0.2s;
+}
+.amenity-item:hover { border-color: rgba(139,26,26,0.2); }
+.amenity-icon { font-size: 16px; }
+.amenity-item.no { opacity: 0.4; text-decoration: line-through; }
+
+/* ── MAPA ── */
+#profile-map {
+  height: 240px; border-radius: 4px; overflow: hidden;
+  border: 1px solid rgba(122,92,58,0.12);
+}
+.map-address {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px; background: var(--parchment);
+  border: 1px solid rgba(122,92,58,0.1);
+  border-top: none; border-radius: 0 0 4px 4px;
+}
+.map-address-text { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+.map-address-text strong { display: block; color: var(--ink); font-weight: 500; margin-bottom: 2px; }
+.map-directions-btn {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--crimson); background: var(--crimson-pale);
+  border: 1px solid rgba(139,26,26,0.15); border-radius: 3px;
+  padding: 6px 12px; cursor: pointer; font-family: var(--font-body); transition: all 0.2s;
+}
+.map-directions-btn:hover { background: var(--crimson); color: #fff; }
+
+/* ── RESEÑAS ── */
+.rating-summary {
+  display: flex; gap: 28px; margin-bottom: 24px;
+  padding-bottom: 24px; border-bottom: 1px solid rgba(122,92,58,0.08);
+}
+.rating-big {
+  text-align: center; flex-shrink: 0;
+}
+.rating-big-num {
+  font-family: var(--font-display); font-size: 64px; font-weight: 600;
+  color: var(--ink); line-height: 1;
+}
+.rating-big-stars { color: var(--gold); font-size: 18px; letter-spacing: 2px; margin-top: 4px; }
+.rating-big-count { font-size: 12px; color: var(--wood-light); margin-top: 4px; }
+.rating-bars { flex: 1; display: flex; flex-direction: column; gap: 7px; justify-content: center; }
+.rating-bar-row { display: flex; align-items: center; gap: 10px; }
+.rating-bar-label { font-size: 12px; color: var(--ink-soft); width: 14px; text-align: right; flex-shrink: 0; }
+.rating-bar-track { flex: 1; height: 6px; background: var(--parchment-dark); border-radius: 3px; overflow: hidden; }
+.rating-bar-fill { height: 100%; background: var(--gold); border-radius: 3px; transition: width 1s var(--ease); }
+.rating-bar-count { font-size: 11px; color: var(--wood-light); width: 20px; }
+
+.review-list { display: flex; flex-direction: column; gap: 0; }
+.review-item {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(122,92,58,0.07);
+}
+.review-item:last-child { border-bottom: none; }
+.review-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.review-user   { display: flex; align-items: center; gap: 10px; }
+.review-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: var(--parchment-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500; color: var(--wood);
+}
+.review-name  { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 1px; }
+.review-since { font-size: 11px; color: var(--wood-light); }
+.review-stars { color: var(--gold); font-size: 13px; letter-spacing: 1px; }
+.review-date  { font-size: 11px; color: var(--wood-light); }
+.review-body  { font-size: 13px; font-weight: 300; color: var(--ink-soft); line-height: 1.7; }
+.review-verified-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; color: var(--success); letter-spacing: 0.06em; margin-top: 8px;
+}
+
+/* ── WRITE REVIEW ── */
+.write-review-card {
+  background: var(--parchment); border: 1px solid rgba(122,92,58,0.12);
+  border-radius: 4px; padding: 18px; margin-top: 20px;
+}
+.write-review-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 14px; }
+.star-row { display: flex; gap: 6px; margin-bottom: 12px; }
+.star-btn {
+  font-size: 22px; color: var(--parchment-mid); cursor: pointer;
+  background: none; border: none; transition: color 0.15s, transform 0.15s; line-height: 1;
+}
+.star-btn.active { color: var(--gold); transform: scale(1.1); }
+.review-textarea {
+  width: 100%; background: var(--white); border: 1px solid rgba(122,92,58,0.18);
+  border-radius: 3px; padding: 10px 12px; font-size: 13px; font-weight: 300;
+  font-family: var(--font-body); color: var(--ink); outline: none; resize: none;
+  transition: border-color 0.2s;
+}
+.review-textarea:focus { border-color: var(--crimson); }
+.review-textarea::placeholder { color: rgba(74,69,64,0.35); }
+.btn-review-submit {
+  margin-top: 10px;
+  font-family: var(--font-body); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #fff; background: var(--crimson); border: none;
+  padding: 9px 20px; border-radius: 3px; cursor: pointer; transition: background 0.2s;
+}
+.btn-review-submit:hover { background: var(--crimson-bright); }
+
+/* Show more reviews */
+.show-more-btn {
+  width: 100%; margin-top: 16px;
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-soft); background: var(--parchment);
+  border: 1px solid rgba(122,92,58,0.15); border-radius: 3px;
+  padding: 10px; cursor: pointer; transition: all 0.2s;
+}
+.show-more-btn:hover { border-color: var(--crimson); color: var(--crimson); }
+
+/* ══════════════════════════
+   STICKY SIDEBAR
+══════════════════════════ */
+.sticky-sidebar { position: sticky; top: 80px; }
+
+/* CTA Card */
+.cta-card {
+  background: var(--white);
+  border: 1px solid rgba(122,92,58,0.1);
+  border-radius: var(--radius); overflow: hidden;
+  margin-bottom: 16px; box-shadow: var(--shadow-md);
+}
+
+.cta-card-header {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-mid) 100%);
+  padding: 20px 22px; position: relative; overflow: hidden;
+}
+.cta-card-header::before {
+  content: '空';
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-jp); font-size: 70px;
+  color: rgba(200,169,110,0.07); line-height: 1; user-select: none;
+}
+.cta-price {
+  font-family: var(--font-display);
+  font-size: 38px; font-weight: 600; color: var(--parchment);
+  line-height: 1; margin-bottom: 2px;
+}
+.cta-price span { font-family: var(--font-body); font-size: 14px; color: rgba(250,248,244,0.5); font-weight: 300; }
+.cta-price-note { font-size: 12px; color: rgba(250,248,244,0.4); margin-bottom: 10px; }
+.cta-open-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.cta-open-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--success-bright);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+.cta-open-text { color: var(--success-bright); }
+.cta-closed-text { color: rgba(250,248,244,0.4); }
+
+.cta-card-body { padding: 20px 22px; }
+
+.cta-features { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+.cta-feature {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--ink-soft);
+}
+.cta-feature-icon { color: var(--success-bright); flex-shrink: 0; }
+
+.btn-trial {
+  width: 100%; padding: 14px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: #fff; background: var(--crimson); border: none;
+  border-radius: 3px; cursor: pointer; transition: all 0.25s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.btn-trial:hover { background: var(--crimson-bright); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(139,26,26,0.25); }
+
+.btn-whatsapp {
+  width: 100%; padding: 12px;
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: #fff; background: #25d366; border: none;
+  border-radius: 3px; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.btn-whatsapp:hover { background: #1db954; }
+
+.btn-contact {
+  width: 100%; padding: 11px;
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-soft); background: var(--white);
+  border: 1px solid rgba(122,92,58,0.2); border-radius: 3px;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-contact:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+.cta-note {
+  text-align: center; font-size: 11px; color: var(--wood-light);
+  margin-top: 12px; line-height: 1.5;
+}
+
+/* ── PRICING mini table ── */
+.pricing-rows { display: flex; flex-direction: column; gap: 0; }
+.pricing-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid rgba(122,92,58,0.07);
+}
+.pricing-row:last-child { border-bottom: none; }
+.pricing-row-label { font-size: 13px; color: var(--ink-soft); }
+.pricing-row-val {
+  font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--crimson);
+}
+.pricing-row-val span { font-family: var(--font-body); font-size: 10px; color: var(--wood-light); font-weight: 300; }
+
+/* Quick info card */
+.quick-info-card {
+  background: var(--white); border: 1px solid rgba(122,92,58,0.1);
+  border-radius: var(--radius); overflow: hidden; margin-bottom: 16px;
+}
+.quick-info-row {
+  display: flex; align-items: center; gap: 12px; padding: 12px 18px;
+  border-bottom: 1px solid rgba(122,92,58,0.06);
+  font-size: 13px; color: var(--ink-soft); transition: background 0.15s;
+}
+.quick-info-row:hover { background: var(--parchment); }
+.quick-info-row:last-child { border-bottom: none; }
+.quick-info-row svg { color: var(--crimson); flex-shrink: 0; opacity: 0.7; }
+.quick-info-val { margin-left: auto; font-weight: 500; color: var(--ink); font-size: 12px; }
+
+/* Schools nearby */
+.nearby-list { display: flex; flex-direction: column; gap: 10px; }
+.nearby-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; background: var(--white);
+  border: 1px solid rgba(122,92,58,0.1); border-radius: 4px;
+  cursor: pointer; transition: all 0.2s;
+}
+.nearby-item:hover { border-color: rgba(139,26,26,0.2); box-shadow: var(--shadow-sm); }
+.nearby-logo {
+  width: 38px; height: 38px; border-radius: 3px; flex-shrink: 0;
+  background: var(--parchment-dark); display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-jp); font-size: 17px; color: var(--crimson);
+  border: 1px solid rgba(122,92,58,0.1);
+}
+.nearby-info { flex: 1; min-width: 0; }
+.nearby-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nearby-meta { font-size: 11px; color: var(--wood-light); margin-top: 1px; }
+.nearby-rating { font-size: 12px; color: var(--gold); flex-shrink: 0; }
+
+/* ── SECTION ANCHOR NAV ── */
+.section-nav {
+  position: sticky; top: 60px; z-index: 100;
+  background: rgba(250,248,244,0.95); backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(122,92,58,0.1);
+  display: flex; gap: 0; padding: 0 40px;
+  box-shadow: var(--shadow-sm);
+}
+.section-nav-item {
+  font-size: 12px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-soft); padding: 14px 16px; cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.2s;
+  white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none;
+  font-family: var(--font-body);
+}
+.section-nav-item:hover { color: var(--crimson); }
+.section-nav-item.active { color: var(--crimson); border-bottom-color: var(--crimson); font-weight: 500; }
+
+/* ── CONTACT MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(14,12,11,0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s var(--ease);
+}
+.modal-overlay.visible { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--white); border-radius: var(--radius);
+  width: 100%; max-width: 460px; margin: 20px;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(20px);
+  transition: transform 0.3s var(--ease);
+  overflow: hidden;
+}
+.modal-overlay.visible .modal { transform: translateY(0); }
+.modal-header {
+  background: var(--ink); padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title { font-family: var(--font-display); font-size: 22px; font-weight: 400; color: var(--parchment); }
+.modal-close {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(250,248,244,0.08); border: none; cursor: pointer;
+  color: rgba(250,248,244,0.5); font-size: 18px; line-height: 1;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.modal-close:hover { background: rgba(250,248,244,0.15); color: var(--parchment); }
+.modal-body { padding: 24px; }
+.modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.modal-label { font-size: 11px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase; }
+.modal-input, .modal-select, .modal-textarea {
+  width: 100%; font-family: var(--font-body); font-size: 14px; font-weight: 300;
+  color: var(--ink); background: var(--parchment);
+  border: 1px solid rgba(122,92,58,0.18); border-radius: 3px;
+  padding: 10px 12px; outline: none; transition: border-color 0.2s;
+}
+.modal-input:focus, .modal-select:focus, .modal-textarea:focus { border-color: var(--crimson); }
+.modal-input::placeholder, .modal-textarea::placeholder { color: rgba(74,69,64,0.35); }
+.modal-textarea { resize: none; min-height: 90px; line-height: 1.6; }
+.modal-select { appearance: none; cursor: pointer; }
+.btn-modal-submit {
+  width: 100%; padding: 13px;
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #fff; background: var(--crimson); border: none;
+  border-radius: 3px; cursor: pointer; transition: background 0.2s;
+}
+.btn-modal-submit:hover { background: var(--crimson-bright); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--ink); color: var(--parchment);
+  padding: 12px 24px; border-radius: 4px; font-size: 13px;
+  border: 1px solid rgba(200,169,110,0.15); box-shadow: var(--shadow-lg);
+  z-index: 600; opacity: 0;
+  transition: all 0.35s var(--ease);
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Leaflet overrides */
+.leaflet-container { background: #1a1714 !important; font-family: var(--font-body); }
+.leaflet-control-zoom { border: 1px solid rgba(200,169,110,0.2) !important; border-radius: 2px !important; box-shadow: none !important; }
+.leaflet-control-zoom a { background: rgba(14,12,11,0.9) !important; color: var(--gold) !important; border-color: rgba(200,169,110,0.15) !important; }
+.leaflet-control-attribution { background: rgba(14,12,11,0.7) !important; color: rgba(250,248,244,0.3) !important; font-size: 10px !important; }
+.leaflet-popup-content-wrapper { background: var(--ink) !important; border: 1px solid rgba(200,169,110,0.2) !important; border-radius: 4px !important; color: var(--parchment) !important; }
+.leaflet-popup-tip { background: var(--ink) !important; }
+
+/* ── REVEAL ANIMATION ── */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  .profile-layout { grid-template-columns: 1fr; padding: 24px 20px 60px; gap: 0; }
+  .sticky-sidebar { position: static; margin-top: 20px; }
+  .cover-content { padding: 0 24px 24px; }
+  .section-nav { padding: 0 20px; overflow-x: auto; }
+  .instructors-grid { grid-template-columns: 1fr; }
+  .amenities-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-right .nav-share-btn span { display: none; }
+  nav { padding: 0 20px; }
+}
+
+@media (max-width: 600px) {
+  .hero-cover { height: 320px; }
+  .cover-gallery-bar { display: none; }
+  .desc-stats { grid-template-columns: repeat(3, 1fr); }
+  .rating-summary { flex-direction: column; gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-left">
+    <button class="nav-back-btn" onclick="history.length > 1 ? history.back() : window.location.href='index.html'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Volver
+    </button>
+    <div class="nav-divider"></div>
+    <a href="index.html" class="nav-logo">
+      <span class="nav-kanji">武</span>
+      <span class="nav-name">EncuentraTuDojo</span>
+    </a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-share-btn" onclick="shareProfile()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <span>Compartir</span>
+    </button>
+    <button class="nav-fav-btn" id="fav-btn" onclick="toggleFav()" title="Guardar en favoritos">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ HERO COVER ══ -->
+<div class="hero-cover">
+  <div class="cover-bg"></div>
+  <div class="cover-grid"></div>
+  <div class="cover-kanji-bg">龍</div>
+  <div class="cover-accent"></div>
+
+  <!-- Gallery bar -->
+  <div class="cover-gallery-bar">
+    <div class="gallery-thumb" onclick="openGallery(0)" style="background:linear-gradient(135deg,#1a0f0a,#2a1810)">
+      <div class="gallery-thumb-inner" style="color:rgba(200,169,110,0.3)">道</div>
+    </div>
+    <div class="gallery-thumb" onclick="openGallery(1)" style="background:linear-gradient(135deg,#0e1a0a,#102210)">
+      <div class="gallery-thumb-inner" style="color:rgba(200,169,110,0.3)">場</div>
+    </div>
+    <div class="gallery-thumb" onclick="openGallery(2)" style="background:linear-gradient(135deg,#0a0a1a,#101022)">
+      <div class="gallery-thumb-inner" style="color:rgba(200,169,110,0.3)">武</div>
+    </div>
+    <div class="gallery-thumb" onclick="openGallery(3)" style="background:linear-gradient(135deg,#1a1a0a,#221e10)">
+      <div class="gallery-thumb-inner" style="color:rgba(200,169,110,0.3)">技</div>
+      <div class="gallery-more-overlay">+5 fotos</div>
+    </div>
+  </div>
+
+  <!-- Cover text -->
+  <div class="cover-content">
+    <div class="cover-breadcrumb">
+      <a href="index.html">Inicio</a> ›
+      <a href="index.html#buscador">Karate</a> ›
+      <span>Dragon Gate Dojo</span>
+    </div>
+    <div class="cover-disc-badge">
+      <span class="badge-kanji">空</span>
+      Karate
+    </div>
+    <h1 class="cover-title">Dragon Gate<br>Dojo</h1>
+    <div class="cover-meta-row">
+      <div class="cover-meta-item">
+        <span class="cover-rating-stars">★★★★★</span>
+        <strong style="color:#fff">4.9</strong>
+        <span style="color:rgba(250,248,244,0.5)">(142 reseñas)</span>
+      </div>
+      <div class="cover-meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+        Palermo, Buenos Aires
+      </div>
+      <div class="cover-meta-item">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Desde 2009
+      </div>
+      <div class="cover-verified">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        Verificada
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SECTION NAV ══ -->
+<nav class="section-nav" id="section-nav">
+  <button class="section-nav-item active" onclick="scrollToSection('descripcion')">Descripción</button>
+  <button class="section-nav-item" onclick="scrollToSection('disciplinas')">Disciplinas</button>
+  <button class="section-nav-item" onclick="scrollToSection('horarios')">Horarios</button>
+  <button class="section-nav-item" onclick="scrollToSection('instructores')">Instructores</button>
+  <button class="section-nav-item" onclick="scrollToSection('instalaciones')">Instalaciones</button>
+  <button class="section-nav-item" onclick="scrollToSection('ubicacion')">Ubicación</button>
+  <button class="section-nav-item" onclick="scrollToSection('resenas')">Reseñas</button>
+</nav>
+
+<!-- ══ PROFILE LAYOUT ══ -->
+<div class="profile-layout">
+
+  <!-- ── MAIN COLUMN ── -->
+  <div class="main-column">
+
+    <!-- DESCRIPCIÓN -->
+    <div class="section-card reveal" id="sec-descripcion">
+      <div class="section-card-header">
+        <h2 class="section-card-title">Sobre la escuela</h2>
+        <span style="font-family:var(--font-jp);font-size:28px;color:rgba(139,26,26,0.15)">龍</span>
+      </div>
+      <div class="section-card-body">
+        <p class="desc-text">
+          Dragon Gate Dojo es una academia de Karate Shotokan de alto rendimiento con más de 15 años de trayectoria en Palermo. Nuestra filosofía combina la tradición marcial japonesa con metodología de entrenamiento deportivo moderno. Formamos alumnos en todos los niveles, desde niños hasta competidores de nivel nacional.
+        </p>
+        <p class="desc-text" style="margin-bottom:24px">
+          Nuestro Sensei Principal posee certificación de la Japan Karate Association (JKA) y ha representado a Argentina en torneos internacionales. Contamos con tres instructores certificados y programa especial para niños desde 4 años.
+        </p>
+        <div class="desc-stats">
+          <div class="desc-stat">
+            <div class="desc-stat-num">15+</div>
+            <div class="desc-stat-label">Años activos</div>
+          </div>
+          <div class="desc-stat">
+            <div class="desc-stat-num">+300</div>
+            <div class="desc-stat-label">Alumnos formados</div>
+          </div>
+          <div class="desc-stat">
+            <div class="desc-stat-num">3</div>
+            <div class="desc-stat-label">Instructores</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISCIPLINAS -->
+    <div class="section-card reveal" id="sec-disciplinas">
+      <div class="section-card-header">
+        <h2 class="section-card-title">Disciplinas y clases</h2>
+      </div>
+      <div class="section-card-body">
+        <div class="subcats-wrap" style="margin-bottom:20px">
+          <span class="subcat-chip main"><span class="chip-kanji">空</span>Karate Shotokan</span>
+          <span class="subcat-chip">Kihon</span>
+          <span class="subcat-chip">Kata</span>
+          <span class="subcat-chip">Kumite</span>
+          <span class="subcat-chip">Bunkai</span>
+          <span class="subcat-chip">Defensa personal</span>
+          <span class="subcat-chip">Preparación física</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:var(--parchment);border:1px solid rgba(122,92,58,0.1);border-radius:4px;padding:14px">
+            <div style="font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--wood-light);margin-bottom:10px">Público</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)">🧒 Niños (4–12 años)</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)">🧑 Adolescentes (13–17)</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)">👤 Adultos (18+)</div>
+            </div>
+          </div>
+          <div style="background:var(--parchment);border:1px solid rgba(122,92,58,0.1);border-radius:4px;padding:14px">
+            <div style="font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--wood-light);margin-bottom:10px">Niveles</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)">⚪ Principiante</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)">🟡 Intermedio</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)">🔴 Avanzado / Competición</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HORARIOS -->
+    <div class="section-card reveal" id="sec-horarios">
+      <div class="section-card-header">
+        <h2 class="section-card-title">Horarios</h2>
+        <span id="today-status" style="font-size:12px;color:var(--success-bright)"></span>
+      </div>
+      <div class="section-card-body" style="padding:16px 24px">
+        <div class="schedule-grid" id="schedule-grid"></div>
+      </div>
+    </div>
+
+    <!-- INSTRUCTORES -->
+    <div class="section-card reveal" id="sec-instructores">
+      <div class="section-card-header">
+        <h2 class="section-card-title">Instructores</h2>
+      </div>
+      <div class="section-card-body">
+        <div class="instructors-grid" id="instructors-grid"></div>
+      </div>
+    </div>
+
+    <!-- INSTALACIONES -->
+    <div class="section-card reveal" id="sec-instalaciones">
+      <div class="section-card-header">
+        <h2 class="section-card-title">Instalaciones</h2>
+      </div>
+      <div class="section-card-body">
+        <div class="amenities-grid" id="amenities-grid"></div>
+      </div>
+    </div>
+
+    <!-- UBICACIÓN -->
+    <div class="section-card reveal" id="sec-ubicacion">
+      <div class="section-card-header">
+        <h2 class="section-card-title">Ubicación</h2>
+      </div>
+      <div class="section-card-body" style="padding:0">
+        <div id="profile-map"></div>
+        <div class="map-address">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--crimson)" stroke-width="1.5" style="flex-shrink:0;margin-top:2px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          <div class="map-address-text">
+            <strong>Av. Santa Fe 3450, Piso 2</strong>
+            Palermo, Buenos Aires — CP 1425
+          </div>
+          <button class="map-directions-btn" onclick="openMaps()">
+            Cómo llegar →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESEÑAS -->
+    <div class="section-card reveal" id="sec-resenas">
+      <div class="section-card-header">
+        <h2 class="section-card-title">Reseñas</h2>
+        <span style="font-size:13px;color:var(--wood-light)">142 opiniones</span>
+      </div>
+      <div class="section-card-body">
+
+        <!-- Rating summary -->
+        <div class="rating-summary">
+          <div class="rating-big">
+            <div class="rating-big-num">4.9</div>
+            <div class="rating-big-stars">★★★★★</div>
+            <div class="rating-big-count">142 reseñas</div>
+          </div>
+          <div class="rating-bars" id="rating-bars"></div>
+        </div>
+
+        <!-- Review list -->
+        <div class="review-list" id="review-list"></div>
+
+        <button class="show-more-btn" onclick="loadMoreReviews()">
+          Ver más reseñas (137 restantes)
+        </button>
+
+        <!-- Write review -->
+        <div class="write-review-card">
+          <div class="write-review-title">¿Fuiste a esta escuela? Dejá tu reseña</div>
+          <div class="star-row" id="star-picker">
+            <button class="star-btn" onclick="setStars(1)">★</button>
+            <button class="star-btn" onclick="setStars(2)">★</button>
+            <button class="star-btn" onclick="setStars(3)">★</button>
+            <button class="star-btn" onclick="setStars(4)">★</button>
+            <button class="star-btn" onclick="setStars(5)">★</button>
+          </div>
+          <textarea class="review-textarea" rows="3" placeholder="Contá tu experiencia: instalaciones, instructores, ambiente…"></textarea>
+          <button class="btn-review-submit" onclick="submitReview()">Publicar reseña</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-column -->
+
+  <!-- ── STICKY SIDEBAR ── -->
+  <aside class="sticky-sidebar">
+
+    <!-- CTA CARD -->
+    <div class="cta-card">
+      <div class="cta-card-header">
+        <div>
+          <div class="cta-price">$8.500 <span>/mes</span></div>
+          <div class="cta-price-note">Cuota mensual · Pago en cuotas disponible</div>
+          <div class="cta-open-status" id="open-status">
+            <div class="cta-open-dot"></div>
+            <span class="cta-open-text">Abierto ahora</span>
+          </div>
+        </div>
+      </div>
+      <div class="cta-card-body">
+        <div class="cta-features">
+          <div class="cta-feature">
+            <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            Clase trial disponible — $1.500
+          </div>
+          <div class="cta-feature">
+            <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            Sin contrato de permanencia
+          </div>
+          <div class="cta-feature">
+            <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            Matrícula: $3.000 (única vez)
+          </div>
+          <div class="cta-feature">
+            <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            Cuota familiar disponible
+          </div>
+        </div>
+
+        <button class="btn-trial" onclick="openModal('trial')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Reservar clase trial
+        </button>
+
+        <button class="btn-whatsapp" onclick="openWhatsApp()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Consultar por WhatsApp
+        </button>
+
+        <button class="btn-contact" onclick="openModal('contact')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Enviar mensaje
+        </button>
+
+        <div class="cta-note">
+          Sin compromiso · Primera clase sin cargo si reservás hoy
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK INFO -->
+    <div class="quick-info-card">
+      <div class="quick-info-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+        Palermo, Buenos Aires
+        <span class="quick-info-val">0.8 km</span>
+      </div>
+      <div class="quick-info-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 9.9a16 16 0 006.09 6.09l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Teléfono
+        <span class="quick-info-val">011 4444-5555</span>
+      </div>
+      <div class="quick-info-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Fundada
+        <span class="quick-info-val">2009</span>
+      </div>
+      <div class="quick-info-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Cupos disponibles
+        <span class="quick-info-val">4 libres</span>
+      </div>
+      <div class="quick-info-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        Certificaciones
+        <span class="quick-info-val">JKA, FAK</span>
+      </div>
+    </div>
+
+    <!-- NEARBY SCHOOLS -->
+    <div style="margin-bottom:8px">
+      <div style="font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--wood-light);margin-bottom:12px">Escuelas cercanas</div>
+      <div class="nearby-list" id="nearby-list"></div>
+    </div>
+
+  </aside>
+</div><!-- /profile-layout -->
+
+<!-- ══ MODAL ══ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Reservar clase trial</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success-bright)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="toast-text"></span>
+</div>
+
+<script>
+// ══════════════════════════════
+// DATA
+// ══════════════════════════════
+const schedule = [
+  { day: 'Lunes',     open: '08:00', close: '22:00', active: true  },
+  { day: 'Martes',    open: '08:00', close: '22:00', active: true  },
+  { day: 'Miércoles', open: '08:00', close: '22:00', active: true  },
+  { day: 'Jueves',    open: '08:00', close: '22:00', active: true  },
+  { day: 'Viernes',   open: '08:00', close: '21:00', active: true  },
+  { day: 'Sábado',    open: '09:00', close: '14:00', active: true  },
+  { day: 'Domingo',   open: null,    close: null,    active: false },
+];
+
+const instructors = [
+  { initials:'CY', name:'Sensei Carlos Yamada', grade:'Faja Negra 5° Dan', cert:'JKA · FAK · Selección Argentina' },
+  { initials:'MR', name:'Sensei María Reyes',   grade:'Faja Negra 3° Dan', cert:'JKA · Especialista infantil' },
+  { initials:'LP', name:'Inst. Lucas Pérez',    grade:'Faja Negra 2° Dan', cert:'FAK · Competición' },
+];
+
+const amenities = [
+  { icon:'🥋', label:'Tatami profesional', ok:true },
+  { icon:'🚿', label:'Vestuarios',         ok:true },
+  { icon:'🛁', label:'Duchas',             ok:true },
+  { icon:'🅿️', label:'Estacionamiento',   ok:true },
+  { icon:'📶', label:'Wi-Fi',              ok:true },
+  { icon:'🛍️', label:'Tienda interna',    ok:true },
+  { icon:'♿', label:'Accesibilidad',      ok:true },
+  { icon:'📹', label:'Video análisis',     ok:true },
+  { icon:'⬡',  label:'Jaula MMA',         ok:false },
+];
+
+const ratingDistrib = [
+  { stars:5, count:118 },
+  { stars:4, count:18  },
+  { stars:3, count:4   },
+  { stars:2, count:1   },
+  { stars:1, count:1   },
+];
+
+const reviews = [
+  { initials:'SM', name:'Sofía M.',    since:'Alumna hace 8 meses', stars:5, date:'Hace 2 días',
+    text:'El mejor dojo que conocí. Los sensei son pacientes y exigentes al mismo tiempo. Las instalaciones son impecables y el ambiente muy agradable. Recomiendo 100%.', verified:true },
+  { initials:'PT', name:'Pablo T.',    since:'Alumno hace 14 meses', stars:5, date:'Hace 1 semana',
+    text:'Llevo más de un año entrenando y el progreso es notable. El Sensei Yamada tiene una capacidad de enseñanza excepcional. Los grupos pequeños hacen que la atención sea personalizada.', verified:true },
+  { initials:'LG', name:'Laura G.',    since:'Alumna hace 3 meses', stars:4, date:'Hace 2 semanas',
+    text:'Muy buen lugar para aprender. El programa de niños es excelente. La única sugerencia sería agregar más horarios nocturnos para quienes trabajamos todo el día.', verified:false },
+  { initials:'RV', name:'Rodrigo V.',  since:'Alumno hace 2 años', stars:5, date:'Hace 3 semanas',
+    text:'Formé campeones bonaerenses en este dojo. La metodología de competición es de primer nivel. Nunca consideraría cambiar de escuela.', verified:true },
+  { initials:'AF', name:'Ana F.',      since:'Alumna hace 5 meses', stars:5, date:'Hace 1 mes',
+    text:'Empecé como principiante absoluta y hoy me siento completamente integrada. El equipo es fantástico y el nivel de exigencia progresivo y bien calibrado.', verified:true },
+];
+
+const nearby = [
+  { kanji:'武', name:'Bushido Karate Dojo',     disc:'Karate',   dist:'1.2 km', rating:'4.8' },
+  { kanji:'合', name:'Centro Aikido Shinbukan', disc:'Aikido',   dist:'0.9 km', rating:'4.8' },
+  { kanji:'八', name:'Pakua Zen Buenos Aires',  disc:'Pakua',    dist:'2.1 km', rating:'4.9' },
+];
+
+// ══════════════════════════════
+// RENDER SCHEDULE
+// ══════════════════════════════
+function renderSchedule() {
+  const grid = document.getElementById('schedule-grid');
+  const todayIdx = new Date().getDay(); // 0=Dom..6=Sab
+  const dayMap   = [6, 0, 1, 2, 3, 4, 5]; // JS Sun=0 → our Sun=6
+  const todayInArr = dayMap[todayIdx];
+
+  grid.innerHTML = schedule.map((s, i) => {
+    const isToday = i === todayInArr;
+    return `<div class="schedule-row ${!s.active ? 'closed' : ''}">
+      <div class="schedule-day">${s.day}</div>
+      <div class="schedule-dot ${s.active ? 'open' : 'closed'}"></div>
+      ${s.active
+        ? `<span class="schedule-hours">${s.open} — ${s.close}</span>`
+        : `<span class="schedule-closed">Cerrado</span>`}
+      ${isToday ? '<span class="schedule-today">Hoy</span>' : ''}
+    </div>`;
+  }).join('');
+
+  // Open status check
+  const now   = new Date();
+  const hm    = now.getHours() * 60 + now.getMinutes();
+  const today = schedule[todayInArr];
+  const statusEl = document.getElementById('open-status');
+  if (today && today.active) {
+    const [oh, om] = today.open.split(':').map(Number);
+    const [ch, cm] = today.close.split(':').map(Number);
+    const isOpen = hm >= oh*60+om && hm < ch*60+cm;
+    statusEl.innerHTML = isOpen
+      ? '<div class="cta-open-dot"></div><span class="cta-open-text">Abierto ahora</span>'
+      : `<span class="cta-closed-text">Abre hoy a las ${today.open}</span>`;
+    document.getElementById('today-status').textContent = isOpen ? '🟢 Abierto ahora' : `Abre a las ${today.open}`;
+  } else {
+    statusEl.innerHTML = '<span class="cta-closed-text">Cerrado hoy</span>';
+    document.getElementById('today-status').textContent = 'Cerrado hoy';
+  }
+}
+
+// ══════════════════════════════
+// RENDER INSTRUCTORS
+// ══════════════════════════════
+function renderInstructors() {
+  document.getElementById('instructors-grid').innerHTML = instructors.map(i => `
+    <div class="instructor-card">
+      <div class="instructor-avatar">${i.initials}</div>
+      <div class="instructor-info">
+        <div class="instructor-name">${i.name}</div>
+        <div class="instructor-grade">${i.grade}</div>
+        <div class="instructor-cert">${i.cert}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════
+// RENDER AMENITIES
+// ══════════════════════════════
+function renderAmenities() {
+  document.getElementById('amenities-grid').innerHTML = amenities.map(a => `
+    <div class="amenity-item ${!a.ok ? 'no' : ''}">
+      <span class="amenity-icon">${a.ok ? a.icon : '✗'}</span>
+      ${a.label}
+    </div>`).join('');
+}
+
+// ══════════════════════════════
+// RENDER RATING BARS
+// ══════════════════════════════
+function renderRatingBars() {
+  const total = ratingDistrib.reduce((s, r) => s + r.count, 0);
+  document.getElementById('rating-bars').innerHTML = [...ratingDistrib].reverse().map(r => `
+    <div class="rating-bar-row">
+      <span class="rating-bar-label">${r.stars}</span>
+      <div class="rating-bar-track">
+        <div class="rating-bar-fill" style="width:${Math.round(r.count/total*100)}%"></div>
+      </div>
+      <span class="rating-bar-count">${r.count}</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════
+// RENDER REVIEWS
+// ══════════════════════════════
+function renderReviews() {
+  document.getElementById('review-list').innerHTML = reviews.slice(0, 4).map(r => `
+    <div class="review-item">
+      <div class="review-header">
+        <div class="review-user">
+          <div class="review-avatar">${r.initials}</div>
+          <div>
+            <div class="review-name">${r.name}</div>
+            <div class="review-since">${r.since}</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
+          <div class="review-date">${r.date}</div>
+        </div>
+      </div>
+      <div class="review-body">${r.text}</div>
+      ${r.verified ? `<div class="review-verified-badge">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        Alumno verificado
+      </div>` : ''}
+    </div>`).join('');
+}
+
+// ══════════════════════════════
+// RENDER NEARBY
+// ══════════════════════════════
+function renderNearby() {
+  document.getElementById('nearby-list').innerHTML = nearby.map(s => `
+    <div class="nearby-item" onclick="window.location.href='perfil-escuela.html'">
+      <div class="nearby-logo">${s.kanji}</div>
+      <div class="nearby-info">
+        <div class="nearby-name">${s.name}</div>
+        <div class="nearby-meta">${s.disc} · ${s.dist}</div>
+      </div>
+      <div class="nearby-rating">★ ${s.rating}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════
+// MAP
+// ══════════════════════════════
+function initMap() {
+  const map = L.map('profile-map', {
+    center: [-34.583, -58.433], zoom: 15, zoomControl: false, scrollWheelZoom: false
+  });
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© CARTO © OSM', subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  const icon = L.divIcon({
+    html: `<svg width="36" height="44" viewBox="0 0 36 44" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18 0C8.06 0 0 8.06 0 18c0 12.56 16.2 24.08 16.91 24.57a1.8 1.8 0 002.18 0C19.8 42.08 36 30.56 36 18 36 8.06 27.94 0 18 0z" fill="#8b1a1a"/>
+      <circle cx="18" cy="18" r="13" fill="rgba(0,0,0,0.25)"/>
+      <text x="18" y="24" text-anchor="middle" fill="white" font-family="Noto Serif JP, serif" font-size="14" font-weight="600">龍</text>
+    </svg>`,
+    className: '', iconSize: [36,44], iconAnchor: [18,44], popupAnchor: [0,-44]
+  });
+
+  L.marker([-34.583, -58.433], { icon })
+    .bindPopup(`<div style="padding:10px 14px;background:var(--ink,#0e0c0b)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#faf8f4;margin-bottom:4px">Dragon Gate Dojo</div>
+      <div style="font-size:11px;color:rgba(250,248,244,0.5)">Av. Santa Fe 3450, Palermo</div>
+    </div>`)
+    .addTo(map)
+    .openPopup();
+}
+
+// ══════════════════════════════
+// SECTION NAV — scroll spy
+// ══════════════════════════════
+function scrollToSection(id) {
+  const el = document.getElementById(`sec-${id}`);
+  if (!el) return;
+  const offset = 120;
+  window.scrollTo({ top: el.offsetTop - offset, behavior: 'smooth' });
+}
+
+const sections = ['descripcion','disciplinas','horarios','instructores','instalaciones','ubicacion','resenas'];
+window.addEventListener('scroll', () => {
+  const offset = 160;
+  let active = sections[0];
+  sections.forEach(id => {
+    const el = document.getElementById(`sec-${id}`);
+    if (el && window.scrollY + offset >= el.offsetTop) active = id;
+  });
+  document.querySelectorAll('.section-nav-item').forEach((btn, i) => {
+    btn.classList.toggle('active', sections[i] === active);
+  });
+}, { passive: true });
+
+// ══════════════════════════════
+// FAV TOGGLE
+// ══════════════════════════════
+let isFav = false;
+function toggleFav() {
+  isFav = !isFav;
+  const btn = document.getElementById('fav-btn');
+  btn.classList.toggle('active', isFav);
+  showToast(isFav ? '❤️  Guardada en favoritos' : 'Eliminada de favoritos');
+}
+
+// ══════════════════════════════
+// MODAL
+// ══════════════════════════════
+function openModal(type) {
+  const overlay = document.getElementById('modal-overlay');
+  const title   = document.getElementById('modal-title');
+  const body    = document.getElementById('modal-body');
+
+  if (type === 'trial') {
+    title.textContent = 'Reservar clase trial';
+    body.innerHTML = `
+      <div class="modal-field">
+        <label class="modal-label">Tu nombre completo</label>
+        <input class="modal-input" type="text" placeholder="Ej: Martín González">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Email</label>
+        <input class="modal-input" type="email" placeholder="tu@email.com">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Teléfono / WhatsApp</label>
+        <input class="modal-input" type="tel" placeholder="+54 9 11 0000-0000">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Día preferido</label>
+        <select class="modal-select">
+          <option>Lunes</option><option>Martes</option><option>Miércoles</option>
+          <option>Jueves</option><option>Viernes</option><option>Sábado</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Nivel</label>
+        <select class="modal-select">
+          <option>Principiante (nunca practiqué)</option>
+          <option>Intermedio (tengo experiencia)</option>
+          <option>Avanzado</option>
+        </select>
+      </div>
+      <button class="btn-modal-submit" onclick="submitModal('trial')">Confirmar reserva</button>
+      <p style="font-size:11px;color:var(--wood-light);text-align:center;margin-top:10px">Te contactaremos en menos de 24hs para confirmar el horario</p>`;
+  } else {
+    title.textContent = 'Enviar mensaje';
+    body.innerHTML = `
+      <div class="modal-field">
+        <label class="modal-label">Tu nombre</label>
+        <input class="modal-input" type="text" placeholder="Ej: Martín González">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Email</label>
+        <input class="modal-input" type="email" placeholder="tu@email.com">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Consulta</label>
+        <textarea class="modal-textarea" rows="4" placeholder="¿Qué querés saber sobre Dragon Gate Dojo?"></textarea>
+      </div>
+      <button class="btn-modal-submit" onclick="submitModal('contact')">Enviar mensaje</button>`;
+  }
+
+  overlay.classList.add('visible');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay') || e.type === 'click') {
+    document.getElementById('modal-overlay').classList.remove('visible');
+  }
+}
+
+function submitModal(type) {
+  closeModal();
+  showToast(type === 'trial'
+    ? '✅  Reserva enviada — te contactaremos pronto'
+    : '✅  Mensaje enviado a Dragon Gate Dojo');
+  // Registrar lead
+  console.log('Lead registrado:', type, new Date().toISOString());
+}
+
+// ══════════════════════════════
+// WHATSAPP
+// ══════════════════════════════
+function openWhatsApp() {
+  const msg = encodeURIComponent('Hola! Vi su escuela en EncuentraTuDojo y me interesa más información sobre las clases.');
+  window.open(`https://wa.me/5491144445555?text=${msg}`, '_blank');
+  showToast('📱 Abriendo WhatsApp…');
+}
+
+// ══════════════════════════════
+// MAPS
+// ══════════════════════════════
+function openMaps() {
+  window.open('https://www.google.com/maps/search/Av.+Santa+Fe+3450,+Palermo,+Buenos+Aires', '_blank');
+}
+
+// ══════════════════════════════
+// SHARE
+// ══════════════════════════════
+function shareProfile() {
+  if (navigator.share) {
+    navigator.share({ title: 'Dragon Gate Dojo — EncuentraTuDojo', url: window.location.href });
+  } else {
+    navigator.clipboard?.writeText(window.location.href);
+    showToast('🔗 Link copiado al portapapeles');
+  }
+}
+
+// ══════════════════════════════
+// TOAST
+// ══════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 3200);
+}
+
+// ══════════════════════════════
+// GALLERY (placeholder)
+// ══════════════════════════════
+function openGallery(idx) {
+  showToast('🖼️  Galería de fotos — próximamente');
+}
+
+// ══════════════════════════════
+// REVIEW
+// ══════════════════════════════
+let currentStars = 0;
+function setStars(n) {
+  currentStars = n;
+  document.querySelectorAll('.star-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i < n);
+  });
+}
+
+function submitReview() {
+  if (!currentStars) { showToast('⭐ Elegí una calificación primero'); return; }
+  showToast('✅ Reseña enviada — gracias por tu opinión');
+  setStars(0);
+  document.querySelector('.review-textarea').value = '';
+}
+
+function loadMoreReviews() {
+  showToast('📄 Cargando más reseñas…');
+}
+
+// ══════════════════════════════
+// REVEAL ON SCROLL
+// ══════════════════════════════
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+renderSchedule();
+renderInstructors();
+renderAmenities();
+renderRatingBars();
+renderReviews();
+renderNearby();
+initMap();
+</script>
+</body>
+</html>
