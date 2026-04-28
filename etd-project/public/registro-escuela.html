@@ -1472,7 +1472,7 @@ textarea { resize:vertical; min-height:100px; line-height:1.6; }
       <div class="legal-check-row">
         <input type="checkbox" id="legal-1">
         <label class="legal-check-label" for="legal-1">
-          Acepto los <a href="#">Términos y Condiciones</a> y la <a href="#">Política de Privacidad</a> de EncuentraTuDojo. <span class="req">*</span>
+          Acepto los <a href="javascript:void(0)" onclick="showToastReg('Términos y Condiciones — próximamente')">Términos y Condiciones</a> y la <a href="javascript:void(0)" onclick="showToastReg('Política de Privacidad — próximamente')">Política de Privacidad</a> de EncuentraTuDojo. <span class="req">*</span>
         </label>
       </div>
       <div class="legal-check-row">
@@ -1769,6 +1769,20 @@ function detectLocation() {
     },
     () => alert('No se pudo obtener la ubicación. Verificá los permisos del navegador.')
   );
+}
+
+function showToastReg(msg) {
+  let t = document.getElementById('reg-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'reg-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#0e0c0b;color:#faf8f4;padding:12px 24px;border-radius:4px;font-size:13px;border:1px solid rgba(200,169,110,0.2);z-index:9999;opacity:0;transition:all 0.3s;font-family:"DM Sans",sans-serif;white-space:nowrap';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(60px)'; }, 2800);
 }
 </script>
 </body>

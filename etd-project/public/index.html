@@ -2088,9 +2088,9 @@
   <div class="footer-bottom">
     <span class="footer-copy">© 2025 EncuentraTuDojo. Todos los derechos reservados.</span>
     <div class="footer-legal">
-      <a href="#">Términos</a>
-      <a href="#">Privacidad</a>
-      <a href="#">Cookies</a>
+      <a href="javascript:void(0)" onclick="showToast('Términos de uso — próximamente')">Términos</a>
+      <a href="javascript:void(0)" onclick="showToast('Política de privacidad — próximamente')">Privacidad</a>
+      <a href="javascript:void(0)" onclick="showToast('Política de cookies — próximamente')">Cookies</a>
     </div>
   </div>
 </footer>
@@ -2695,6 +2695,25 @@ loadFiltersFromURL();
 applyFilters();
 renderFeatured();
 initMap();
+
+// ── TOAST para botones sin funcionalidad backend ──
+function showToast(msg) {
+  let t = document.getElementById('etd-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'etd-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#0e0c0b;color:#faf8f4;padding:12px 24px;border-radius:4px;font-size:13px;border:1px solid rgba(200,169,110,0.2);z-index:9999;opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);font-family:"DM Sans",sans-serif;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.3)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(60px)';
+  }, 3000);
+}
 </script>
 </body>
 </html>

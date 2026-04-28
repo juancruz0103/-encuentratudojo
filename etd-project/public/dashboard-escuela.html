@@ -1016,7 +1016,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-sub">Resumen de actividad — últimos 30 días</div>
         </div>
         <div style="display:flex;gap:10px">
-          <button class="btn btn-secondary btn-sm">
+          <button class="btn btn-secondary btn-sm" onclick="showToastDash('Filtro de período — próximamente')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             Últimos 30 días
           </button>
@@ -1107,7 +1107,7 @@ td strong { color: var(--ink); font-weight: 500; }
         <div class="feed-card">
           <div class="feed-header">
             <span class="feed-title">Actividad reciente</span>
-            <button class="btn btn-ghost btn-sm">Ver todo</button>
+            <button class="btn btn-ghost btn-sm" onclick="showToastDash('Historial completo — próximamente')">Ver todo</button>
           </div>
           <div class="feed-list" id="activity-feed"></div>
         </div>
@@ -1115,7 +1115,7 @@ td strong { color: var(--ink); font-weight: 500; }
         <div class="feed-card">
           <div class="feed-header">
             <span class="feed-title">Últimas reseñas</span>
-            <button class="btn btn-ghost btn-sm">Ver todas</button>
+            <button class="btn btn-ghost btn-sm" onclick="showToastDash('Todas las reseñas — próximamente')">Ver todas</button>
           </div>
           <div id="reviews-list"></div>
         </div>
@@ -1137,7 +1137,7 @@ td strong { color: var(--ink); font-weight: 500; }
             <option>Convertido</option>
             <option>Perdido</option>
           </select>
-          <button class="btn btn-secondary btn-sm">
+          <button class="btn btn-secondary btn-sm" onclick="showToastDash('Exportando CSV... próximamente')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Exportar CSV
           </button>
@@ -1188,15 +1188,15 @@ td strong { color: var(--ink); font-weight: 500; }
         <div class="msg-conversation">
           <div class="msg-conv-header">
             <div class="msg-conv-user">
-              <div class="msg-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--parchment-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--wood)">MR</div>
+              <div class="msg-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--parchment-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--wood)">MG</div>
               <div>
-                <div class="msg-conv-name">Martín Rodríguez</div>
+                <div class="msg-conv-name">Martín González</div>
                 <div class="msg-conv-status">● En línea</div>
               </div>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="btn btn-secondary btn-sm">Ver lead</button>
-              <button class="btn btn-primary btn-sm">Agendar clase</button>
+              <button class="btn btn-secondary btn-sm" onclick="showSection('leads')">Ver lead</button>
+              <button class="btn btn-primary btn-sm" onclick="showToastDash('Agenda de clases — próximamente')">Agendar clase</button>
             </div>
           </div>
           <div class="msg-conv-body" id="msg-conv-body"></div>
@@ -1222,7 +1222,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title">Editar <em>perfil</em></div>
           <div class="page-header-sub">Esta información aparece en el buscador público</div>
         </div>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" onclick="showToastDash('✅ Cambios guardados correctamente')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           Guardar cambios
         </button>
@@ -1249,11 +1249,11 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="profile-card" style="padding:16px">
             <div class="form-section-title" style="font-size:14px;margin-bottom:12px">Logo y fotos</div>
             <div style="display:flex;flex-direction:column;gap:10px">
-              <button class="btn btn-secondary" style="width:100%;justify-content:center">
+              <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="showToastDash('Subí tu logo — función próximamente')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Cambiar logo
               </button>
-              <button class="btn btn-secondary" style="width:100%;justify-content:center">
+              <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="showToastDash('Gestionar fotos — función próximamente')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 Gestionar fotos
               </button>
@@ -1335,7 +1335,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title">Mis <em>anuncios</em></div>
           <div class="page-header-sub">Publicaciones visibles en el buscador y perfiles</div>
         </div>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" onclick="showToastDash('Crear anuncio — formulario próximamente')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Crear anuncio
         </button>
@@ -1351,7 +1351,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title">Métricas <em>avanzadas</em></div>
           <div class="page-header-sub">Análisis de rendimiento de tu escuela en la plataforma</div>
         </div>
-        <button class="btn btn-secondary btn-sm">
+        <button class="btn btn-secondary btn-sm" onclick="showToastDash('Exportando reporte... próximamente')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Exportar reporte
         </button>
@@ -1441,8 +1441,8 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="billing-renewal">Próximo vencimiento: 15 de mayo 2025</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
-          <button class="btn btn-primary">Actualizar a Premium</button>
-          <button class="btn btn-secondary" style="border-color:rgba(250,248,244,0.2);color:rgba(250,248,244,0.5)">Cancelar plan</button>
+          <button class="btn btn-primary" onclick="showSection('facturacion')">Actualizar a Premium</button>
+          <button class="btn btn-secondary" style="border-color:rgba(250,248,244,0.2);color:rgba(250,248,244,0.5)" onclick="showToastDash('Para cancelar tu plan contactá a soporte')">Cancelar plan</button>
         </div>
       </div>
 
@@ -1481,7 +1481,7 @@ td strong { color: var(--ink); font-weight: 500; }
             <li><span class="plan-feat-icon">✓</span>Analíticas avanzadas</li>
             <li><span class="plan-feat-icon">✓</span>Soporte prioritario</li>
           </ul>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px">Actualizar</button>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="showToastDash('Redirigiendo a pago seguro... próximamente')">Actualizar</button>
         </div>
       </div>
 
@@ -1489,7 +1489,7 @@ td strong { color: var(--ink); font-weight: 500; }
       <div class="table-card">
         <div class="table-card-header">
           <div style="font-size:13px;font-weight:500;color:var(--ink)">Historial de pagos</div>
-          <button class="btn btn-secondary btn-sm">Descargar todos</button>
+          <button class="btn btn-secondary btn-sm" onclick="showToastDash('Descargando facturas... próximamente')">Descargar todos</button>
         </div>
         <table class="invoice-table">
           <thead>
@@ -1498,10 +1498,10 @@ td strong { color: var(--ink); font-weight: 500; }
             </tr>
           </thead>
           <tbody>
-            <tr><td>15 abr 2025</td><td>Plan Pro — Abril 2025</td><td><strong>USD $29</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn">PDF</button></td></tr>
-            <tr><td>15 mar 2025</td><td>Plan Pro — Marzo 2025</td><td><strong>USD $29</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn">PDF</button></td></tr>
-            <tr><td>15 feb 2025</td><td>Plan Pro — Febrero 2025</td><td><strong>USD $29</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn">PDF</button></td></tr>
-            <tr><td>15 ene 2025</td><td>Comisión leads (x3)</td><td><strong>USD $15</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn">PDF</button></td></tr>
+            <tr><td>15 abr 2025</td><td>Plan Pro — Abril 2025</td><td><strong>USD $29</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn" onclick="showToastDash('Descargando PDF... próximamente')">PDF</button></td></tr>
+            <tr><td>15 mar 2025</td><td>Plan Pro — Marzo 2025</td><td><strong>USD $29</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn" onclick="showToastDash('Descargando PDF... próximamente')">PDF</button></td></tr>
+            <tr><td>15 feb 2025</td><td>Plan Pro — Febrero 2025</td><td><strong>USD $29</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn" onclick="showToastDash('Descargando PDF... próximamente')">PDF</button></td></tr>
+            <tr><td>15 ene 2025</td><td>Comisión leads (x3)</td><td><strong>USD $15</strong></td><td><span class="status convertido">Pagado</span></td><td><button class="tbl-btn" onclick="showToastDash('Descargando PDF... próximamente')">PDF</button></td></tr>
           </tbody>
         </table>
       </div>
@@ -1663,7 +1663,7 @@ const activities = [
   { type:'convert', text:'<strong>Pablo Torres</strong> se inscribió — Clase trial pagada', time:'Hace 1 hora' },
   { type:'review',  text:'<strong>Lucía García</strong> dejó una reseña de 5 estrellas', time:'Hace 3 horas' },
   { type:'lead',    text:'<strong>Rodrigo Vidal</strong> guardó tu escuela en favoritos', time:'Hace 5 horas' },
-  { type:'message', text:'Nuevo mensaje de <strong>Martín Rodríguez</strong>', time:'Ayer 18:30' },
+  { type:'message', text:'Nuevo mensaje de <strong>Martín González</strong>', time:'Ayer 18:30' },
   { type:'convert', text:'<strong>Ana Florencia</strong> reservó clase trial', time:'Ayer 14:15' },
 ];
 
@@ -1701,7 +1701,7 @@ function renderReviews() {
       </div>
       <div class="review-body">${r.text}</div>
       <div class="review-time">${r.time}</div>
-      <button class="review-reply-btn">
+      <button class="review-reply-btn" onclick="showToastDash('Responder reseña — función próximamente')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         Responder
       </button>
@@ -1716,7 +1716,7 @@ const leads = [
   { name:'Pablo Torres',    type:'Inscripción',disc:'Karate',   date:'Hoy 09:15',     status:'convertido', commission:'$1.275', initials:'PT' },
   { name:'Rodrigo Vidal',   type:'Favorito',  disc:'Karate',    date:'Ayer 17:40',    status:'contactado', commission:'$0',   initials:'RV' },
   { name:'Lucía García',    type:'Trial',     disc:'Karate',    date:'Ayer 14:20',    status:'convertido', commission:'$150', initials:'LG' },
-  { name:'Martín Rodríguez',type:'Mensaje',   disc:'Karate',    date:'Ayer 11:05',    status:'contactado', commission:'$5',   initials:'MR' },
+  { name:'Martín González', type:'Mensaje',   disc:'Karate',    date:'Ayer 11:05',    status:'contactado', commission:'$5',   initials:'MG' },
   { name:'Ana Florencia',   type:'Trial',     disc:'Karate',    date:'22 abr 2025',   status:'convertido', commission:'$150', initials:'AF' },
   { name:'Carlos Benítez',  type:'Contacto',  disc:'Karate',    date:'21 abr 2025',   status:'perdido',    commission:'$0',   initials:'CB' },
 ];
@@ -1742,7 +1742,7 @@ function renderLeads() {
       <td><strong style="color:${l.commission!=='$0'?'var(--success)':'var(--wood-light)'}">${l.commission}</strong></td>
       <td style="display:flex;gap:6px">
         <button class="tbl-btn" onclick="showSection('mensajeria')">Mensaje</button>
-        ${l.status==='nuevo' ? '<button class="tbl-btn primary-sm">Contactar</button>' : ''}
+        ${l.status==='nuevo' ? '<button class="tbl-btn primary-sm" onclick="showToastDash(\'Contactando alumno...\')>Contactar</button>' : ''}
       </td>
     </tr>`).join('');
 }
@@ -1751,7 +1751,7 @@ function renderLeads() {
 // MENSAJERÍA
 // ══════════════════════════════
 const threads = [
-  { initials:'MR', name:'Martín Rodríguez', preview:'¿Tienen clases los sábados?', time:'10:32', unread:2, active:true },
+  { initials:'MG', name:'Martín González', preview:'¿Tienen clases los sábados?', time:'10:32', unread:2, active:true },
   { initials:'SF', name:'Sofía Fernández',  preview:'Quiero saber el precio de la matrícula', time:'Ayer', unread:1, active:false },
   { initials:'CL', name:'Carlos López',     preview:'Gracias por la información!', time:'Lun',  unread:0, active:false },
   { initials:'AM', name:'Ana Martínez',     preview:'¿Hacen clases para niños?', time:'Dom',   unread:0, active:false },
@@ -1850,12 +1850,12 @@ function renderAnuncios() {
           </div>
         </div>
         <div class="anuncio-actions">
-          <button class="tbl-btn">Editar</button>
-          <button class="tbl-btn ${a.status==='activo'?'':'primary-sm'}">${a.status==='activo'?'Pausar':'Publicar'}</button>
+          <button class="tbl-btn" onclick="showToastDash('Editor de anuncios — próximamente')">Editar</button>
+          <button class="tbl-btn ${a.status==='activo'?'':'primary-sm'}" onclick="showToastDash(this.textContent.trim() + ' anuncio')">${a.status==='activo'?'Pausar':'Publicar'}</button>
         </div>
       </div>
     </div>`).join('') +
-  `<div class="anuncio-add" onclick="alert('Crear anuncio — próximamente')">
+  `<div class="anuncio-add" onclick="showToastDash('Crear anuncio — función próximamente')">
     <div class="anuncio-add-icon">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -1899,6 +1899,21 @@ renderReviews();
 renderLeads();
 renderMessaging();
 renderAnuncios();
+
+// ── Toast feedback ──
+function showToastDash(msg) {
+  let t = document.getElementById('dash-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'dash-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#0e0c0b;color:#faf8f4;padding:12px 24px;border-radius:4px;font-size:13px;border:1px solid rgba(200,169,110,0.2);z-index:9999;opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);font-family:"DM Sans",sans-serif;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.4)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(60px)'; }, 3000);
+}
 </script>
 </body>
 </html>

@@ -600,7 +600,7 @@ body {
         <div class="field">
           <label>
             Contraseña
-            <a href="#" class="forgot-link" onclick="showView('forgot'); return false;">¿Olvidaste tu contraseña?</a>
+            <a href="javascript:void(0)" class="forgot-link" onclick="showView('forgot')">¿Olvidaste tu contraseña?</a>
           </label>
           <div class="input-wrap">
             <svg class="input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
@@ -774,7 +774,7 @@ body {
           <div class="check-row">
             <input type="checkbox" id="reg-terms">
             <label class="check-label" for="reg-terms">
-              Acepto los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a> de EncuentraTuDojo <span style="color:var(--crimson-bright)">*</span>
+              Acepto los <a href="javascript:void(0)" onclick="showToastAuth('Términos de uso — próximamente')">Términos de uso</a> y la <a href="javascript:void(0)" onclick="showToastAuth('Política de privacidad — próximamente')">Política de privacidad</a> de EncuentraTuDojo <span style="color:var(--crimson-bright)">*</span>
             </label>
           </div>
           <div class="check-row">
@@ -1274,6 +1274,20 @@ document.addEventListener('keydown', e => {
   if (active.id === 'view-login')  submitLogin();
   if (active.id === 'view-forgot' && forgotSubStep === 1) submitForgot();
 });
+
+function showToastAuth(msg) {
+  let t = document.getElementById('auth-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'auth-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#0e0c0b;color:#faf8f4;padding:12px 24px;border-radius:4px;font-size:13px;border:1px solid rgba(200,169,110,0.2);z-index:9999;opacity:0;transition:all 0.3s;font-family:"DM Sans",sans-serif;white-space:nowrap';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(60px)'; }, 2800);
+}
 </script>
 </body>
 </html>

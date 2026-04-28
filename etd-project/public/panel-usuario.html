@@ -899,7 +899,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title"><em>Historial</em></div>
           <div class="page-header-sub">Todas tus actividades en la plataforma</div>
         </div>
-        <button class="btn btn-secondary btn-sm">
+        <button class="btn btn-secondary btn-sm" onclick="showToastUser('Exportando historial... próximamente')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Exportar
         </button>
@@ -943,7 +943,7 @@ td strong { color: var(--ink); font-weight: 500; }
             <div class="review-school-name">Dragon Gate Dojo</div>
             <div class="review-school-disc">Karate · Palermo</div>
           </div>
-          <button class="btn btn-secondary btn-sm" style="margin-left:auto">Cambiar escuela</button>
+          <button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="showToastUser('Seleccionar escuela — próximamente')">Cambiar escuela</button>
         </div>
         <div class="star-picker" id="star-picker">
           <button class="star-btn" onclick="setStars(1)">★</button>
@@ -953,7 +953,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <button class="star-btn" onclick="setStars(5)">★</button>
         </div>
         <textarea class="form-textarea" style="width:100%;margin-bottom:14px" rows="4" placeholder="Contá tu experiencia en esta escuela…"></textarea>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" onclick="handleReviewSubmit()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
           Publicar reseña
         </button>
@@ -968,7 +968,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title">Editar <em>perfil</em></div>
           <div class="page-header-sub">Tu información personal en la plataforma</div>
         </div>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" onclick="showToastUser('✅ Cambios guardados correctamente')">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           Guardar cambios
         </button>
@@ -981,7 +981,7 @@ td strong { color: var(--ink); font-weight: 500; }
             <div class="perfil-body">
               <div class="perfil-avatar-wrap">
                 <div class="perfil-avatar">MG</div>
-                <button class="perfil-change-photo-btn">Cambiar foto</button>
+                <button class="perfil-change-photo-btn" onclick="showToastUser('Subir foto — próximamente')">Cambiar foto</button>
               </div>
               <div class="perfil-user-name">Martín González</div>
               <div class="perfil-user-since">Miembro desde enero 2025</div>
@@ -1058,7 +1058,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title"><em>Notificaciones</em></div>
           <div class="page-header-sub">4 sin leer</div>
         </div>
-        <button class="btn btn-secondary btn-sm">Marcar todas como leídas</button>
+        <button class="btn btn-secondary btn-sm" onclick="markAllRead()">Marcar todas como leídas</button>
       </div>
       <div class="table-card">
         <div class="notif-list" id="notif-list"></div>
@@ -1171,7 +1171,7 @@ function renderFavGrid() {
         <span class="fav-kanji">${s.kanji}</span>
         <span class="fav-disc-badge">${disciplines.find(d=>d.id===s.disc)?.label||s.disc}</span>
         ${s.verified?'<div class="fav-verified"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0e0c0b" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>':''}
-        <button class="fav-heart-btn" title="Quitar de favoritos">♥</button>
+        <button class="fav-heart-btn" title="Quitar de favoritos" onclick="event.stopPropagation();showToastUser('Quitado de favoritos')">♥</button>
       </div>
       <div class="fav-body">
         <div class="fav-name">${s.name}</div>
@@ -1213,8 +1213,8 @@ function renderReservasFull() {
       <td><strong style="color:${r.monto==='Incluida'?'var(--success)':'var(--crimson)'}">${r.monto}</strong></td>
       <td><span class="status ${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
       <td style="display:flex;gap:6px">
-        ${r.status==='confirmada'||r.status==='pendiente'?'<button class="tbl-btn" style="color:var(--crimson-bright)">Cancelar</button>':''}
-        ${r.status==='completada'?'<button class="tbl-btn prim">Reseñar</button>':''}
+        ${r.status==='confirmada'||r.status==='pendiente'?'<button class="tbl-btn" style="color:var(--crimson-bright)" onclick="showToastUser(\'Reserva cancelada\')>Cancelar</button>':''}
+        ${r.status==='completada'?'<button class="tbl-btn prim" onclick="showSection(\'resenas\')">Reseñar</button>':''}
       </td>
     </tr>`).join('');
 }
@@ -1247,7 +1247,7 @@ function renderSeguidas() {
       <div class="seguida-actions">
         ${s.news?'<span class="seguida-new-badge">Novedad</span>':''}
         <button class="tbl-btn" onclick="window.location.href='perfil-escuela.html'">Ver perfil</button>
-        <button class="tbl-btn" style="color:var(--crimson-bright)">Dejar de seguir</button>
+        <button class="tbl-btn" style="color:var(--crimson-bright)" onclick="showToastUser('Escuela removida de seguidas')">Dejar de seguir</button>
       </div>
     </div>`).join('');
 }
@@ -1285,8 +1285,8 @@ function renderMyReviews() {
       <div class="my-review-footer">
         <span class="my-review-date">${r.date}</span>
         <div class="my-review-actions">
-          <button class="tbl-btn">Editar</button>
-          <button class="tbl-btn" style="color:var(--crimson-bright)">Eliminar</button>
+          <button class="tbl-btn" onclick="showToastUser('Editor de reseña — próximamente')">Editar</button>
+          <button class="tbl-btn" style="color:var(--crimson-bright)" onclick="showToastUser('Reseña eliminada')">Eliminar</button>
         </div>
       </div>
     </div>`).join('');
@@ -1339,6 +1339,39 @@ renderSeguidasPreview();
 renderMyReviews();
 renderNotifs();
 renderPrefChips();
+
+// ── Toast y helpers panel usuario ──
+function showToastUser(msg) {
+  let t = document.getElementById('user-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'user-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:#0e0c0b;color:#faf8f4;padding:12px 24px;border-radius:4px;font-size:13px;border:1px solid rgba(200,169,110,0.2);z-index:9999;opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);font-family:"DM Sans",sans-serif;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.4)';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(60px)'; }, 3000);
+}
+
+function handleReviewSubmit() {
+  const stars = document.querySelectorAll('.star-btn.active').length;
+  const text  = document.querySelector('.review-textarea')?.value?.trim();
+  if (!stars) { showToastUser('⭐ Elegí una calificación primero'); return; }
+  if (!text)  { showToastUser('✏️ Escribí tu reseña primero'); return; }
+  showToastUser('✅ Reseña publicada — gracias por tu opinión');
+  document.querySelector('.review-textarea').value = '';
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+}
+
+function markAllRead() {
+  document.querySelectorAll('.notif-item.unread').forEach(n => n.classList.remove('unread'));
+  document.querySelector('.page-header-sub').textContent = '0 sin leer';
+  showToastUser('✅ Todas las notificaciones marcadas como leídas');
+  const badge = document.querySelector('.nav-item[onclick*="notificaciones"] .nav-badge');
+  if (badge) badge.remove();
+}
 </script>
 </body>
 </html>
