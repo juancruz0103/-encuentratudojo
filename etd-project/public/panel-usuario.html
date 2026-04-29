@@ -749,7 +749,7 @@ td strong { color: var(--ink); font-weight: 500; }
       <button class="topbar-btn" onclick="showSection('perfil')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </button>
-      <button class="topbar-btn" onclick="window.location.href='auth.html'" title="Cerrar sesión">
+      <button class="topbar-btn" onclick="sessionStorage.removeItem('etd_user');window.location.href='auth.html'" title="Cerrar sesión">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
@@ -1138,10 +1138,10 @@ const historial = [
 ];
 
 const seguidas = [
-  { kanji:'龍', name:'Dragon Gate Dojo',        disc:'Karate',   loc:'Palermo',      news:true,  color:'#8b1a1a' },
-  { kanji:'武', name:'Bushido Karate Dojo',     disc:'Karate',   loc:'San Telmo',    news:false, color:'#8b1a1a' },
-  { kanji:'合', name:'Centro Aikido Shinbukan', disc:'Aikido',   loc:'Recoleta',     news:true,  color:'#1a5276' },
-  { kanji:'剣', name:'Kenjutsu Dojo Musashi',   disc:'Kenjutsu', loc:'Palermo Soho', news:false, color:'#2c3e50' },
+  { id:1,  kanji:'龍', name:'Dragon Gate Dojo',        disc:'Karate',   loc:'Palermo',      news:true,  color:'#8b1a1a' },
+  { id:3,  kanji:'武', name:'Bushido Karate Dojo',     disc:'Karate',   loc:'San Telmo',    news:false, color:'#8b1a1a' },
+  { id:6,  kanji:'合', name:'Centro Aikido Shinbukan', disc:'Aikido',   loc:'Recoleta',     news:true,  color:'#1a5276' },
+  { id:10, kanji:'剣', name:'Kenjutsu Dojo Musashi',   disc:'Kenjutsu', loc:'Palermo Soho', news:false, color:'#2c3e50' },
 ];
 
 const myReviews = [
@@ -1166,7 +1166,7 @@ function renderFavGrid() {
   const grid = document.getElementById('fav-grid');
   if (!grid) return;
   grid.innerHTML = favSchools.map(s => `
-    <div class="fav-card" onclick="window.location.href='perfil-escuela.html'" style="cursor:pointer">
+    <div class="fav-card" onclick="window.location.href='perfil-escuela.html?id=${s.id}'" style="cursor:pointer">
       <div class="fav-card-cover" style="background:linear-gradient(135deg,${s.color}33,${s.color}88)">
         <span class="fav-kanji">${s.kanji}</span>
         <span class="fav-disc-badge">${disciplines.find(d=>d.id===s.disc)?.label||s.disc}</span>
@@ -1246,7 +1246,7 @@ function renderSeguidas() {
       </div>
       <div class="seguida-actions">
         ${s.news?'<span class="seguida-new-badge">Novedad</span>':''}
-        <button class="tbl-btn" onclick="window.location.href='perfil-escuela.html'">Ver perfil</button>
+        <button class="tbl-btn" onclick="window.location.href='perfil-escuela.html?id=${s.id}'">Ver perfil</button>
         <button class="tbl-btn" style="color:var(--crimson-bright)" onclick="showToastUser('Escuela removida de seguidas')">Dejar de seguir</button>
       </div>
     </div>`).join('');

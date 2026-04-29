@@ -2142,6 +2142,10 @@ const schools = [
   { id:13, name:'Aikido Takeda Dojo',      location:'Almagro, Buenos Aires',      discipline:'aikido',    subcats:['Infantil','Adultos','Técnicas de inmovilización'], kanji:'気', rating:4.6, reviews:49, price:'$5.500', priceNote:'/mes', verified:false, premium:false, lat:-34.613, lng:-58.420, description:'Dojo de Aikido con enfoque en la filosofía y técnica clásica.' },
   { id:14, name:'Hapkido Seoul Center',    location:'Palermo, Buenos Aires',      discipline:'hapkido',   subcats:['Juvenil','Adultos','Proyecciones','Combate/Sparring'], kanji:'합', rating:4.7, reviews:62, price:'$6.300', priceNote:'/mes', verified:true, premium:false, lat:-34.579, lng:-58.429, description:'Centro de Hapkido con instructores directamente de Corea.' },
   { id:15, name:'Pakua Marcial Norte',     location:'Villa Urquiza, Bs As',       discipline:'pakua',     subcats:['Marcial Jr','Armas tradicionales','Defensa personal'], kanji:'卦', rating:4.8, reviews:77, price:'$7.200', priceNote:'/mes', verified:true, premium:false, lat:-34.572, lng:-58.489, description:'Especialistas en el aspecto marcial del Pakua Zhang.' },
+  { id:16, name:'Kenjutsu Ryu Osaka',     location:'Microcentro, Buenos Aires',  discipline:'kenjutsu',  subcats:['Iaido','Kenjutsu avanzado','Historia samurái','Adultos'],         kanji:'刀', rating:4.8, reviews:34,  price:'$8.200', priceNote:'/mes', verified:true,  premium:true,  lat:-34.603, lng:-58.381, description:'Escuela de Kenjutsu fundada por el Maestro Hiroshi Tanaka, formado en el dojo Osaka Ryu. Única academia en Buenos Aires con tatami de madera tradicional.' },
+  { id:17, name:'Centro Karate Shotokan', location:'Villa Devoto, Buenos Aires',  discipline:'karate',    subcats:['Infantil','Juvenil','Adultos','Kata','Kihon','Kumite'],             kanji:'松', rating:4.6, reviews:118, price:'$6.000', priceNote:'/mes', verified:true,  premium:false, lat:-34.598, lng:-58.514, description:'Más de 20 años formando karatecas en Villa Devoto. Programa especial para niños desde 4 años con instructores certificados por la Federación Argentina de Karate.' },
+  { id:18, name:'Aikido Misogi Dojo',     location:'San Isidro, Buenos Aires',   discipline:'aikido',    subcats:['Adultos','Juvenil','Caídas/Ukemi','Jo','Defensa personal'],         kanji:'氣', rating:4.9, reviews:61,  price:'$7.800', priceNote:'/mes', verified:true,  premium:true,  lat:-34.471, lng:-58.528, description:'Dojo de Aikido Aikikai en San Isidro con más de 25 años de tradición. Nuestro Sensei fue formado directamente en el Hombu Dojo de Tokio. Ambiente de práctica serio, respetuoso y abierto a todos los niveles.' },
+  { id:19, name:'Judo Club Matsumoto',    location:'Quilmes, Buenos Aires',      discipline:'judo',      subcats:['Infantil','Juvenil','Adultos','Randori','Preparación física','Ne-waza'], kanji:'道', rating:4.7, reviews:93,  price:'$5.200', priceNote:'/mes', verified:true,  premium:false, lat:-34.722, lng:-58.254, description:'Club de Judo con raíces en la colonia japonesa de Quilmes, fundado en 1987. Formamos campeones bonaerenses en todas las categorías. Clases tres veces por semana con tatami de alta competencia.' },
 ];
 
 // ══════════════════════════════
@@ -2479,7 +2483,7 @@ function renderFeatured() {
             <strong>${s.rating}</strong><span>★</span>
             <span>(${s.reviews} reseñas)</span>
           </div>
-          <button class="btn-card" onclick="window.location.href='perfil-escuela.html'">Ver perfil</button>
+          <button class="btn-card" onclick="window.location.href='perfil-escuela.html?id=${s.id}'">Ver perfil</button>
         </div>
       </div>
     </div>`;
@@ -2555,7 +2559,7 @@ function addMarkers(data) {
         <span class="popup-rating">★ ${school.rating}
           <span style="opacity:.5">(${school.reviews})</span>
         </span>
-        <button class="popup-btn" onclick="window.location.href='perfil-escuela.html'">Ver perfil</button>
+        <button class="popup-btn" onclick="window.location.href='perfil-escuela.html?id=${school.id}'">Ver perfil</button>
       </div>`;
 
     const marker = L.marker([school.lat, school.lng], { icon: createMarkerIcon(school) })
@@ -2714,6 +2718,129 @@ function showToast(msg) {
     t.style.transform = 'translateX(-50%) translateY(60px)';
   }, 3000);
 }
+
+// ── Leer sesión y mostrar estado en el nav ──
+// ── Estilos del dropdown de sesión ──
+(function() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .session-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--crimson), var(--ink-mid));
+      border: 2px solid rgba(200,169,110,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 15px; font-weight: 600;
+      color: var(--parchment); cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+      flex-shrink: 0; position: relative;
+    }
+    .session-avatar:hover { border-color: var(--gold); transform: scale(1.05); }
+    .session-avatar-wrap { position: relative; }
+    .session-online-dot {
+      position: absolute; bottom: 0; right: 0;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--success-bright); border: 2px solid var(--ink);
+    }
+    .session-dropdown {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      background: var(--ink); border: 1px solid rgba(200,169,110,0.18);
+      border-radius: 6px; min-width: 220px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      opacity: 0; pointer-events: none; transform: translateY(-8px);
+      transition: all 0.22s cubic-bezier(0.4,0,0.2,1); z-index: 500;
+    }
+    .session-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .session-dd-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid rgba(200,169,110,0.1);
+    }
+    .session-dd-name { font-size: 14px; font-weight: 500; color: var(--parchment); margin-bottom: 2px; }
+    .session-dd-type { font-size: 11px; color: rgba(200,169,110,0.6); letter-spacing: 0.06em; text-transform: uppercase; }
+    .session-dd-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; font-size: 13px; color: rgba(250,248,244,0.6);
+      text-decoration: none; cursor: pointer; transition: background 0.15s;
+      border: none; background: none; font-family: var(--font-body);
+      width: 100%; text-align: left;
+    }
+    .session-dd-item:hover { background: rgba(250,248,244,0.05); color: var(--parchment); }
+    .session-dd-item svg { opacity: 0.6; flex-shrink: 0; }
+    .session-dd-item:hover svg { opacity: 1; }
+    .session-dd-divider { height: 1px; background: rgba(200,169,110,0.08); margin: 4px 0; }
+    .session-dd-logout { color: rgba(192,57,43,0.7) !important; }
+    .session-dd-logout:hover { color: var(--crimson-bright) !important; background: rgba(192,57,43,0.06) !important; }
+  `;
+  document.head.appendChild(style);
+})();
+
+function applySessionToNav() {
+  const s = (() => { try { return JSON.parse(sessionStorage.getItem('etd_user')); } catch { return null; } })();
+  if (!s) return;
+
+  // Ocultar botones login/register
+  const loginBtn    = document.querySelector('.btn-nav-login');
+  const registerBtn = document.querySelector('.btn-nav-register');
+  if (loginBtn)    loginBtn.style.display = 'none';
+  if (registerBtn) registerBtn.style.display = 'none';
+
+  const navActions = document.querySelector('.nav-actions');
+  if (!navActions || document.getElementById('session-avatar-wrap')) return;
+
+  const dest    = s.type === 'escuela' ? 'dashboard-escuela.html' : 'panel-usuario.html';
+  const panelLbl= s.type === 'escuela' ? 'Panel de escuela' : 'Mi cuenta';
+  const initials = s.name.split(' ').map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase();
+  const typeLabel= s.type === 'escuela' ? 'Escuela · Sesión activa' : 'Alumno · Sesión activa';
+  const profileLink = s.type !== 'escuela' ? 'style="display:none"' : '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'session-avatar-wrap';
+  wrap.id = 'session-avatar-wrap';
+  wrap.innerHTML =
+    '<div class="session-avatar" id="session-avatar" onclick="toggleSessionDD(event)" title="Mi cuenta">' +
+      initials +
+      '<span class="session-online-dot"></span>' +
+    '</div>' +
+    '<div class="session-dropdown" id="session-dropdown">' +
+      '<div class="session-dd-header">' +
+        '<div class="session-dd-name">' + s.name + '</div>' +
+        '<div class="session-dd-type">' + typeLabel + '</div>' +
+      '</div>' +
+      '<a href="' + dest + '" class="session-dd-item">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>' +
+        panelLbl +
+      '</a>' +
+      '<a href="perfil-escuela.html" class="session-dd-item" ' + profileLink + '>' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+        'Ver mi perfil público' +
+      '</a>' +
+      '<div class="session-dd-divider"></div>' +
+      '<button class="session-dd-item session-dd-logout" onclick="doLogout()">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>' +
+        'Cerrar sesión' +
+      '</button>' +
+    '</div>';
+
+  navActions.appendChild(wrap);
+
+  // Cerrar al hacer click afuera
+  document.addEventListener('click', e => {
+    if (!wrap.contains(e.target)) {
+      document.getElementById('session-dropdown')?.classList.remove('open');
+    }
+  });
+}
+
+function toggleSessionDD(e) {
+  e.stopPropagation();
+  document.getElementById('session-dropdown')?.classList.toggle('open');
+}
+
+function doLogout() {
+  sessionStorage.removeItem('etd_user');
+  window.location.href = 'auth.html';
+}
+
+document.addEventListener('DOMContentLoaded', applySessionToNav);
 </script>
 </body>
 </html>

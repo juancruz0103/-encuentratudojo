@@ -930,11 +930,7 @@ td strong { color: var(--ink); font-weight: 500; }
       Leads recibidos
       <span class="nav-badge">7</span>
     </a>
-    <a class="nav-item" onclick="showSection('mensajeria')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      Mensajería
-      <span class="nav-badge">3</span>
-    </a>
+
 
     <span class="nav-section-label">Mi escuela</span>
     <a class="nav-item" onclick="showSection('perfil')">
@@ -1067,62 +1063,27 @@ td strong { color: var(--ink); font-weight: 500; }
         </div>
       </div>
 
-      <!-- Charts -->
-      <div class="charts-grid">
-        <div class="chart-card">
-          <div class="chart-card-header">
-            <div>
-              <div class="chart-card-title">Leads y conversiones</div>
-              <div class="chart-card-sub">Últimos 6 meses</div>
-            </div>
-            <select class="chart-period-select">
-              <option>6 meses</option>
-              <option>3 meses</option>
-              <option>Este año</option>
-            </select>
-          </div>
-          <div class="chart-body">
-            <div class="chart-svg-wrap" id="chart-leads-wrap">
-              <svg class="chart-svg" id="chart-leads" height="180" viewBox="0 0 560 180"></svg>
-              <div class="chart-tooltip" id="tooltip-leads"></div>
-            </div>
-          </div>
+      <!-- Últimas visitas simplificadas -->
+      <div class="table-card" style="margin-bottom:0">
+        <div class="table-card-header">
+          <div style="font-size:13px;font-weight:500;color:var(--ink)">Últimas visitas y contactos</div>
+          <button class="btn btn-ghost btn-sm" onclick="showSection('leads')">Ver todos los leads →</button>
         </div>
-
-        <div class="chart-card">
-          <div class="chart-card-header">
-            <div>
-              <div class="chart-card-title">Fuente de leads</div>
-              <div class="chart-card-sub">Distribución del mes</div>
-            </div>
-          </div>
-          <div class="chart-body">
-            <div class="donut-wrap" id="donut-wrap"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Activity + Reviews -->
-      <div class="bottom-grid">
-        <div class="feed-card">
-          <div class="feed-header">
-            <span class="feed-title">Actividad reciente</span>
-            <button class="btn btn-ghost btn-sm" onclick="showToastDash('Historial completo — próximamente')">Ver todo</button>
-          </div>
-          <div class="feed-list" id="activity-feed"></div>
-        </div>
-
-        <div class="feed-card">
-          <div class="feed-header">
-            <span class="feed-title">Últimas reseñas</span>
-            <button class="btn btn-ghost btn-sm" onclick="showToastDash('Todas las reseñas — próximamente')">Ver todas</button>
-          </div>
-          <div id="reviews-list"></div>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Alumno</th>
+              <th>Tipo de contacto</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="overview-leads-table"></tbody>
+        </table>
       </div>
     </div>
 
-    <!-- ══════════════════════ LEADS ══════════════════════ -->
+-->
     <div class="dashboard-section" id="section-leads">
       <div class="page-header">
         <div>
@@ -1170,51 +1131,6 @@ td strong { color: var(--ink); font-weight: 500; }
     </div>
 
     <!-- ══════════════════════ MENSAJERÍA ══════════════════════ -->
-    <div class="dashboard-section" id="section-mensajeria">
-      <div class="page-header" style="margin-bottom:16px">
-        <div>
-          <div class="page-header-title"><em>Mensajería</em></div>
-          <div class="page-header-sub">Conversaciones con alumnos interesados</div>
-        </div>
-      </div>
-      <div class="messaging-layout">
-        <div class="msg-list">
-          <div class="msg-list-header">Conversaciones</div>
-          <div class="msg-list-search">
-            <input type="text" placeholder="Buscar conversación…">
-          </div>
-          <div class="msg-threads" id="msg-threads"></div>
-        </div>
-        <div class="msg-conversation">
-          <div class="msg-conv-header">
-            <div class="msg-conv-user">
-              <div class="msg-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--parchment-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--wood)">MG</div>
-              <div>
-                <div class="msg-conv-name">Martín González</div>
-                <div class="msg-conv-status">● En línea</div>
-              </div>
-            </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-secondary btn-sm" onclick="showSection('leads')">Ver lead</button>
-              <button class="btn btn-primary btn-sm" onclick="showToastDash('Agenda de clases — próximamente')">Agendar clase</button>
-            </div>
-          </div>
-          <div class="msg-conv-body" id="msg-conv-body"></div>
-          <div class="msg-conv-footer">
-            <div class="msg-input-wrap">
-              <textarea class="msg-input" rows="2" placeholder="Escribí tu mensaje…" id="msg-input"></textarea>
-              <div class="msg-actions-row">
-                <button class="msg-attach-btn">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-                </button>
-                <button class="msg-send-btn" onclick="sendMsg()">Enviar</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ══════════════════════ PERFIL ══════════════════════ -->
     <div class="dashboard-section" id="section-perfil">
       <div class="page-header">
@@ -1514,11 +1430,10 @@ td strong { color: var(--ink); font-weight: 500; }
 // ══════════════════════════════
 // NAVIGATION
 // ══════════════════════════════
-const sections = ['overview','leads','mensajeria','perfil','anuncios','metricas','facturacion'];
+const sections = ['overview','leads','perfil','anuncios','metricas','facturacion'];
 const sectionTitles = {
   overview:    ['Resumen general', 'Dashboard'],
   leads:       ['Leads recibidos', 'Leads'],
-  mensajeria:  ['Mensajería',      'Mensajería'],
   perfil:      ['Editar perfil',   'Perfil'],
   anuncios:    ['Mis anuncios',    'Anuncios'],
   metricas:    ['Métricas avanzadas', 'Métricas'],
@@ -1741,79 +1656,10 @@ function renderLeads() {
       <td><span class="status ${l.status}">${l.status.charAt(0).toUpperCase()+l.status.slice(1)}</span></td>
       <td><strong style="color:${l.commission!=='$0'?'var(--success)':'var(--wood-light)'}">${l.commission}</strong></td>
       <td style="display:flex;gap:6px">
-        <button class="tbl-btn" onclick="showSection('mensajeria')">Mensaje</button>
+        <button class="tbl-btn" onclick="showToastDash('Para contactar al alumno usá el dato de contacto del lead')">Contactar</button>
         ${l.status==='nuevo' ? '<button class="tbl-btn primary-sm" onclick="showToastDash(\'Contactando alumno...\')>Contactar</button>' : ''}
       </td>
     </tr>`).join('');
-}
-
-// ══════════════════════════════
-// MENSAJERÍA
-// ══════════════════════════════
-const threads = [
-  { initials:'MG', name:'Martín González', preview:'¿Tienen clases los sábados?', time:'10:32', unread:2, active:true },
-  { initials:'SF', name:'Sofía Fernández',  preview:'Quiero saber el precio de la matrícula', time:'Ayer', unread:1, active:false },
-  { initials:'CL', name:'Carlos López',     preview:'Gracias por la información!', time:'Lun',  unread:0, active:false },
-  { initials:'AM', name:'Ana Martínez',     preview:'¿Hacen clases para niños?', time:'Dom',   unread:0, active:false },
-];
-
-const conversation = [
-  { mine:false, text:'Hola! Vi su escuela en EncuentraTuDojo. ¿Tienen clases de Karate los sábados?', time:'10:15' },
-  { mine:true,  text:'¡Hola Martín! Sí, los sábados de 9 a 12hs tenemos clases grupales y de 14 a 16hs clases privadas. ¿Qué nivel tenés?', time:'10:22' },
-  { mine:false, text:'Soy principiante, nunca practiqué Karate. ¿Hay alguna clase de prueba gratuita?', time:'10:28' },
-  { mine:true,  text:'¡Perfecto para empezar! Sí, ofrecemos una clase trial por $1.500. Si luego te inscribís ese valor se descuenta de la matrícula. ¿Querés que te agenda una?', time:'10:31' },
-  { mine:false, text:'¿Tienen clases los sábados?', time:'10:32' },
-];
-
-function renderMessaging() {
-  const threadsEl = document.getElementById('msg-threads');
-  if (!threadsEl) return;
-  threadsEl.innerHTML = threads.map(t => `
-    <div class="msg-thread ${t.active?'active':''}" onclick="selectThread(this)">
-      <div class="msg-avatar">${t.initials}</div>
-      <div class="msg-thread-info">
-        <div class="msg-thread-name">${t.name}</div>
-        <div class="msg-thread-preview">${t.preview}</div>
-      </div>
-      <div class="msg-thread-meta">
-        <span class="msg-thread-time">${t.time}</span>
-        ${t.unread ? `<span class="msg-unread">${t.unread}</span>` : ''}
-      </div>
-    </div>`).join('');
-
-  const convBody = document.getElementById('msg-conv-body');
-  if (!convBody) return;
-  convBody.innerHTML = conversation.map(m => `
-    <div class="msg-bubble-wrap ${m.mine?'mine':''}">
-      ${!m.mine ? '<div class="msg-bubble-avatar">MR</div>' : ''}
-      <div>
-        <div class="msg-bubble ${m.mine?'mine':'theirs'}">${m.text}</div>
-        <div class="msg-bubble-time">${m.time}</div>
-      </div>
-    </div>`).join('');
-  convBody.scrollTop = convBody.scrollHeight;
-}
-
-function selectThread(el) {
-  document.querySelectorAll('.msg-thread').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-}
-
-function sendMsg() {
-  const input = document.getElementById('msg-input');
-  const text = input.value.trim();
-  if (!text) return;
-  const body = document.getElementById('msg-conv-body');
-  const now = new Date().toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
-  body.innerHTML += `
-    <div class="msg-bubble-wrap mine">
-      <div>
-        <div class="msg-bubble mine">${text}</div>
-        <div class="msg-bubble-time">${now}</div>
-      </div>
-    </div>`;
-  input.value = '';
-  body.scrollTop = body.scrollHeight;
 }
 
 // ══════════════════════════════
@@ -1897,7 +1743,7 @@ buildDonut('donut-devices', [
 renderFeed();
 renderReviews();
 renderLeads();
-renderMessaging();
+renderOverviewLeads();
 renderAnuncios();
 
 // ── Toast feedback ──
@@ -1913,6 +1759,11 @@ function showToastDash(msg) {
   t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
   clearTimeout(t._timer);
   t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(60px)'; }, 3000);
+}
+
+function doLogout() {
+  sessionStorage.removeItem('etd_user');
+  window.location.href = 'auth.html';
 }
 </script>
 </body>

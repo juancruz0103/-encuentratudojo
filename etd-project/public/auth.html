@@ -1046,6 +1046,21 @@ function simulateLoading(btnId, spinnerId, duration, callback) {
   }, duration);
 }
 
+
+// ── Guardar sesión al hacer login ──
+function saveSession(type, name) {
+  sessionStorage.setItem('etd_user', JSON.stringify({
+    type: type,       // 'alumno' | 'escuela'
+    name: name,
+    loggedAt: Date.now()
+  }));
+}
+function getSession() {
+  try { return JSON.parse(sessionStorage.getItem('etd_user')); } catch { return null; }
+}
+function clearSession() {
+  sessionStorage.removeItem('etd_user');
+}
 // ══════════════════════════════
 // LOGIN SUBMIT
 // ══════════════════════════════
@@ -1076,8 +1091,10 @@ function submitLogin() {
       document.getElementById('login-email').classList.add('error');
       document.getElementById('login-pwd').classList.add('error');
     } else if (email === 'escuela@demo.com') {
+      saveSession('escuela', 'Dragon Gate Dojo');
       window.location.href = 'dashboard-escuela.html';
     } else {
+      saveSession('alumno', 'Martín González');
       window.location.href = 'panel-usuario.html';
     }
   });
@@ -1168,6 +1185,7 @@ function submitRegister() {
     goRegStep(4);
     // Redirigir según tipo elegido
     const isEscuela = document.getElementById('type-escuela').checked;
+    if (isEscuela) { saveSession('escuela','Nueva Escuela'); } else { saveSession('alumno','Nuevo Usuario'); }
     setTimeout(() => {
       if (isEscuela) {
         window.location.href = 'registro-escuela.html';
@@ -1259,6 +1277,7 @@ function socialLogin(provider) {
       btn.disabled = false;
       // Detectar si está en pestaña escuela
       const tabEscuela = document.querySelector('.auth-tab:last-child.active');
+      if (tabEscuela) { saveSession('escuela','Dragon Gate Dojo'); } else { saveSession('alumno','Martín González'); }
       window.location.href = tabEscuela ? 'dashboard-escuela.html' : 'panel-usuario.html';
     }, 1500);
   }
