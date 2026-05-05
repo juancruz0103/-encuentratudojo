@@ -897,6 +897,155 @@ td strong { color: var(--ink); font-weight: 500; }
 @media (max-width: 480px) {
   .kpi-grid { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════
+   TABLERO DE ANUNCIOS v2
+══════════════════════════ */
+
+/* Stats bar del tablero */
+.anuncios-stats-bar {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 14px; margin-bottom: 24px;
+}
+.anuncio-stat-card {
+  background: var(--white); border: 1px solid rgba(122,92,58,0.1);
+  border-radius: var(--radius); padding: 16px 18px;
+  border-left: 3px solid var(--crimson);
+}
+.anuncio-stat-card.gold  { border-left-color: var(--gold); }
+.anuncio-stat-card.green { border-left-color: var(--success-bright); }
+.anuncio-stat-card.blue  { border-left-color: #2e86c1; }
+.anuncio-stat-val {
+  font-family: var(--font-display); font-size: 28px; font-weight: 600;
+  color: var(--ink); line-height: 1; margin-bottom: 4px;
+}
+.anuncio-stat-lbl { font-size: 11px; color: var(--wood-light); letter-spacing: 0.06em; }
+
+/* Filtro tabs */
+.anuncio-tabs {
+  display: flex; gap: 0; margin-bottom: 20px;
+  background: var(--parchment-dark); border: 1px solid rgba(122,92,58,0.12);
+  border-radius: var(--radius); padding: 3px; width: fit-content;
+}
+.anuncio-tab {
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 8px 18px; border: none; background: transparent;
+  color: var(--wood-light); border-radius: 3px; cursor: pointer;
+  transition: all 0.2s;
+}
+.anuncio-tab.active {
+  background: var(--white); color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Grid mejorado */
+.anuncios-grid-v2 {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 18px;
+}
+@media (max-width:1100px) { .anuncios-grid-v2 { grid-template-columns: 1fr 1fr; } }
+@media (max-width:700px)  { .anuncios-grid-v2 { grid-template-columns: 1fr; } }
+
+/* Anuncio card v2 */
+.anuncio-card-v2 {
+  background: var(--white); border: 1px solid rgba(122,92,58,0.1);
+  border-radius: var(--radius); overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.25s;
+  display: flex; flex-direction: column;
+}
+.anuncio-card-v2:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.anuncio-card-v2.paused { opacity: 0.65; }
+
+.anuncio-cover {
+  height: 130px; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.anuncio-cover-kanji {
+  font-family: var(--font-jp); font-size: 72px;
+  line-height: 1; user-select: none;
+}
+.anuncio-cover-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(14,12,11,0.55), rgba(14,12,11,0.25));
+}
+.anuncio-badge {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 9px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 2px;
+}
+.anuncio-badge.activo   { background: var(--success-pale); color: var(--success); border: 1px solid rgba(45,106,79,0.2); }
+.anuncio-badge.borrador { background: rgba(250,248,244,0.12); color: rgba(250,248,244,0.6); border: 1px solid rgba(250,248,244,0.15); }
+.anuncio-badge.pausado  { background: var(--warning-pale); color: var(--warning); border: 1px solid rgba(212,114,10,0.2); }
+.anuncio-type-badge {
+  position: absolute; bottom: 10px; left: 10px;
+  font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(250,248,244,0.7); background: rgba(14,12,11,0.5);
+  padding: 3px 8px; border-radius: 2px; backdrop-filter: blur(4px);
+}
+
+.anuncio-body-v2 { padding: 14px 16px 10px; flex: 1; }
+.anuncio-title-v2 { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 5px; line-height: 1.35; }
+.anuncio-desc-v2  { font-size: 12px; color: var(--wood-light); line-height: 1.55; font-weight: 300; margin-bottom: 12px; }
+
+/* Métricas inline en card */
+.anuncio-metrics {
+  display: flex; gap: 12px; margin-bottom: 0;
+}
+.anuncio-metric {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--ink-soft);
+}
+.anuncio-metric-val { font-weight: 500; color: var(--ink); }
+.anuncio-metric svg { color: var(--wood-light); }
+
+/* Mini barra de progreso CTR */
+.ctr-wrap { margin-top: 10px; }
+.ctr-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--wood-light); margin-bottom: 4px; }
+.ctr-track { height: 3px; background: var(--parchment-dark); border-radius: 2px; overflow: hidden; }
+.ctr-fill  { height: 100%; background: var(--crimson); border-radius: 2px; transition: width 1s var(--ease); }
+
+.anuncio-footer-v2 {
+  border-top: 1px solid rgba(122,92,58,0.07);
+  padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.anuncio-dates { font-size: 10px; color: var(--wood-light); }
+
+/* Anuncio add card v2 */
+.anuncio-add-v2 {
+  border: 1.5px dashed rgba(122,92,58,0.18); background: transparent;
+  border-radius: var(--radius); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+  padding: 40px 24px; cursor: pointer; transition: all 0.25s; min-height: 280px;
+}
+.anuncio-add-v2:hover { border-color: var(--crimson); background: var(--crimson-pale); }
+.anuncio-add-icon-v2 {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--parchment-dark); display: flex; align-items: center; justify-content: center;
+  color: var(--wood-light); transition: all 0.25s;
+}
+.anuncio-add-v2:hover .anuncio-add-icon-v2 { background: var(--crimson-pale); color: var(--crimson); }
+.anuncio-add-title { font-size: 14px; font-weight: 500; color: var(--ink-soft); }
+.anuncio-add-sub   { font-size: 12px; color: var(--wood-light); text-align: center; }
+
+/* Modal de anuncio */
+.anuncio-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.anuncio-form-grid .span-2 { grid-column: span 2; }
+.tipo-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.tipo-opt { position: relative; }
+.tipo-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+.tipo-label {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 8px; border: 1px solid rgba(122,92,58,0.15);
+  border-radius: 4px; cursor: pointer; background: var(--parchment);
+  transition: all 0.18s; text-align: center;
+}
+.tipo-label:hover { border-color: rgba(139,26,26,0.3); }
+.tipo-opt input:checked + .tipo-label {
+  border-color: var(--crimson); background: var(--crimson-pale);
+}
+.tipo-icon { font-family: var(--font-jp); font-size: 20px; color: var(--crimson); }
+.tipo-name { font-size: 11px; font-weight: 500; color: var(--ink-soft); }
 </style>
 </head>
 <body>
@@ -942,6 +1091,11 @@ td strong { color: var(--ink); font-weight: 500; }
       Anuncios
     </a>
 
+    <span class="nav-section-label">Comunidad</span>
+    <a class="nav-item" href="tablero.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Tablero comunitario
+    </a>
     <span class="nav-section-label">Negocio</span>
     <a class="nav-item" onclick="showSection('metricas')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -1138,7 +1292,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title">Editar <em>perfil</em></div>
           <div class="page-header-sub">Esta información aparece en el buscador público</div>
         </div>
-        <button class="btn btn-primary" onclick="showToastDash('✅ Cambios guardados correctamente')">
+        <button class="btn btn-primary" onclick="guardarPerfilEscuela()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           Guardar cambios
         </button>
@@ -1184,7 +1338,7 @@ td strong { color: var(--ink); font-weight: 500; }
             <div class="form-grid">
               <div class="form-field">
                 <label class="form-label">Nombre de la escuela</label>
-                <input class="form-input" type="text" value="Dragon Gate Dojo">
+                <input class="form-input" id="esc-nombre" type="text" value="Dragon Gate Dojo">
               </div>
               <div class="form-field">
                 <label class="form-label">Año de fundación</label>
@@ -1202,7 +1356,7 @@ td strong { color: var(--ink); font-weight: 500; }
             <div class="form-grid">
               <div class="form-field">
                 <label class="form-label">Teléfono</label>
-                <input class="form-input" type="text" value="+54 11 4444-5555">
+                <input class="form-input" id="esc-telefono" type="text" value="+54 11 4444-5555">
               </div>
               <div class="form-field">
                 <label class="form-label">WhatsApp</label>
@@ -1210,11 +1364,11 @@ td strong { color: var(--ink); font-weight: 500; }
               </div>
               <div class="form-field">
                 <label class="form-label">Email</label>
-                <input class="form-input" type="email" value="info@dragongate.com.ar">
+                <input class="form-input" id="esc-email" type="email" value="info@dragongate.com.ar">
               </div>
               <div class="form-field">
                 <label class="form-label">Instagram</label>
-                <input class="form-input" type="text" value="@dragongate.dojo">
+                <input class="form-input" id="esc-instagram" type="text" value="@dragongate.dojo">
               </div>
             </div>
           </div>
@@ -1248,16 +1402,28 @@ td strong { color: var(--ink); font-weight: 500; }
     <div class="dashboard-section" id="section-anuncios">
       <div class="page-header">
         <div>
-          <div class="page-header-title">Mis <em>anuncios</em></div>
-          <div class="page-header-sub">Publicaciones visibles en el buscador y perfiles</div>
+          <div class="page-header-title">Tablero de <em>anuncios</em></div>
+          <div class="page-header-sub">Creá y gestioná tus publicaciones en el buscador</div>
         </div>
-        <button class="btn btn-primary" onclick="showToastDash('Crear anuncio — formulario próximamente')">
+        <button class="btn btn-primary" onclick="openAnuncioModal()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Crear anuncio
         </button>
       </div>
 
-      <div class="anuncios-grid" id="anuncios-grid"></div>
+      <!-- Stats globales -->
+      <div class="anuncios-stats-bar" id="anuncios-stats"></div>
+
+      <!-- Filtro por estado -->
+      <div class="anuncio-tabs">
+        <button class="anuncio-tab active" onclick="filterAnuncios('todos', this)">Todos</button>
+        <button class="anuncio-tab" onclick="filterAnuncios('activo', this)">Activos</button>
+        <button class="anuncio-tab" onclick="filterAnuncios('borrador', this)">Borradores</button>
+        <button class="anuncio-tab" onclick="filterAnuncios('pausado', this)">Pausados</button>
+      </div>
+
+      <!-- Grid de anuncios v2 -->
+      <div class="anuncios-grid-v2" id="anuncios-grid-v2"></div>
     </div>
 
     <!-- ══════════════════════ MÉTRICAS ══════════════════════ -->
@@ -1665,49 +1831,231 @@ function renderLeads() {
 // ══════════════════════════════
 // ANUNCIOS
 // ══════════════════════════════
-const anuncios = [
-  { kanji:'春', title:'Promoción de inicio de temporada', desc:'20% de descuento en la matrícula durante abril y mayo. ¡Empezá tu camino en el Karate!', status:'activo',   views:342, clicks:28 },
-  { kanji:'道', title:'Clase trial gratuita — Mayo 2025', desc:'Primera clase sin cargo para nuevos alumnos. Turnos limitados, reservá el tuyo.', status:'activo',   views:217, clicks:19 },
-  { kanji:'武', title:'Campamento de verano Karate Kids', desc:'Programa intensivo para niños de 6 a 14 años. 2 semanas de entrenamiento y diversión.', status:'borrador', views:0,   clicks:0 },
+// ══════════════════════════════
+// TABLERO DE ANUNCIOS
+// ══════════════════════════════
+const TIPO_KANJI = { promo:'春', evento:'祭', novedad:'新', clase:'道', torneo:'武', otro:'他' };
+const TIPO_COLORS = {
+  promo:'linear-gradient(135deg,#1a0a0a,#3a1010)',
+  evento:'linear-gradient(135deg,#0a1020,#102040)',
+  novedad:'linear-gradient(135deg,#0a1a0a,#103010)',
+  clase:'linear-gradient(135deg,#1a1000,#302000)',
+  torneo:'linear-gradient(135deg,#1a0a1a,#300030)',
+  otro:'linear-gradient(135deg,#0e0c0b,#2a2622)',
+};
+
+let anuncios = [
+  { id:1, tipo:'promo',   kanji:'春', title:'Promoción de inicio de temporada',    desc:'20% de descuento en la matrícula durante abril y mayo. Empezá tu camino en el Karate.', status:'activo',  views:342, clicks:28, inicio:'2025-04-01', fin:'2025-05-31', url:'' },
+  { id:2, tipo:'clase',   kanji:'道', title:'Clase trial gratuita — Mayo 2025',    desc:'Primera clase sin cargo para nuevos alumnos. Turnos limitados, reservá el tuyo.', status:'activo',  views:217, clicks:19, inicio:'2025-05-01', fin:'2025-05-31', url:'' },
+  { id:3, tipo:'evento',  kanji:'祭', title:'Campamento de verano Karate Kids',    desc:'Programa intensivo para niños de 6 a 14 años. 2 semanas de entrenamiento y diversión.', status:'borrador', views:0,   clicks:0,  inicio:'2025-12-01', fin:'2025-12-14', url:'' },
+  { id:4, tipo:'torneo',  kanji:'武', title:'Torneo interno de Kumite — Junio',    desc:'Competencia interna para alumnos de faja amarilla en adelante. Inscripción libre.', status:'pausado', views:98,  clicks:6,  inicio:'2025-06-15', fin:'2025-06-15', url:'' },
 ];
 
-function renderAnuncios() {
-  const grid = document.getElementById('anuncios-grid');
-  if (!grid) return;
-  grid.innerHTML = anuncios.map(a => `
-    <div class="anuncio-card">
-      <div class="anuncio-image">
-        ${a.kanji}
-        <span class="anuncio-status-badge ${a.status}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span>
-      </div>
-      <div class="anuncio-body">
-        <div class="anuncio-title">${a.title}</div>
-        <div class="anuncio-desc">${a.desc}</div>
-      </div>
-      <div class="anuncio-footer">
-        <div style="display:flex;gap:14px">
-          <div class="anuncio-stat">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            ${a.views}
-          </div>
-          <div class="anuncio-stat">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
-            ${a.clicks}
-          </div>
-        </div>
-        <div class="anuncio-actions">
-          <button class="tbl-btn" onclick="showToastDash('Editor de anuncios — próximamente')">Editar</button>
-          <button class="tbl-btn ${a.status==='activo'?'':'primary-sm'}" onclick="showToastDash(this.textContent.trim() + ' anuncio')">${a.status==='activo'?'Pausar':'Publicar'}</button>
-        </div>
-      </div>
-    </div>`).join('') +
-  `<div class="anuncio-add" onclick="showToastDash('Crear anuncio — función próximamente')">
-    <div class="anuncio-add-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
-    <div class="anuncio-add-text">Crear nuevo anuncio</div>
-  </div>`;
+let nextAnuncioId = 5;
+
+function renderAnunciosStats() {
+  const el = document.getElementById('anuncios-stats');
+  if (!el) return;
+  const activos = anuncios.filter(a => a.status === 'activo').length;
+  const totalViews = anuncios.reduce((s,a) => s + a.views, 0);
+  const totalClicks = anuncios.reduce((s,a) => s + a.clicks, 0);
+  const ctr = totalViews > 0 ? ((totalClicks/totalViews)*100).toFixed(1) : '0.0';
+  el.innerHTML =
+    '<div class="anuncio-stat-card"><div class="anuncio-stat-val">' + anuncios.length + '</div><div class="anuncio-stat-lbl">Anuncios totales</div></div>' +
+    '<div class="anuncio-stat-card gold"><div class="anuncio-stat-val">' + activos + '</div><div class="anuncio-stat-lbl">Activos ahora</div></div>' +
+    '<div class="anuncio-stat-card green"><div class="anuncio-stat-val">' + totalViews.toLocaleString() + '</div><div class="anuncio-stat-lbl">Impresiones totales</div></div>' +
+    '<div class="anuncio-stat-card blue"><div class="anuncio-stat-val">' + ctr + '%</div><div class="anuncio-stat-lbl">CTR promedio</div></div>';
 }
+
+function renderAnuncios(filtro) {
+  filtro = filtro || 'todos';
+  const grid = document.getElementById('anuncios-grid-v2');
+  if (!grid) return;
+  const lista = filtro === 'todos' ? anuncios : anuncios.filter(a => a.status === filtro);
+
+  grid.innerHTML = lista.map(function(a) {
+    const ctr = a.views > 0 ? ((a.clicks/a.views)*100).toFixed(1) : '0.0';
+    const color = TIPO_COLORS[a.tipo] || TIPO_COLORS.otro;
+    const fechas = a.inicio ? (a.inicio + (a.fin ? ' → ' + a.fin : '')) : 'Sin fecha';
+    return '<div class="anuncio-card-v2' + (a.status==='pausado'?' paused':'') + '">' +
+      '<div class="anuncio-cover" style="background:' + color + '">' +
+        '<div class="anuncio-cover-overlay"></div>' +
+        '<span class="anuncio-cover-kanji" style="color:rgba(200,169,110,0.25)">' + a.kanji + '</span>' +
+        '<span class="anuncio-badge ' + a.status + '">' + a.status.charAt(0).toUpperCase() + a.status.slice(1) + '</span>' +
+        '<span class="anuncio-type-badge">' + a.tipo + '</span>' +
+      '</div>' +
+      '<div class="anuncio-body-v2">' +
+        '<div class="anuncio-title-v2">' + a.title + '</div>' +
+        '<div class="anuncio-desc-v2">' + a.desc + '</div>' +
+        '<div class="anuncio-metrics">' +
+          '<div class="anuncio-metric"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span class="anuncio-metric-val">' + a.views.toLocaleString() + '</span><span style="font-size:10px;color:var(--wood-light)">vistas</span></div>' +
+          '<div class="anuncio-metric"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg><span class="anuncio-metric-val">' + a.clicks + '</span><span style="font-size:10px;color:var(--wood-light)">clicks</span></div>' +
+        '</div>' +
+        (a.views > 0 ? '<div class="ctr-wrap"><div class="ctr-label"><span>CTR</span><span>' + ctr + '%</span></div><div class="ctr-track"><div class="ctr-fill" style="width:' + Math.min(parseFloat(ctr)*10, 100) + '%"></div></div></div>' : '') +
+      '</div>' +
+      '<div class="anuncio-footer-v2">' +
+        '<span class="anuncio-dates">' + fechas + '</span>' +
+        '<div style="display:flex;gap:6px">' +
+          '<button class="tbl-btn" onclick="editAnuncio(' + a.id + ')">Editar</button>' +
+          (a.status === 'activo'
+            ? '<button class="tbl-btn" style="color:var(--warning)" onclick="toggleAnuncio(' + a.id + ')">Pausar</button>'
+            : a.status === 'pausado'
+            ? '<button class="tbl-btn" style="color:var(--success)" onclick="toggleAnuncio(' + a.id + ')">Reactivar</button>'
+            : '<button class="tbl-btn" style="color:var(--crimson)" onclick="publishAnuncioId(' + a.id + ')">Publicar</button>'
+          ) +
+          '<button class="tbl-btn" style="color:rgba(192,57,43,0.7)" onclick="deleteAnuncio(' + a.id + ')">×</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('') +
+  '<div class="anuncio-add-v2" onclick="openAnuncioModal()">' +
+    '<div class="anuncio-add-icon-v2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>' +
+    '<div class="anuncio-add-title">Crear nuevo anuncio</div>' +
+    '<div class="anuncio-add-sub">Promociones, eventos, novedades y más</div>' +
+  '</div>';
+}
+
+function filterAnuncios(filtro, btn) {
+  document.querySelectorAll('.anuncio-tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  renderAnuncios(filtro);
+}
+
+function toggleAnuncio(id) {
+  const a = anuncios.find(function(a){ return a.id === id; });
+  if (!a) return;
+  a.status = a.status === 'activo' ? 'pausado' : 'activo';
+  renderAnuncios('todos');
+  document.querySelectorAll('.anuncio-tab').forEach(function(t){ if (t.textContent === 'Todos') t.click(); });
+  renderAnunciosStats();
+  showToastDash(a.status === 'activo' ? '✅ Anuncio reactivado' : '⏸ Anuncio pausado');
+}
+
+function publishAnuncioId(id) {
+  const a = anuncios.find(function(a){ return a.id === id; });
+  if (!a) return;
+  a.status = 'activo';
+  renderAnuncios('todos');
+  renderAnunciosStats();
+  showToastDash('🚀 Anuncio publicado correctamente');
+}
+
+function deleteAnuncio(id) {
+  if (!confirm('¿Eliminar este anuncio? Esta acción no se puede deshacer.')) return;
+  anuncios = anuncios.filter(function(a){ return a.id !== id; });
+  renderAnuncios('todos');
+  renderAnunciosStats();
+  showToastDash('Anuncio eliminado');
+}
+
+function editAnuncio(id) {
+  const a = anuncios.find(function(a){ return a.id === id; });
+  if (!a) return;
+  openAnuncioModal(a);
+}
+
+// ══ Modal de anuncio ══
+let editingAnuncioId = null;
+
+function openAnuncioModal(anuncio) {
+  editingAnuncioId = anuncio ? anuncio.id : null;
+  const overlay = document.getElementById('anuncio-modal-overlay');
+  document.getElementById('anuncio-modal-title').textContent = anuncio ? 'Editar anuncio' : 'Crear anuncio';
+
+  // Pre-rellenar si es edición
+  if (anuncio) {
+    document.getElementById('anuncio-titulo').value = anuncio.title;
+    document.getElementById('anuncio-desc').value   = anuncio.desc;
+    document.getElementById('anuncio-inicio').value  = anuncio.inicio || '';
+    document.getElementById('anuncio-fin').value     = anuncio.fin || '';
+    document.getElementById('anuncio-url').value     = anuncio.url || '';
+    var radio = document.querySelector('input[name="anuncio-tipo"][value="' + anuncio.tipo + '"]');
+    if (radio) radio.checked = true;
+  } else {
+    document.getElementById('anuncio-titulo').value = '';
+    document.getElementById('anuncio-desc').value   = '';
+    document.getElementById('anuncio-inicio').value  = new Date().toISOString().split('T')[0];
+    document.getElementById('anuncio-fin').value     = '';
+    document.getElementById('anuncio-url').value     = '';
+    document.querySelector('input[name="anuncio-tipo"][value="promo"]').checked = true;
+  }
+
+  updateAnuncioPreview();
+  overlay.style.display = 'flex';
+  setTimeout(function() { overlay.style.opacity = '1'; overlay.style.pointerEvents = 'all'; }, 10);
+}
+
+function closeAnuncioModal() {
+  const overlay = document.getElementById('anuncio-modal-overlay');
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  setTimeout(function(){ overlay.style.display = 'none'; }, 280);
+}
+
+function updateAnuncioPreview() {
+  var tipo = document.querySelector('input[name="anuncio-tipo"]:checked')?.value || 'promo';
+  var titulo = document.getElementById('anuncio-titulo')?.value || '';
+  document.getElementById('preview-kanji').textContent = TIPO_KANJI[tipo] || '春';
+  document.getElementById('preview-titulo').textContent = titulo;
+  var preview = document.getElementById('anuncio-preview');
+  if (preview) preview.style.background = TIPO_COLORS[tipo] || TIPO_COLORS.otro;
+}
+
+function saveAnuncioDraft() {
+  var titulo = document.getElementById('anuncio-titulo').value.trim();
+  if (!titulo) { showToastDash('Ingresá un título para el anuncio'); return; }
+  guardarAnuncio('borrador');
+}
+
+function publishAnuncio() {
+  var titulo = document.getElementById('anuncio-titulo').value.trim();
+  var desc   = document.getElementById('anuncio-desc').value.trim();
+  if (!titulo) { showToastDash('Ingresá un título para el anuncio'); return; }
+  if (!desc)   { showToastDash('Ingresá una descripción'); return; }
+  guardarAnuncio('activo');
+}
+
+function guardarAnuncio(status) {
+  var tipo   = document.querySelector('input[name="anuncio-tipo"]:checked')?.value || 'promo';
+  var titulo = document.getElementById('anuncio-titulo').value.trim();
+  var desc   = document.getElementById('anuncio-desc').value.trim();
+  var inicio = document.getElementById('anuncio-inicio').value;
+  var fin    = document.getElementById('anuncio-fin').value;
+  var url    = document.getElementById('anuncio-url').value.trim();
+
+  if (editingAnuncioId) {
+    var a = anuncios.find(function(a){ return a.id === editingAnuncioId; });
+    if (a) { a.tipo = tipo; a.kanji = TIPO_KANJI[tipo]; a.title = titulo; a.desc = desc; a.inicio = inicio; a.fin = fin; a.url = url; a.status = status; }
+  } else {
+    anuncios.push({ id: nextAnuncioId++, tipo:tipo, kanji:TIPO_KANJI[tipo], title:titulo, desc:desc, status:status, views:0, clicks:0, inicio:inicio, fin:fin, url:url });
+  }
+
+  closeAnuncioModal();
+  renderAnuncios('todos');
+  renderAnunciosStats();
+  document.querySelectorAll('.anuncio-tab').forEach(function(t){ if(t.textContent==='Todos') { t.classList.add('active'); } else { t.classList.remove('active'); } });
+  showToastDash(status === 'activo' ? '🚀 Anuncio publicado correctamente' : '📝 Borrador guardado');
+}
+
+// Contadores de caracteres y preview live
+document.addEventListener('DOMContentLoaded', function() {
+  var titulo = document.getElementById('anuncio-titulo');
+  var desc   = document.getElementById('anuncio-desc');
+  if (titulo) {
+    titulo.addEventListener('input', function() {
+      document.getElementById('anuncio-titulo-count').textContent = this.value.length + '/80';
+      updateAnuncioPreview();
+    });
+  }
+  if (desc) {
+    desc.addEventListener('input', function() {
+      document.getElementById('anuncio-desc-count').textContent = this.value.length + '/200';
+    });
+  }
+  document.querySelectorAll('input[name="anuncio-tipo"]').forEach(function(r) {
+    r.addEventListener('change', updateAnuncioPreview);
+  });
+});
 
 // ══════════════════════════════
 // INIT ALL
@@ -1761,10 +2109,113 @@ function showToastDash(msg) {
   t._timer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(60px)'; }, 3000);
 }
 
-function doLogout() {
-  sessionStorage.removeItem('etd_user');
-  window.location.href = 'auth.html';
+// ══════════════════════════════
+// PERFIL ESCUELA EDITABLE
+// ══════════════════════════════
+function guardarPerfilEscuela() {
+  var nombre = (document.getElementById('esc-nombre') || {}).value || '';
+  if (!nombre.trim()) { showToastDash('⚠️ El nombre no puede estar vacío'); return; }
+  var perfil = {
+    nombre:    nombre.trim(),
+    email:     (document.getElementById('esc-email')     || {}).value || '',
+    telefono:  (document.getElementById('esc-telefono')  || {}).value || '',
+    instagram: (document.getElementById('esc-instagram') || {}).value || '',
+  };
+  sessionStorage.setItem('etd_escuela_perfil', JSON.stringify(perfil));
+  var sidebarName = document.querySelector('.school-name');
+  if (sidebarName) sidebarName.textContent = perfil.nombre;
+  var topName = document.querySelector('.topbar-user-name');
+  if (topName) topName.textContent = perfil.nombre;
+  var s = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_user')); } catch { return null; } })();
+  if (s) { s.name = perfil.nombre; sessionStorage.setItem('etd_user', JSON.stringify(s)); }
+  showToastDash('✅ Perfil de escuela actualizado');
 }
+
+function cargarPerfilEscuela() {
+  var perfil = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_escuela_perfil')); } catch { return null; } })();
+  if (!perfil) return;
+  var campos = { 'esc-nombre': perfil.nombre, 'esc-email': perfil.email, 'esc-telefono': perfil.telefono, 'esc-instagram': perfil.instagram };
+  Object.keys(campos).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && campos[id]) el.value = campos[id];
+  });
+  var sidebarName = document.querySelector('.school-name');
+  if (sidebarName && perfil.nombre) sidebarName.textContent = perfil.nombre;
+}
+
+cargarPerfilEscuela();
 </script>
+
+<!-- ══ MODAL CREAR/EDITAR ANUNCIO ══ -->
+<div class="modal-overlay" id="anuncio-modal-overlay" onclick="if(event.target===this)closeAnuncioModal()" style="display:none;opacity:0;pointer-events:none">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <span class="modal-title" id="anuncio-modal-title">Crear anuncio</span>
+      <button class="modal-close" onclick="closeAnuncioModal()">×</button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+      <div style="margin-bottom:16px">
+        <div class="form-label" style="margin-bottom:10px">Tipo de anuncio</div>
+        <div class="tipo-options">
+          <div class="tipo-opt"><input type="radio" name="anuncio-tipo" id="tipo-promo" value="promo" checked>
+            <label class="tipo-label" for="tipo-promo"><span class="tipo-icon">春</span><span class="tipo-name">Promoción</span></label></div>
+          <div class="tipo-opt"><input type="radio" name="anuncio-tipo" id="tipo-evento" value="evento">
+            <label class="tipo-label" for="tipo-evento"><span class="tipo-icon">祭</span><span class="tipo-name">Evento</span></label></div>
+          <div class="tipo-opt"><input type="radio" name="anuncio-tipo" id="tipo-novedad" value="novedad">
+            <label class="tipo-label" for="tipo-novedad"><span class="tipo-icon">新</span><span class="tipo-name">Novedad</span></label></div>
+          <div class="tipo-opt"><input type="radio" name="anuncio-tipo" id="tipo-clase" value="clase">
+            <label class="tipo-label" for="tipo-clase"><span class="tipo-icon">道</span><span class="tipo-name">Clase especial</span></label></div>
+          <div class="tipo-opt"><input type="radio" name="anuncio-tipo" id="tipo-torneo" value="torneo">
+            <label class="tipo-label" for="tipo-torneo"><span class="tipo-icon">武</span><span class="tipo-name">Torneo</span></label></div>
+          <div class="tipo-opt"><input type="radio" name="anuncio-tipo" id="tipo-otro" value="otro">
+            <label class="tipo-label" for="tipo-otro"><span class="tipo-icon">他</span><span class="tipo-name">Otro</span></label></div>
+        </div>
+      </div>
+      <div class="anuncio-form-grid">
+        <div class="form-field span-2">
+          <label class="form-label">Título del anuncio *</label>
+          <input class="form-input" type="text" id="anuncio-titulo" placeholder="Ej: 20% de descuento en matrícula — Mayo 2025" maxlength="80">
+          <span style="font-size:10px;color:var(--wood-light);margin-top:3px" id="anuncio-titulo-count">0/80</span>
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Descripción *</label>
+          <textarea class="form-textarea" id="anuncio-desc" rows="3" placeholder="Describí brevemente la oferta o novedad..." maxlength="200"></textarea>
+          <span style="font-size:10px;color:var(--wood-light);margin-top:3px" id="anuncio-desc-count">0/200</span>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Fecha de inicio</label>
+          <input class="form-input" type="date" id="anuncio-inicio">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Fecha de fin <span style="color:var(--wood-light);text-transform:none;font-size:10px">(opcional)</span></label>
+          <input class="form-input" type="date" id="anuncio-fin">
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">URL de destino <span style="color:var(--wood-light);text-transform:none;font-size:10px">(opcional)</span></label>
+          <input class="form-input" type="url" id="anuncio-url" placeholder="https://wa.me/tu-numero o link externo">
+        </div>
+        <div class="form-field span-2">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <label class="form-label" style="margin-bottom:0">Vista previa</label>
+          </div>
+          <div id="anuncio-preview" style="background:linear-gradient(135deg,#1a0a0a,#2a1810);border-radius:4px;height:90px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+            <span id="preview-kanji" style="font-family:var(--font-jp);font-size:52px;color:rgba(200,169,110,0.2)">春</span>
+            <span id="preview-titulo" style="position:absolute;bottom:10px;left:12px;font-size:12px;color:rgba(250,248,244,0.7);font-weight:500;max-width:80%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="border-top:1px solid rgba(122,92,58,0.1);padding:14px 22px;display:flex;gap:10px;justify-content:space-between">
+      <button class="btn btn-secondary btn-sm" onclick="saveAnuncioDraft()">Guardar borrador</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="closeAnuncioModal()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="publishAnuncio()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+          Publicar ahora
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

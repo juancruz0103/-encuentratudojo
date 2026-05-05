@@ -798,28 +798,8 @@ body {
 
       <!-- STEP 4: Success -->
       <div id="reg-step-4" style="display:none">
-        <div class="success-screen">
-          <div class="success-circle">🎉</div>
-          <div class="success-title">¡Bienvenido a<br><em>EncuentraTuDojo</em>!</div>
-          <div class="success-desc">Tu cuenta fue creada. Revisá tu email para verificar tu dirección y empezar a buscar escuelas.</div>
-          <div class="success-steps">
-            <div class="success-step">
-              <div class="success-step-num">1</div>
-              <div class="success-step-text">Verificá tu email haciendo click en el link que te enviamos</div>
-            </div>
-            <div class="success-step">
-              <div class="success-step-num">2</div>
-              <div class="success-step-text">Completá tu perfil para mejores recomendaciones</div>
-            </div>
-            <div class="success-step">
-              <div class="success-step-num">3</div>
-              <div class="success-step-text">Explorá el mapa y encontrá tu escuela ideal</div>
-            </div>
-          </div>
-          <button class="btn-submit" onclick="window.location.href='panel-usuario.html'">
-            <span class="btn-text">Ir a mi panel</span>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
+        <div class="success-screen" id="reg-success-screen">
+          <!-- Contenido generado dinámicamente por showRegSuccess() -->
         </div>
       </div>
 
@@ -1083,13 +1063,15 @@ function submitLogin() {
   if (!valid) return;
 
   simulateLoading('btn-login', 'login-spinner', 1400, () => {
-    // Demo: si email no es el de demo, mostrar error
-    if (email !== 'demo@demo.com' && email !== 'escuela@demo.com') {
+    if (email !== 'demo@demo.com' && email !== 'escuela@demo.com' && email !== 'admin@etd.com') {
       const alert = document.getElementById('login-alert');
-      document.getElementById('login-alert-text').textContent = 'Email o contraseña incorrectos. Probá con demo@demo.com (alumno) o escuela@demo.com (escuela).';
+      document.getElementById('login-alert-text').textContent = 'Email o contraseña incorrectos.';
       alert.classList.add('visible');
       document.getElementById('login-email').classList.add('error');
       document.getElementById('login-pwd').classList.add('error');
+    } else if (email === 'admin@etd.com') {
+      saveSession('admin', 'Administrador');
+      window.location.href = 'admin.html';
     } else if (email === 'escuela@demo.com') {
       saveSession('escuela', 'Dragon Gate Dojo');
       window.location.href = 'dashboard-escuela.html';
@@ -1184,13 +1166,14 @@ function submitRegister() {
   simulateLoading('btn-register', 'reg-spinner', 1600, () => {
     goRegStep(4);
     // Redirigir según tipo elegido
-    const isEscuela = document.getElementById('type-escuela').checked;
-    if (isEscuela) { saveSession('escuela','Nueva Escuela'); } else { saveSession('alumno','Nuevo Usuario'); }
-    setTimeout(() => {
-      if (isEscuela) {
-        window.location.href = 'registro-escuela.html';
-      }
-    }, 3000);
+  const isEscuela = document.getElementById('type-escuela').checked;
+  if (isEscuela) { saveSession('escuela','Nueva Escuela'); } else { saveSession('alumno','Nuevo Usuario'); }
+
+  simulateLoading('btn-register', 'reg-spinner', 1600, () => {
+    // Generar contenido del step 4 según tipo
+    showRegSuccess(isEscuela);
+    goRegStep(4);
+  });
   });
 }
 
@@ -1293,6 +1276,45 @@ document.addEventListener('keydown', e => {
   if (active.id === 'view-login')  submitLogin();
   if (active.id === 'view-forgot' && forgotSubStep === 1) submitForgot();
 });
+
+// ══════════════════════════════
+// SUCCESS SCREEN DINÁMICO
+// ══════════════════════════════
+function showRegSuccess(isEscuela) {
+  const screen = document.getElementById('reg-success-screen');
+  if (!screen) return;
+
+  if (isEscuela) {
+    screen.innerHTML =
+      '<div class="success-circle">🏫</div>' +
+      '<div class="success-title">¡Tu cuenta fue<br><em>creada!</em></div>' +
+      '<div class="success-desc">El siguiente paso es registrar los datos de tu escuela para aparecer en el buscador.</div>' +
+      '<div class="success-steps">' +
+        '<div class="success-step"><div class="success-step-num">1</div><div class="success-step-text">Completá el formulario con los datos de tu academia</div></div>' +
+        '<div class="success-step"><div class="success-step-num">2</div><div class="success-step-text">Subí fotos y tu descripción para atraer más alumnos</div></div>' +
+        '<div class="success-step"><div class="success-step-num">3</div><div class="success-step-text">Tu escuela aparecerá en el mapa y el buscador en minutos</div></div>' +
+      '</div>' +
+      '<button class="btn-submit" onclick="window.location.href=\'registro-escuela.html\'">' +
+        '<span class="btn-text">Registrar mi escuela ahora</span>' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
+      '</button>' +
+      '<button onclick="window.location.href=\'dashboard-escuela.html\'" style="margin-top:12px;background:none;border:none;font-family:var(--font-body);font-size:12px;color:var(--wood-light);cursor:pointer;text-decoration:underline">Hacerlo más tarde</button>';
+  } else {
+    screen.innerHTML =
+      '<div class="success-circle">🎉</div>' +
+      '<div class="success-title">¡Bienvenido a<br><em>EncuentraTuDojo</em>!</div>' +
+      '<div class="success-desc">Tu cuenta fue creada. Ya podés buscar escuelas, guardar favoritas y reservar clases.</div>' +
+      '<div class="success-steps">' +
+        '<div class="success-step"><div class="success-step-num">1</div><div class="success-step-text">Verificá tu email haciendo click en el link que te enviamos</div></div>' +
+        '<div class="success-step"><div class="success-step-num">2</div><div class="success-step-text">Completá tu perfil para mejores recomendaciones</div></div>' +
+        '<div class="success-step"><div class="success-step-num">3</div><div class="success-step-text">Explorá el mapa y encontrá tu escuela ideal</div></div>' +
+      '</div>' +
+      '<button class="btn-submit" onclick="window.location.href=\'panel-usuario.html\'">' +
+        '<span class="btn-text">Ir a mi panel</span>' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
+      '</button>';
+  }
+}
 
 function showToastAuth(msg) {
   let t = document.getElementById('auth-toast');

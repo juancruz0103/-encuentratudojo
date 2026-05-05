@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EncuentraTuDojo — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:           #0e0c0b;
+  --ink-mid:       #2a2622;
+  --ink-soft:      #4a4540;
+  --parchment:     #faf8f4;
+  --parchment-dark:#f0ece3;
+  --wood:          #7a5c3a;
+  --wood-light:    #a87c50;
+  --crimson:       #8b1a1a;
+  --crimson-bright:#c0392b;
+  --crimson-pale:  rgba(139,26,26,0.07);
+  --gold:          #c8a96e;
+  --gold-pale:     rgba(200,169,110,0.1);
+  --success:       #2d6a4f;
+  --success-bright:#27ae60;
+  --success-pale:  rgba(45,106,79,0.08);
+  --warning:       #d4720a;
+  --warning-pale:  rgba(212,114,10,0.08);
+  --info:          #1a5276;
+  --info-pale:     rgba(26,82,118,0.08);
+  --danger:        #c0392b;
+  --danger-pale:   rgba(192,57,43,0.07);
+  --white:         #ffffff;
+  --sidebar-w:     240px;
+  --topbar-h:      60px;
+  --font-display:  'Cormorant Garamond', serif;
+  --font-jp:       'Noto Serif JP', serif;
+  --font-body:     'DM Sans', sans-serif;
+  --ease:          cubic-bezier(0.4,0,0.2,1);
+  --radius:        6px;
+  --shadow-sm:     0 1px 4px rgba(14,12,11,0.07);
+  --shadow-md:     0 4px 16px rgba(14,12,11,0.09);
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--parchment); color: var(--ink); min-height: 100vh; display: flex; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(139,26,26,0.25); border-radius: 2px; }
+
+/* ══ SIDEBAR ══ */
+.sidebar {
+  width: var(--sidebar-w); min-height: 100vh;
+  background: #0a0808;
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+  border-right: 1px solid rgba(200,169,110,0.06);
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 20px; height: var(--topbar-h);
+  border-bottom: 1px solid rgba(200,169,110,0.08);
+  text-decoration: none;
+}
+.brand-kanji  { font-family: var(--font-jp); font-size: 20px; color: var(--crimson-bright); }
+.brand-name   { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--parchment); letter-spacing: 0.06em; }
+
+/* Admin badge */
+.admin-badge-wrap {
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(200,169,110,0.07);
+}
+.admin-badge {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: rgba(139,26,26,0.12);
+  border: 1px solid rgba(139,26,26,0.2);
+  border-radius: 4px;
+}
+.admin-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--crimson), #4a1010);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-jp); font-size: 14px; color: rgba(250,248,244,0.8);
+}
+.admin-name  { font-size: 13px; font-weight: 500; color: var(--parchment); }
+.admin-role  { font-size: 10px; color: var(--crimson-bright); letter-spacing: 0.1em; text-transform: uppercase; }
+
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+.nav-section-label {
+  font-size: 9px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(200,169,110,0.3); padding: 12px 20px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; font-size: 13px; font-weight: 400;
+  color: rgba(250,248,244,0.45); text-decoration: none; cursor: pointer;
+  transition: all 0.18s; border-left: 2px solid transparent;
+  border-top: none; border-right: none; border-bottom: none;
+  background: none; font-family: var(--font-body); width: 100%; text-align: left;
+}
+.nav-item:hover { color: var(--parchment); background: rgba(250,248,244,0.04); }
+.nav-item.active { color: var(--parchment); font-weight: 500; border-left-color: var(--crimson-bright); background: rgba(192,57,43,0.1); }
+.nav-item svg { flex-shrink: 0; opacity: 0.6; }
+.nav-item.active svg { opacity: 1; }
+.nav-badge {
+  margin-left: auto; background: var(--crimson-bright); color: #fff;
+  font-size: 10px; font-weight: 600; min-width: 18px; height: 18px;
+  border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 5px;
+}
+.nav-badge.warn { background: var(--warning); }
+.nav-badge.gold { background: var(--gold); color: var(--ink); }
+
+.sidebar-footer {
+  padding: 14px 20px; border-top: 1px solid rgba(200,169,110,0.07);
+}
+.sidebar-footer a {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: rgba(250,248,244,0.3); text-decoration: none; transition: color 0.2s;
+}
+.sidebar-footer a:hover { color: rgba(250,248,244,0.6); }
+
+/* ══ MAIN ══ */
+.main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+.topbar {
+  height: var(--topbar-h); background: var(--white);
+  border-bottom: 1px solid rgba(122,92,58,0.1);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-title { font-family: var(--font-display); font-size: 20px; font-weight: 400; color: var(--ink); letter-spacing: -0.01em; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-btn {
+  width: 36px; height: 36px; border-radius: var(--radius);
+  background: var(--parchment); border: 1px solid rgba(122,92,58,0.15);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; color: var(--ink-soft); position: relative;
+}
+.topbar-btn:hover { border-color: var(--crimson); color: var(--crimson); }
+.notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--crimson-bright); border: 1.5px solid var(--white); }
+.topbar-env {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--warning); background: var(--warning-pale);
+  border: 1px solid rgba(212,114,10,0.2); padding: 4px 10px; border-radius: 3px;
+}
+
+.page-content { padding: 28px 32px 60px; flex: 1; }
+.dashboard-section { display: none; }
+.dashboard-section.active { display: block; animation: fadeIn 0.3s var(--ease); }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; }
+.page-header-title { font-family: var(--font-display); font-size: 28px; font-weight: 400; color: var(--ink); letter-spacing: -0.01em; line-height: 1.1; }
+.page-header-title em { font-style: italic; color: var(--crimson); }
+.page-header-sub { font-size: 13px; color: var(--wood-light); margin-top: 4px; font-weight: 300; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 20px; border-radius: 3px; cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap; }
+.btn-primary   { background: var(--crimson); color: #fff; }
+.btn-primary:hover { background: var(--crimson-bright); }
+.btn-secondary { background: var(--white); color: var(--ink-soft); border: 1px solid rgba(122,92,58,0.2); }
+.btn-secondary:hover { border-color: var(--ink-soft); }
+.btn-danger    { background: var(--danger-pale); color: var(--danger); border: 1px solid rgba(192,57,43,0.2); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-success   { background: var(--success-pale); color: var(--success); border: 1px solid rgba(45,106,79,0.2); }
+.btn-success:hover { background: var(--success-bright); color: #fff; }
+.btn-ghost     { background: transparent; color: var(--crimson); }
+.btn-ghost:hover { background: var(--crimson-pale); }
+.btn-sm { padding: 6px 14px; font-size: 11px; }
+
+/* ══ KPI GRID ══ */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.kpi-card {
+  background: var(--white); border: 1px solid rgba(122,92,58,0.1);
+  border-radius: var(--radius); padding: 20px 22px;
+  position: relative; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s;
+}
+.kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.kpi-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.kpi-card.red::before    { background: var(--crimson); }
+.kpi-card.gold::before   { background: var(--gold); }
+.kpi-card.green::before  { background: var(--success-bright); }
+.kpi-card.blue::before   { background: #2e86c1; }
+.kpi-icon { width: 36px; height: 36px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.kpi-icon.red   { background: var(--crimson-pale); color: var(--crimson); }
+.kpi-icon.gold  { background: var(--gold-pale); color: var(--wood); }
+.kpi-icon.green { background: var(--success-pale); color: var(--success); }
+.kpi-icon.blue  { background: var(--info-pale); color: var(--info); }
+.kpi-value { font-family: var(--font-display); font-size: 34px; font-weight: 600; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+.kpi-label { font-size: 12px; color: var(--wood-light); letter-spacing: 0.06em; margin-bottom: 10px; }
+.kpi-delta { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 12px; }
+.kpi-delta.up   { background: var(--success-pale); color: var(--success); }
+.kpi-delta.down { background: var(--warning-pale); color: var(--warning); }
+.kpi-bg-kanji { position: absolute; right: 12px; top: 8px; font-family: var(--font-jp); font-size: 52px; color: var(--ink); opacity: 0.03; line-height: 1; user-select: none; }
+
+/* ══ CARDS ══ */
+.section-card { background: var(--white); border: 1px solid rgba(122,92,58,0.1); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+.section-card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid rgba(122,92,58,0.07); }
+.section-card-title { font-size: 14px; font-weight: 500; color: var(--ink); }
+
+/* ══ TABLES ══ */
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--wood-light); padding: 10px 16px; background: var(--parchment); text-align: left; border-bottom: 1px solid rgba(122,92,58,0.1); }
+tbody tr { border-bottom: 1px solid rgba(122,92,58,0.06); transition: background 0.15s; }
+tbody tr:hover { background: rgba(250,248,244,0.7); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 12px 16px; font-size: 13px; color: var(--ink-soft); vertical-align: middle; }
+td strong { color: var(--ink); font-weight: 500; }
+
+/* Status badges */
+.status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 12px; }
+.status::before { content:''; width:6px; height:6px; border-radius:50%; }
+.status.activa    { background: var(--success-pale); color: var(--success); }
+.status.activa::before { background: var(--success-bright); }
+.status.pendiente { background: var(--warning-pale); color: var(--warning); }
+.status.pendiente::before { background: var(--warning); }
+.status.suspendida{ background: var(--danger-pale); color: var(--danger); }
+.status.suspendida::before { background: var(--danger); }
+.status.starter   { background: var(--parchment-dark); color: var(--wood-light); }
+.status.pro       { background: var(--info-pale); color: var(--info); }
+.status.premium   { background: var(--gold-pale); color: var(--wood); }
+.status.premium::before { background: var(--gold); }
+
+.tbl-btn { background: none; border: 1px solid rgba(122,92,58,0.2); border-radius: 3px; padding: 5px 10px; font-size: 11px; color: var(--ink-soft); cursor: pointer; transition: all 0.2s; font-family: var(--font-body); margin-right: 4px; }
+.tbl-btn:hover { border-color: var(--crimson); color: var(--crimson); }
+.tbl-btn.danger { border-color: rgba(192,57,43,0.2); color: var(--danger); }
+.tbl-btn.danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.tbl-btn.ok { border-color: rgba(45,106,79,0.2); color: var(--success); }
+.tbl-btn.ok:hover { background: var(--success-bright); color: #fff; border-color: var(--success-bright); }
+
+/* Table search */
+.table-card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid rgba(122,92,58,0.07); }
+.table-search { display: flex; align-items: center; gap: 8px; background: var(--parchment); border: 1px solid rgba(122,92,58,0.15); border-radius: 3px; padding: 0 12px; }
+.table-search input { border: none; background: transparent; outline: none; font-family: var(--font-body); font-size: 13px; color: var(--ink); padding: 8px 0; min-width: 180px; }
+
+/* ══ OVERVIEW CHARTS (mini bar) ══ */
+.overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.mini-bar-wrap { display: flex; flex-direction: column; gap: 10px; }
+.mini-bar-row { display: flex; align-items: center; gap: 10px; }
+.mini-bar-label { font-size: 12px; color: var(--ink-soft); width: 120px; flex-shrink: 0; }
+.mini-bar-track { flex: 1; height: 6px; background: var(--parchment-dark); border-radius: 3px; overflow: hidden; }
+.mini-bar-fill  { height: 100%; border-radius: 3px; transition: width 1s var(--ease); }
+.mini-bar-val   { font-size: 12px; font-weight: 500; color: var(--ink); width: 36px; text-align: right; }
+
+/* Revenue row */
+.revenue-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+.revenue-card { background: var(--white); border: 1px solid rgba(122,92,58,0.1); border-radius: var(--radius); padding: 18px 20px; }
+.revenue-label { font-size: 11px; color: var(--wood-light); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.revenue-value { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--crimson); line-height: 1; margin-bottom: 6px; }
+.revenue-note  { font-size: 11px; color: var(--wood-light); }
+
+/* ══ ACTIVITY FEED ══ */
+.feed-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(122,92,58,0.05); transition: background 0.15s; }
+.feed-item:hover { background: var(--parchment); }
+.feed-item:last-child { border-bottom: none; }
+.feed-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.feed-text { flex: 1; font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+.feed-text strong { color: var(--ink); font-weight: 500; }
+.feed-time { font-size: 11px; color: var(--wood-light); flex-shrink: 0; }
+
+/* ══ ESCUELAS PENDIENTES (cards) ══ */
+.pending-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.pending-card { background: var(--white); border: 1px solid rgba(212,114,10,0.2); border-radius: var(--radius); padding: 18px; position: relative; }
+.pending-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--warning); border-radius: var(--radius) var(--radius) 0 0; }
+.pending-card-name { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.pending-card-meta { font-size: 12px; color: var(--wood-light); margin-bottom: 12px; }
+.pending-card-info { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.pending-info-row { display: flex; gap: 8px; font-size: 12px; color: var(--ink-soft); }
+.pending-info-label { color: var(--wood-light); width: 80px; flex-shrink: 0; }
+.pending-card-actions { display: flex; gap: 8px; }
+
+/* ══ USUARIOS ══ */
+.user-avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--parchment-dark); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--wood); flex-shrink: 0; }
+
+/* ══ PLANES / REVENUE ══ */
+.plan-bar { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(122,92,58,0.07); }
+.plan-bar:last-child { border-bottom: none; }
+.plan-bar-name { font-size: 13px; color: var(--ink-soft); width: 90px; }
+.plan-bar-count { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--ink); width: 36px; }
+.plan-bar-track { flex: 1; height: 8px; background: var(--parchment-dark); border-radius: 4px; overflow: hidden; }
+.plan-bar-fill  { height: 100%; border-radius: 4px; }
+.plan-bar-rev { font-size: 12px; font-weight: 500; color: var(--crimson); width: 80px; text-align: right; }
+
+/* ══ CONFIG SECTION ══ */
+.config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.config-card { background: var(--white); border: 1px solid rgba(122,92,58,0.1); border-radius: var(--radius); padding: 20px; }
+.config-card-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(122,92,58,0.08); }
+.config-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(122,92,58,0.05); }
+.config-row:last-child { border-bottom: none; }
+.config-label { font-size: 13px; color: var(--ink-soft); }
+.config-value { font-size: 13px; font-weight: 500; color: var(--ink); }
+.toggle {
+  width: 40px; height: 22px; border-radius: 11px; cursor: pointer;
+  position: relative; transition: background 0.25s;
+  background: var(--parchment-dark); border: 1px solid rgba(122,92,58,0.2);
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--success-bright); border-color: var(--success-bright); }
+.toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { transform: translateX(18px); }
+
+/* Form fields */
+.form-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.form-label  { font-size: 11px; font-weight: 500; color: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase; }
+.form-input, .form-select {
+  font-family: var(--font-body); font-size: 13px; color: var(--ink);
+  background: var(--parchment); border: 1px solid rgba(122,92,58,0.18);
+  border-radius: 3px; padding: 9px 12px; outline: none; transition: border-color 0.2s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--crimson); }
+.form-select { appearance: none; cursor: pointer; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(14,12,11,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.modal-overlay.visible { opacity: 1; pointer-events: all; }
+.modal { background: var(--white); border-radius: var(--radius); width: 100%; max-width: 480px; margin: 20px; box-shadow: var(--shadow-md); transform: translateY(20px); transition: transform 0.3s var(--ease); overflow: hidden; }
+.modal-overlay.visible .modal { transform: translateY(0); }
+.modal-header { background: var(--ink); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; }
+.modal-title  { font-family: var(--font-display); font-size: 20px; font-weight: 400; color: var(--parchment); }
+.modal-close  { width: 28px; height: 28px; border-radius: 50%; background: rgba(250,248,244,0.08); border: none; cursor: pointer; color: rgba(250,248,244,0.5); font-size: 18px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.modal-close:hover { background: rgba(250,248,244,0.15); color: var(--parchment); }
+.modal-body { padding: 22px; }
+.modal-footer { padding: 14px 22px; border-top: 1px solid rgba(122,92,58,0.1); display: flex; gap: 10px; justify-content: flex-end; }
+
+/* Toast */
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--ink); color: var(--parchment); padding: 12px 22px; border-radius: 4px; font-size: 13px; border: 1px solid rgba(200,169,110,0.15); z-index: 600; opacity: 0; transition: all 0.3s var(--ease); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .pending-grid, .overview-grid, .config-grid, .revenue-grid { grid-template-columns: 1fr; }
+  .main { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-brand">
+    <span class="brand-kanji">武</span>
+    <span class="brand-name">EncuentraTuDojo</span>
+  </a>
+
+  <div class="admin-badge-wrap">
+    <div class="admin-badge">
+      <div class="admin-avatar">管</div>
+      <div>
+        <div class="admin-name">Administrador</div>
+        <div class="admin-role">Super Admin</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <span class="nav-section-label">Panel</span>
+    <button class="nav-item active" onclick="showSection('overview')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Resumen general
+    </button>
+    <button class="nav-item" onclick="showSection('escuelas')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Escuelas
+      <span class="nav-badge warn" id="badge-pendientes">3</span>
+    </button>
+    <button class="nav-item" onclick="showSection('usuarios')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Usuarios
+    </button>
+    <button class="nav-item" onclick="showSection('leads')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Leads &amp; conversiones
+    </button>
+
+    <span class="nav-section-label">Negocio</span>
+    <button class="nav-item" onclick="showSection('revenue')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Revenue &amp; planes
+    </button>
+    <button class="nav-item" onclick="showSection('resenhas')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Reseñas &amp; reportes
+    </button>
+
+    <span class="nav-section-label">Sistema</span>
+    <button class="nav-item" onclick="showSection('config')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      Configuración
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="javascript:void(0)" onclick="sessionStorage.removeItem('etd_user');window.location.href='auth.html'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Cerrar sesión
+    </a>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="topbar-title" id="topbar-title">Resumen general</div>
+      <span class="topbar-env">⚙ Demo</span>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="showToast('🔔 Sin notificaciones nuevas')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="topbar-btn" onclick="history.length > 1 ? history.back() : window.location.href='index.html'" title="Volver">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <button class="topbar-btn" onclick="window.location.href='index.html'" title="Ver sitio público">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="dashboard-section active" id="section-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-header-title">Resumen <em>general</em></div>
+          <div class="page-header-sub">Métricas globales de la plataforma · hoy</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Exportando reporte...')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exportar
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card red">
+          <div class="kpi-bg-kanji">道</div>
+          <div class="kpi-icon red">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div class="kpi-value">247</div>
+          <div class="kpi-label">Escuelas activas</div>
+          <span class="kpi-delta up">↑ 12 este mes</span>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-bg-kanji">人</div>
+          <div class="kpi-icon blue">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="kpi-value">4.821</div>
+          <div class="kpi-label">Usuarios registrados</div>
+          <span class="kpi-delta up">↑ 318 este mes</span>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-bg-kanji">金</div>
+          <div class="kpi-icon green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <div class="kpi-value">$18.4k</div>
+          <div class="kpi-label">Revenue mensual (USD)</div>
+          <span class="kpi-delta up">↑ 22% vs anterior</span>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-bg-kanji">変</div>
+          <div class="kpi-icon gold">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="kpi-value">1.247</div>
+          <div class="kpi-label">Leads generados</div>
+          <span class="kpi-delta up">↑ 34% este mes</span>
+        </div>
+      </div>
+
+      <!-- Revenue cards -->
+      <div class="revenue-grid">
+        <div class="revenue-card">
+          <div class="revenue-label">Suscripciones</div>
+          <div class="revenue-value">$14.600</div>
+          <div class="revenue-note">79% del revenue total · USD/mes</div>
+        </div>
+        <div class="revenue-card">
+          <div class="revenue-label">Comisiones leads</div>
+          <div class="revenue-value">$2.840</div>
+          <div class="revenue-note">1.420 leads × ~$2 promedio</div>
+        </div>
+        <div class="revenue-card">
+          <div class="revenue-label">Comisiones bookings</div>
+          <div class="revenue-value">$960</div>
+          <div class="revenue-note">240 reservas × $4 promedio</div>
+        </div>
+      </div>
+
+      <!-- Overview grid -->
+      <div class="overview-grid">
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Distribución por disciplina</span>
+          </div>
+          <div style="padding:18px 20px">
+            <div class="mini-bar-wrap" id="discipline-bars"></div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-header">
+            <span class="section-card-title">Actividad reciente</span>
+            <button class="btn btn-ghost btn-sm">Ver todo</button>
+          </div>
+          <div id="activity-feed"></div>
+        </div>
+      </div>
+
+      <!-- Pending approvals -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">⚠️ Escuelas pendientes de aprobación</span>
+          <button class="btn btn-secondary btn-sm" onclick="showSection('escuelas')">Ver todas</button>
+        </div>
+        <div style="padding:16px 20px">
+          <div class="pending-grid" id="pending-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ESCUELAS ══ -->
+    <div class="dashboard-section" id="section-escuelas">
+      <div class="page-header">
+        <div>
+          <div class="page-header-title">Gestión de <em>escuelas</em></div>
+          <div class="page-header-sub">247 escuelas en la plataforma</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select class="form-select" style="font-size:12px;padding:7px 12px">
+            <option>Todos los estados</option>
+            <option>Activas</option>
+            <option>Pendientes</option>
+            <option>Suspendidas</option>
+          </select>
+          <select class="form-select" style="font-size:12px;padding:7px 12px">
+            <option>Todas las disciplinas</option>
+            <option>Karate</option><option>Taekwondo</option><option>Judo</option>
+            <option>Kung Fu</option><option>Aikido</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="table-card-header">
+          <div style="font-size:13px;font-weight:500;color:var(--ink)">247 escuelas</div>
+          <div class="table-search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--wood-light)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Buscar escuela…" oninput="filterEscuelas(this.value)">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Escuela</th>
+              <th>Disciplina</th>
+              <th>Ciudad</th>
+              <th>Plan</th>
+              <th>Estado</th>
+              <th>Leads</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="escuelas-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ USUARIOS ══ -->
+    <div class="dashboard-section" id="section-usuarios">
+      <div class="page-header">
+        <div>
+          <div class="page-header-title">Gestión de <em>usuarios</em></div>
+          <div class="page-header-sub">4.821 usuarios registrados</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('Exportando usuarios...')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+      <div class="section-card">
+        <div class="table-card-header">
+          <div style="font-size:13px;font-weight:500;color:var(--ink)">Últimos registros</div>
+          <div class="table-search">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--wood-light)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Buscar usuario…">
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Usuario</th><th>Tipo</th><th>Email</th><th>Registro</th><th>Escuelas guardadas</th><th>Estado</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="usuarios-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ LEADS ══ -->
+    <div class="dashboard-section" id="section-leads">
+      <div class="page-header">
+        <div>
+          <div class="page-header-title">Leads &amp; <em>conversiones</em></div>
+          <div class="page-header-sub">Actividad de contacto entre alumnos y escuelas</div>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi-card red">
+          <div class="kpi-icon red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <div class="kpi-value">1.247</div>
+          <div class="kpi-label">Total leads</div>
+          <span class="kpi-delta up">↑ 34%</span>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <div class="kpi-value">318</div>
+          <div class="kpi-label">Conversiones</div>
+          <span class="kpi-delta up">25.5%</span>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-icon gold"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/></svg></div>
+          <div class="kpi-value">$2.840</div>
+          <div class="kpi-label">Comisiones leads</div>
+          <span class="kpi-delta up">↑ 18%</span>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="kpi-value">2.3</div>
+          <div class="kpi-label">Días hasta conversión</div>
+          <span class="kpi-delta up">↓ 0.5 días</span>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="table-card-header">
+          <div style="font-size:13px;font-weight:500;color:var(--ink)">Últimos leads</div>
+          <select class="form-select" style="font-size:12px;padding:6px 10px">
+            <option>Todos los tipos</option><option>Contacto</option><option>Favorito</option><option>Trial</option><option>Inscripción</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr><th>Alumno</th><th>Escuela</th><th>Tipo</th><th>Fecha</th><th>Estado</th><th>Comisión</th></tr></thead>
+          <tbody id="leads-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ REVENUE ══ -->
+    <div class="dashboard-section" id="section-revenue">
+      <div class="page-header">
+        <div>
+          <div class="page-header-title">Revenue &amp; <em>planes</em></div>
+          <div class="page-header-sub">Ingresos y distribución de suscripciones</div>
+        </div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card green">
+          <div class="kpi-bg-kanji">金</div>
+          <div class="kpi-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+          <div class="kpi-value">$18.4k</div>
+          <div class="kpi-label">Revenue mensual total</div>
+          <span class="kpi-delta up">↑ 22%</span>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div class="kpi-value">173</div>
+          <div class="kpi-label">Suscripciones activas</div>
+          <span class="kpi-delta up">↑ 18</span>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-icon gold"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div class="kpi-value">$106</div>
+          <div class="kpi-label">ARPU (USD/mes)</div>
+          <span class="kpi-delta up">↑ $8</span>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-icon red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+          <div class="kpi-value">3.2%</div>
+          <div class="kpi-label">Churn mensual</div>
+          <span class="kpi-delta down">↑ 0.3pp</span>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-card-title">Distribución de planes</span>
+        </div>
+        <div style="padding:20px">
+          <div id="plan-bars"></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="table-card-header">
+          <div style="font-size:13px;font-weight:500;color:var(--ink)">Últimas suscripciones</div>
+        </div>
+        <table>
+          <thead><tr><th>Escuela</th><th>Plan</th><th>Monto</th><th>Fecha</th><th>Próximo cobro</th><th>Estado</th></tr></thead>
+          <tbody id="revenue-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ RESEÑAS ══ -->
+    <div class="dashboard-section" id="section-resenhas">
+      <div class="page-header">
+        <div>
+          <div class="page-header-title">Reseñas &amp; <em>reportes</em></div>
+          <div class="page-header-sub">Moderación de contenido y gestión de denuncias</div>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi-card green"><div class="kpi-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="kpi-value">14.832</div><div class="kpi-label">Reseñas totales</div><span class="kpi-delta up">↑ 342 este mes</span></div>
+        <div class="kpi-card gold"><div class="kpi-icon gold"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="kpi-value">4.7</div><div class="kpi-label">Calificación promedio</div><span class="kpi-delta up">→ Estable</span></div>
+        <div class="kpi-card red"><div class="kpi-icon red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="kpi-value">7</div><div class="kpi-label">Reportes pendientes</div><span class="kpi-delta down">+2 nuevos</span></div>
+      </div>
+      <div class="section-card">
+        <div class="table-card-header">
+          <div style="font-size:13px;font-weight:500;color:var(--ink)">Reseñas reportadas</div>
+          <span style="font-size:12px;color:var(--warning);font-weight:500">7 pendientes de revisión</span>
+        </div>
+        <table>
+          <thead><tr><th>Reseña</th><th>Escuela</th><th>Autor</th><th>Rating</th><th>Motivo reporte</th><th>Fecha</th><th>Acción</th></tr></thead>
+          <tbody id="resenhas-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ CONFIG ══ -->
+    <div class="dashboard-section" id="section-config">
+      <div class="page-header">
+        <div>
+          <div class="page-header-title"><em>Configuración</em> del sistema</div>
+          <div class="page-header-sub">Ajustes globales de la plataforma</div>
+        </div>
+        <button class="btn btn-primary" onclick="showToast('✅ Configuración guardada')">Guardar cambios</button>
+      </div>
+      <div class="config-grid">
+        <div class="config-card">
+          <div class="config-card-title">Planes y precios</div>
+          <div class="config-row"><span class="config-label">Plan Starter</span><span class="config-value">Gratis</span></div>
+          <div class="config-row">
+            <span class="config-label">Plan Pro</span>
+            <input class="form-input" type="text" value="$29 USD/mes" style="width:120px;padding:5px 8px;font-size:13px">
+          </div>
+          <div class="config-row">
+            <span class="config-label">Plan Premium</span>
+            <input class="form-input" type="text" value="$79 USD/mes" style="width:120px;padding:5px 8px;font-size:13px">
+          </div>
+          <div class="config-row">
+            <span class="config-label">Comisión lead</span>
+            <input class="form-input" type="text" value="$2–5 USD" style="width:120px;padding:5px 8px;font-size:13px">
+          </div>
+          <div class="config-row">
+            <span class="config-label">Comisión booking</span>
+            <input class="form-input" type="text" value="10%" style="width:120px;padding:5px 8px;font-size:13px">
+          </div>
+        </div>
+        <div class="config-card">
+          <div class="config-card-title">Funcionalidades activas</div>
+          <div class="config-row">
+            <span class="config-label">Registro público de escuelas</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Sistema de reservas (trial)</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Reseñas de alumnos</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Modo mantenimiento</span>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Aprobación manual de escuelas</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="config-card">
+          <div class="config-card-title">Datos de la plataforma</div>
+          <div class="config-row"><span class="config-label">Nombre</span><input class="form-input" type="text" value="EncuentraTuDojo" style="width:160px;padding:5px 8px;font-size:13px"></div>
+          <div class="config-row"><span class="config-label">País base</span><input class="form-input" type="text" value="Argentina" style="width:160px;padding:5px 8px;font-size:13px"></div>
+          <div class="config-row"><span class="config-label">Moneda</span>
+            <select class="form-select" style="width:100px;padding:5px 8px;font-size:13px"><option>USD</option><option>ARS</option></select>
+          </div>
+          <div class="config-row"><span class="config-label">Soporte email</span><input class="form-input" type="email" value="admin@encuentratudojo.com" style="width:200px;padding:5px 8px;font-size:13px"></div>
+        </div>
+        <div class="config-card">
+          <div class="config-card-title">Accesos admin</div>
+          <div class="config-row"><span class="config-label">Admin actual</span><span class="config-value">admin@etd.com</span></div>
+          <div class="config-row"><span class="config-label">Último acceso</span><span class="config-value">Hoy 09:32</span></div>
+          <div style="margin-top:14px">
+            <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:8px" onclick="showToast('Cambio de contraseña — próximamente')">Cambiar contraseña admin</button>
+            <button class="btn btn-danger btn-sm" style="width:100%;justify-content:center" onclick="showToast('Logs del sistema — próximamente')">Ver logs del sistema</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-content -->
+</div><!-- /main -->
+
+<!-- Modal genérico -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Acción</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="toast-text"></span>
+</div>
+
+<script>
+// ══════════════════════════════
+// NAVIGATION
+// ══════════════════════════════
+const SECTIONS = ['overview','escuelas','usuarios','leads','revenue','resenhas','config'];
+const TITLES = {
+  overview:  'Resumen general', escuelas: 'Escuelas',
+  usuarios:  'Usuarios',        leads:    'Leads & conversiones',
+  revenue:   'Revenue & planes',resenhas: 'Reseñas & reportes',
+  config:    'Configuración',
+};
+
+function showSection(id) {
+  SECTIONS.forEach(s => {
+    document.getElementById('section-' + s)?.classList.remove('active');
+    document.querySelector('.nav-item[onclick*="' + s + '"]')?.classList.remove('active');
+  });
+  document.getElementById('section-' + id)?.classList.add('active');
+  document.querySelector('.nav-item[onclick*="' + id + '"]')?.classList.add('active');
+  document.getElementById('topbar-title').textContent = TITLES[id] || id;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════
+// DATA
+// ══════════════════════════════
+const escuelas = [
+  { id:1,  name:'Dragon Gate Dojo',       disc:'Karate',    ciudad:'Palermo, BA',     plan:'pro',      estado:'activa',    leads:47, kanji:'龍' },
+  { id:3,  name:'Bushido Karate Dojo',    disc:'Karate',    ciudad:'San Telmo, BA',   plan:'premium',  estado:'activa',    leads:38, kanji:'武' },
+  { id:6,  name:'Centro Aikido Shinbukan',disc:'Aikido',    ciudad:'Recoleta, BA',    plan:'starter',  estado:'activa',    leads:12, kanji:'合' },
+  { id:8,  name:'Pakua Zen Buenos Aires', disc:'Pakua',     ciudad:'Caballito, BA',   plan:'premium',  estado:'activa',    leads:61, kanji:'八' },
+  { id:10, name:'Kenjutsu Dojo Musashi',  disc:'Kenjutsu',  ciudad:'Palermo Soho, BA',plan:'pro',      estado:'activa',    leads:19, kanji:'剣' },
+  { id:99, name:'Taekwondo Hankuk Sur',   disc:'Taekwondo', ciudad:'Lanús, BA',       plan:'starter',  estado:'pendiente', leads:0,  kanji:'道' },
+  { id:98, name:'Judo Ryu Kan Oeste',     disc:'Judo',      ciudad:'Morón, BA',       plan:'pro',      estado:'pendiente', leads:0,  kanji:'柔' },
+  { id:97, name:'Hapkido Córdoba',        disc:'Hapkido',   ciudad:'Córdoba',         plan:'pro',      estado:'pendiente', leads:0,  kanji:'합' },
+  { id:96, name:'Kung Fu Choy Lee Fut',   disc:'Kung Fu',   ciudad:'Rosario, SF',     plan:'starter',  estado:'suspendida',leads:2,  kanji:'功' },
+];
+
+const usuarios = [
+  { initials:'MG', name:'Martín González',   tipo:'alumno',  email:'martin.g@email.com', fecha:'15 ene 2025', favs:6, estado:'activa' },
+  { initials:'LF', name:'Laura Fernández',   tipo:'alumno',  email:'laura.f@gmail.com',  fecha:'18 ene 2025', favs:3, estado:'activa' },
+  { initials:'RA', name:'Roberto Álvarez',   tipo:'escuela', email:'roberto@budokar.com',fecha:'20 ene 2025', favs:0, estado:'activa' },
+  { initials:'CM', name:'Carla Méndez',      tipo:'alumno',  email:'carla.m@hotmail.com',fecha:'22 ene 2025', favs:8, estado:'activa' },
+  { initials:'PG', name:'Pablo González',    tipo:'alumno',  email:'pablo.g@yahoo.com',  fecha:'25 ene 2025', favs:2, estado:'suspendida' },
+  { initials:'DT', name:'Dragon Gate Admin', tipo:'escuela', email:'escuela@demo.com',   fecha:'1 ene 2025',  favs:0, estado:'activa' },
+];
+
+const leads = [
+  { alumno:'Martín González',  escuela:'Dragon Gate Dojo',      tipo:'Trial',     fecha:'Hoy 10:32',    estado:'convertido', comision:'$150' },
+  { alumno:'Laura Fernández',  escuela:'Bushido Karate Dojo',   tipo:'Contacto',  fecha:'Hoy 09:15',    estado:'nuevo',      comision:'$5' },
+  { alumno:'Carla Méndez',     escuela:'Pakua Zen BA',          tipo:'Favorito',  fecha:'Ayer 17:40',   estado:'contactado', comision:'$2' },
+  { alumno:'Roberto Acuña',    escuela:'Aikido Shinbukan',      tipo:'Inscripción',fecha:'Ayer 14:20',  estado:'convertido', comision:'$300' },
+  { alumno:'Diego Sosa',       escuela:'Kenjutsu Dojo Musashi', tipo:'Mensaje',   fecha:'Ayer 11:05',   estado:'nuevo',      comision:'$5' },
+  { alumno:'Ana Florencia',    escuela:'Dragon Gate Dojo',      tipo:'Trial',     fecha:'22 abr',       estado:'completado', comision:'$150' },
+];
+
+const revenue = [
+  { escuela:'Bushido Karate Dojo',    plan:'premium', monto:'$79',  fecha:'1 abr 2025', proximo:'1 may 2025', estado:'activa' },
+  { escuela:'Dragon Gate Dojo',       plan:'pro',     monto:'$29',  fecha:'1 abr 2025', proximo:'1 may 2025', estado:'activa' },
+  { escuela:'Pakua Zen Buenos Aires', plan:'premium', monto:'$79',  fecha:'5 abr 2025', proximo:'5 may 2025', estado:'activa' },
+  { escuela:'Kenjutsu Dojo Musashi',  plan:'pro',     monto:'$29',  fecha:'10 abr 2025',proximo:'10 may 2025',estado:'activa' },
+  { escuela:'Kung Fu Wing Chun BA',   plan:'starter', monto:'$0',   fecha:'12 abr 2025',proximo:'—',          estado:'activa' },
+];
+
+const resenhas = [
+  { texto:'Muy mala atención, me cobraron de más...', escuela:'Kung Fu Choy Lee Fut', autor:'u_anon_33', rating:1, motivo:'Contenido ofensivo', fecha:'Hoy' },
+  { texto:'El instructor no apareció dos veces...', escuela:'Taekwondo Hankuk Sur', autor:'u_carlos_m', rating:2, motivo:'Información falsa', fecha:'Ayer' },
+  { texto:'Spam de publicidad en comentarios...', escuela:'Judo Ryu Kan Oeste', autor:'u_bot_44', rating:5, motivo:'Spam', fecha:'Hace 2 días' },
+];
+
+const activity = [
+  { color:'#27ae60', text:'<strong>Taekwondo Hankuk Sur</strong> solicitó registro', time:'Hace 5 min' },
+  { color:'#c8a96e', text:'<strong>Martín González</strong> reservó clase trial en Dragon Gate', time:'Hace 12 min' },
+  { color:'#c0392b', text:'Nueva reseña reportada en <strong>Kung Fu Choy Lee Fut</strong>', time:'Hace 1 hora' },
+  { color:'#2e86c1', text:'<strong>Bushido Karate</strong> actualizó a plan Premium', time:'Hace 2 horas' },
+  { color:'#27ae60', text:'318 conversiones alcanzadas este mes — nuevo récord', time:'Hace 3 horas' },
+  { color:'#c8a96e', text:'<strong>Hapkido Córdoba</strong> solicitó registro', time:'Ayer 18:30' },
+];
+
+const disciplines = [
+  { label:'Karate',     pct:38, color:'#8b1a1a' },
+  { label:'Taekwondo',  pct:22, color:'#c0392b' },
+  { label:'Judo',       pct:14, color:'#4a3728' },
+  { label:'Kung Fu',    pct:10, color:'#b5451b' },
+  { label:'Aikido',     pct:8,  color:'#1a5276' },
+  { label:'Hapkido',    pct:5,  color:'#1e8449' },
+  { label:'Pakua',      pct:2,  color:'#6c3483' },
+  { label:'Kenjutsu',   pct:1,  color:'#2c3e50' },
+];
+
+// ══════════════════════════════
+// RENDER
+// ══════════════════════════════
+function renderEscuelas(data) {
+  const tbody = document.getElementById('escuelas-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = (data || escuelas).map(e => {
+    const planClass = e.plan === 'premium' ? 'premium' : e.plan === 'pro' ? 'pro' : 'starter';
+    return '<tr>' +
+      '<td><div style="display:flex;align-items:center;gap:10px">' +
+        '<div style="width:30px;height:30px;border-radius:4px;background:rgba(139,26,26,0.1);display:flex;align-items:center;justify-content:center;font-family:var(--font-jp);font-size:14px;color:var(--crimson)">' + e.kanji + '</div>' +
+        '<strong>' + e.name + '</strong></div></td>' +
+      '<td>' + e.disc + '</td>' +
+      '<td>' + e.ciudad + '</td>' +
+      '<td><span class="status ' + planClass + '">' + e.plan.charAt(0).toUpperCase() + e.plan.slice(1) + '</span></td>' +
+      '<td><span class="status ' + e.estado + '">' + e.estado.charAt(0).toUpperCase() + e.estado.slice(1) + '</span></td>' +
+      '<td><strong style="color:var(--crimson)">' + e.leads + '</strong></td>' +
+      '<td>' +
+        (e.estado === 'pendiente'
+          ? '<button class="tbl-btn ok" onclick="aprobarEscuela(\'' + e.name + '\')">Aprobar</button>' +
+            '<button class="tbl-btn danger" onclick="rechazarEscuela(\'' + e.name + '\')">Rechazar</button>'
+          : '<button class="tbl-btn" onclick="verEscuela(\'' + e.name + '\')">Ver</button>' +
+            (e.estado === 'suspendida'
+              ? '<button class="tbl-btn ok" onclick="showToast(\'Escuela reactivada\')">Reactivar</button>'
+              : '<button class="tbl-btn danger" onclick="showToast(\'Escuela suspendida temporalmente\')">Suspender</button>')
+        ) +
+      '</td></tr>';
+  }).join('');
+}
+
+function renderUsuarios() {
+  const tbody = document.getElementById('usuarios-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = usuarios.map(u => {
+    return '<tr>' +
+      '<td><div style="display:flex;align-items:center;gap:8px">' +
+        '<div class="user-avatar-sm">' + u.initials + '</div>' +
+        '<strong>' + u.name + '</strong></div></td>' +
+      '<td><span style="font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:' + (u.tipo==='escuela'?'var(--crimson)':'var(--info)') + '">' + u.tipo + '</span></td>' +
+      '<td>' + u.email + '</td>' +
+      '<td>' + u.fecha + '</td>' +
+      '<td>' + u.favs + '</td>' +
+      '<td><span class="status ' + u.estado + '">' + (u.estado==='activa'?'Activo':'Suspendido') + '</span></td>' +
+      '<td>' +
+        '<button class="tbl-btn" onclick="showToast(\'Perfil de ' + u.name + '\')">Ver</button>' +
+        (u.estado === 'suspendida'
+          ? '<button class="tbl-btn ok" onclick="showToast(\'Usuario reactivado\')">Reactivar</button>'
+          : '<button class="tbl-btn danger" onclick="showToast(\'Usuario suspendido\')">Suspender</button>'
+        ) +
+      '</td></tr>';
+  }).join('');
+}
+
+function renderLeads() {
+  const tbody = document.getElementById('leads-tbody');
+  if (!tbody) return;
+  const colores = { convertido:'var(--success)', nuevo:'var(--info)', contactado:'var(--warning)', completado:'var(--wood-light)' };
+  tbody.innerHTML = leads.map(l => {
+    return '<tr>' +
+      '<td><strong>' + l.alumno + '</strong></td>' +
+      '<td>' + l.escuela + '</td>' +
+      '<td>' + l.tipo + '</td>' +
+      '<td>' + l.fecha + '</td>' +
+      '<td><span class="status ' + l.estado + '">' + l.estado.charAt(0).toUpperCase()+l.estado.slice(1) + '</span></td>' +
+      '<td><strong style="color:var(--success)">' + l.comision + '</strong></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function renderRevenue() {
+  const tbody = document.getElementById('revenue-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = revenue.map(r => {
+    const planClass = r.plan === 'premium' ? 'premium' : r.plan === 'pro' ? 'pro' : 'starter';
+    return '<tr>' +
+      '<td><strong>' + r.escuela + '</strong></td>' +
+      '<td><span class="status ' + planClass + '">' + r.plan.charAt(0).toUpperCase()+r.plan.slice(1) + '</span></td>' +
+      '<td><strong style="color:var(--crimson)">' + r.monto + ' USD</strong></td>' +
+      '<td>' + r.fecha + '</td>' +
+      '<td>' + r.proximo + '</td>' +
+      '<td><span class="status activa">Activa</span></td>' +
+      '</tr>';
+  }).join('');
+
+  // Plan bars
+  const bars = document.getElementById('plan-bars');
+  if (!bars) return;
+  const planData = [
+    { name:'Starter (gratis)', count:74,  fill:'#e8e2d6', rev:'$0' },
+    { name:'Pro ($29/mes)',    count:128, fill:'#2e86c1', rev:'$3.712' },
+    { name:'Premium ($79/mes)',count:45,  fill:'#c8a96e', rev:'$3.555' },
+  ];
+  bars.innerHTML = planData.map(p => {
+    const pct = Math.round(p.count / 247 * 100);
+    return '<div class="plan-bar">' +
+      '<span class="plan-bar-name">' + p.name + '</span>' +
+      '<span class="plan-bar-count">' + p.count + '</span>' +
+      '<div class="plan-bar-track"><div class="plan-bar-fill" style="width:' + pct + '%;background:' + p.fill + '"></div></div>' +
+      '<span class="plan-bar-rev">' + p.rev + '/mes</span>' +
+    '</div>';
+  }).join('');
+}
+
+function renderResenhas() {
+  const tbody = document.getElementById('resenhas-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = resenhas.map(r => {
+    return '<tr>' +
+      '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"' + r.texto + '"</td>' +
+      '<td><strong>' + r.escuela + '</strong></td>' +
+      '<td>' + r.autor + '</td>' +
+      '<td><span style="color:var(--gold)">' + '★'.repeat(r.rating) + '☆'.repeat(5-r.rating) + '</span></td>' +
+      '<td><span style="color:var(--warning);font-size:11px;font-weight:500">' + r.motivo + '</span></td>' +
+      '<td>' + r.fecha + '</td>' +
+      '<td>' +
+        '<button class="tbl-btn ok" onclick="showToast(\'Reseña aprobada\')">Aprobar</button>' +
+        '<button class="tbl-btn danger" onclick="showToast(\'Reseña eliminada\')">Eliminar</button>' +
+      '</td></tr>';
+  }).join('');
+}
+
+function renderActivity() {
+  const feed = document.getElementById('activity-feed');
+  if (!feed) return;
+  feed.innerHTML = activity.map(a =>
+    '<div class="feed-item">' +
+      '<div class="feed-dot" style="background:' + a.color + '"></div>' +
+      '<div class="feed-text">' + a.text + '</div>' +
+      '<span class="feed-time">' + a.time + '</span>' +
+    '</div>'
+  ).join('');
+}
+
+function renderDisciplineBars() {
+  const wrap = document.getElementById('discipline-bars');
+  if (!wrap) return;
+  wrap.innerHTML = disciplines.map(d =>
+    '<div class="mini-bar-row">' +
+      '<span class="mini-bar-label">' + d.label + '</span>' +
+      '<div class="mini-bar-track"><div class="mini-bar-fill" style="width:' + d.pct + '%;background:' + d.color + '"></div></div>' +
+      '<span class="mini-bar-val">' + d.pct + '%</span>' +
+    '</div>'
+  ).join('');
+}
+
+function renderPending() {
+  const grid = document.getElementById('pending-grid');
+  if (!grid) return;
+  const pending = escuelas.filter(e => e.estado === 'pendiente');
+  grid.innerHTML = pending.map(e =>
+    '<div class="pending-card">' +
+      '<div class="pending-card-name">' + e.name + '</div>' +
+      '<div class="pending-card-meta">' + e.disc + ' · ' + e.ciudad + ' · Plan ' + e.plan.charAt(0).toUpperCase() + e.plan.slice(1) + '</div>' +
+      '<div class="pending-card-info">' +
+        '<div class="pending-info-row"><span class="pending-info-label">Solicitado</span><span>Hoy</span></div>' +
+        '<div class="pending-info-row"><span class="pending-info-label">Contacto</span><span>info@' + e.name.toLowerCase().replace(/ /g,'-') + '.com</span></div>' +
+      '</div>' +
+      '<div class="pending-card-actions">' +
+        '<button class="btn btn-success btn-sm" onclick="aprobarEscuela(\'' + e.name + '\')">✓ Aprobar</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="verEscuela(\'' + e.name + '\')">Ver detalle</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="rechazarEscuela(\'' + e.name + '\')">✗ Rechazar</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+// ══════════════════════════════
+// ACCIONES
+// ══════════════════════════════
+function aprobarEscuela(nombre) {
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-title').textContent = 'Aprobar escuela';
+  document.getElementById('modal-body').innerHTML =
+    '<p style="font-size:14px;color:var(--ink-soft);margin-bottom:16px">Estás a punto de aprobar <strong style="color:var(--ink)">' + nombre + '</strong> en la plataforma.</p>' +
+    '<p style="font-size:13px;color:var(--wood-light)">La escuela recibirá un email de confirmación y aparecerá en el buscador de manera inmediata.</p>';
+  document.getElementById('modal-footer').innerHTML =
+    '<button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancelar</button>' +
+    '<button class="btn btn-success btn-sm" onclick="closeModal();showToast(\'✅ ' + nombre + ' aprobada y publicada\')">Confirmar aprobación</button>';
+  overlay.classList.add('visible');
+}
+
+function rechazarEscuela(nombre) {
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-title').textContent = 'Rechazar escuela';
+  document.getElementById('modal-body').innerHTML =
+    '<p style="font-size:14px;color:var(--ink-soft);margin-bottom:14px">¿Por qué rechazás <strong style="color:var(--ink)">' + nombre + '</strong>?</p>' +
+    '<div class="form-field"><label class="form-label">Motivo</label>' +
+    '<select class="form-select" style="width:100%"><option>Información incompleta</option><option>No cumple requisitos</option><option>Datos falsos</option><option>Disciplina no admitida</option><option>Otro</option></select></div>' +
+    '<div class="form-field"><label class="form-label">Mensaje al solicitante (opcional)</label>' +
+    '<textarea style="width:100%;background:var(--parchment);border:1px solid rgba(122,92,58,0.18);border-radius:3px;padding:9px 12px;font-family:var(--font-body);font-size:13px;resize:none;outline:none" rows="3" placeholder="Indicá qué información falta o por qué se rechaza..."></textarea></div>';
+  document.getElementById('modal-footer').innerHTML =
+    '<button class="btn btn-secondary btn-sm" onclick="closeModal()">Cancelar</button>' +
+    '<button class="btn btn-danger btn-sm" onclick="closeModal();showToast(\'Solicitud rechazada y notificada\')">Rechazar solicitud</button>';
+  overlay.classList.add('visible');
+}
+
+function verEscuela(nombre) {
+  showToast('Perfil de ' + nombre + ' — función próximamente');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('visible');
+}
+
+function filterEscuelas(q) {
+  const filtered = escuelas.filter(e =>
+    e.name.toLowerCase().includes(q.toLowerCase()) ||
+    e.disc.toLowerCase().includes(q.toLowerCase()) ||
+    e.ciudad.toLowerCase().includes(q.toLowerCase())
+  );
+  renderEscuelas(filtered);
+}
+
+// ══════════════════════════════
+// TOAST
+// ══════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('visible'), 3200);
+}
+
+// ══════════════════════════════
+// VERIFICAR SESIÓN ADMIN
+// ══════════════════════════════
+(function() {
+  const s = (() => { try { return JSON.parse(sessionStorage.getItem('etd_user')); } catch { return null; } })();
+  // Aceptar admin o cualquier sesión en demo
+  // En producción: verificar s.type === 'admin'
+})();
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+renderEscuelas();
+renderUsuarios();
+renderLeads();
+renderRevenue();
+renderResenhas();
+renderActivity();
+renderDisciplineBars();
+renderPending();
+</script>
+</body>
+</html>

@@ -693,6 +693,66 @@ nav {
   .desc-stats { grid-template-columns: repeat(3, 1fr); }
   .rating-summary { flex-direction: column; gap: 16px; }
 }
+
+/* ══════════════════════════
+   MODAL RESERVA v2 — STEPPER
+══════════════════════════ */
+.reserva-stepper {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid rgba(122,92,58,0.1);
+}
+.reserva-step {
+  display: flex; align-items: center; gap: 8px; flex: 1;
+}
+.reserva-step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--parchment-dark); color: var(--wood-light);
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+}
+.reserva-step.active .reserva-step-num   { background: var(--crimson); color: #fff; }
+.reserva-step.done   .reserva-step-num   { background: var(--success-bright); color: #fff; }
+.reserva-step-label  { font-size: 11px; color: var(--wood-light); font-weight: 400; white-space: nowrap; }
+.reserva-step.active .reserva-step-label { color: var(--ink); font-weight: 500; }
+.reserva-step.done   .reserva-step-label { color: var(--success); }
+.reserva-step-line   { flex: 1; height: 1px; background: var(--parchment-mid); margin: 0 8px; }
+
+/* Campos del modal */
+.modal-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-field-row .modal-field { margin-bottom: 0; }
+.slot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 6px; }
+.slot-btn {
+  padding: 10px 6px; border: 1px solid rgba(122,92,58,0.18);
+  border-radius: 4px; background: var(--parchment);
+  font-family: var(--font-body); font-size: 12px;
+  color: var(--ink-soft); cursor: pointer; text-align: center;
+  transition: all 0.18s; line-height: 1.3;
+}
+.slot-btn:hover   { border-color: var(--crimson); color: var(--crimson); }
+.slot-btn.selected { border-color: var(--crimson); background: var(--crimson-pale); color: var(--crimson); font-weight: 500; }
+.slot-btn.taken   { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+
+/* Confirmación */
+.reserva-confirm-card {
+  background: var(--parchment-dark); border-radius: 6px;
+  padding: 18px 20px; margin-bottom: 16px;
+}
+.reserva-confirm-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0; border-bottom: 1px solid rgba(122,92,58,0.07);
+  font-size: 13px;
+}
+.reserva-confirm-row:last-child { border-bottom: none; }
+.reserva-confirm-label { color: var(--wood-light); }
+.reserva-confirm-val   { color: var(--ink); font-weight: 500; }
+.reserva-success-icon  {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--success-pale); color: var(--success-bright);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px; font-size: 28px;
+}
 </style>
 </head>
 <body>
@@ -963,8 +1023,7 @@ nav {
     <div class="cta-card">
       <div class="cta-card-header">
         <div>
-          <div class="cta-price">$8.500 <span>/mes</span></div>
-          <div class="cta-price-note">Cuota mensual · Pago en cuotas disponible</div>
+          
           <div class="cta-open-status" id="open-status">
             <div class="cta-open-dot"></div>
             <span class="cta-open-text">Abierto ahora</span>
@@ -975,7 +1034,7 @@ nav {
         <div class="cta-features">
           <div class="cta-feature">
             <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-            Clase trial disponible — $1.500
+            Clase trial disponible
           </div>
           <div class="cta-feature">
             <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
@@ -983,7 +1042,7 @@ nav {
           </div>
           <div class="cta-feature">
             <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-            Matrícula: $3.000 (única vez)
+            Consultá horarios y disponibilidad
           </div>
           <div class="cta-feature">
             <svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
@@ -1076,8 +1135,7 @@ const SCHOOL_PROFILES = {
     discipline:'Karate', disciplineId:'karate', disciplineKanji:'空',
     discColor:'#8b1a1a',
     location:'Palermo, Buenos Aires', address:'Av. Santa Fe 3450, Piso 2', cp:'CP 1425',
-    founded:2009, rating:4.9, reviews:142, price:'$8.500', trial:'$1.500',
-    matricula:'$3.000', kanji:'龍', verified:true, premium:false,
+    founded:2009, rating:4.9, reviews:142, kanji:'龍', verified:true, premium:false,
     lat:-34.583, lng:-58.433,
     phone:'011 4444-5555', whatsapp:'5491144445555',
     desc1:'Dragon Gate Dojo es una academia de Karate Shotokan de alto rendimiento con más de 15 años de trayectoria en Palermo. Nuestra filosofía combina la tradición marcial japonesa con metodología de entrenamiento deportivo moderno. Formamos alumnos en todos los niveles, desde niños hasta competidores de nivel nacional.',
@@ -1097,8 +1155,7 @@ const SCHOOL_PROFILES = {
     discipline:'Karate', disciplineId:'karate', disciplineKanji:'空',
     discColor:'#8b1a1a',
     location:'San Telmo, Buenos Aires', address:'Defensa 890, PB', cp:'CP 1065',
-    founded:2001, rating:4.8, reviews:207, price:'$6.500', trial:'$1.200',
-    matricula:'$2.500', kanji:'武', verified:true, premium:true,
+    founded:2001, rating:4.8, reviews:207, kanji:'武', verified:true, premium:true,
     lat:-34.620, lng:-58.375,
     phone:'011 4362-1188', whatsapp:'5491143621188',
     desc1:'Bushido Karate Dojo nació en 2001 en el corazón de San Telmo con una misión clara: transmitir la tradición marcial japonesa de forma auténtica. El Sensei principal se formó durante 8 años en Japón bajo la supervisión de maestros de la Japan Karate Federation.',
@@ -1119,8 +1176,7 @@ const SCHOOL_PROFILES = {
     discipline:'Aikido', disciplineId:'aikido', disciplineKanji:'合気',
     discColor:'#1a5276',
     location:'Recoleta, Buenos Aires', address:'Av. Santa Fe 1820, 3° piso', cp:'CP 1123',
-    founded:2003, rating:4.8, reviews:67, price:'$6.200', trial:'$1.000',
-    matricula:'$2.000', kanji:'合', verified:true, premium:false,
+    founded:2003, rating:4.8, reviews:67, kanji:'合', verified:true, premium:false,
     lat:-34.587, lng:-58.393,
     phone:'011 4815-3344', whatsapp:'5491148153344',
     desc1:'Centro Aikido Shinbukan es un dojo de Aikido Aikikai afiliado a la Aikikai Foundation de Tokio, fundado en 2003 en Recoleta. La enseñanza está orientada al desarrollo técnico, la conciencia corporal y la filosofía del Aikido como camino de vida.',
@@ -1139,8 +1195,7 @@ const SCHOOL_PROFILES = {
     discipline:'Kenjutsu', disciplineId:'kenjutsu', disciplineKanji:'剣',
     discColor:'#2c3e50',
     location:'Palermo Soho, Buenos Aires', address:'Thames 1650, PB', cp:'CP 1414',
-    founded:2014, rating:4.9, reviews:56, price:'$9.000', trial:'$1.500',
-    matricula:'$3.500', kanji:'剣', verified:true, premium:true,
+    founded:2014, rating:4.9, reviews:56, kanji:'剣', verified:true, premium:true,
     lat:-34.591, lng:-58.428,
     phone:'011 4833-7799', whatsapp:'5491148337799',
     desc1:'Kenjutsu Dojo Musashi es el único dojo de Kenjutsu auténtico de Buenos Aires. Fundado en 2014 bajo la dirección del Maestro Kenji Mori, con linaje directo de la escuela Hyoho Niten Ichi-ryu, el mismo estilo desarrollado por Miyamoto Musashi.',
@@ -1159,8 +1214,7 @@ const SCHOOL_PROFILES = {
     discipline:'Aikido', disciplineId:'aikido', disciplineKanji:'合気',
     discColor:'#1a5276',
     location:'San Isidro, Buenos Aires', address:'Av. Centenario 412', cp:'CP 1642',
-    founded:1999, rating:4.9, reviews:61, price:'$7.800', trial:'$1.000',
-    matricula:'$2.200', kanji:'氣', verified:true, premium:true,
+    founded:1999, rating:4.9, reviews:61, kanji:'氣', verified:true, premium:true,
     lat:-34.471, lng:-58.528,
     phone:'011 4743-2211', whatsapp:'5491147432211',
     desc1:'Aikido Misogi Dojo es uno de los dojos de Aikido más antiguos y reconocidos del Gran Buenos Aires. Fundado en 1999 en San Isidro, nuestro Sensei fue formado directamente en el Hombu Dojo de Tokio durante 6 años bajo la tutela de O-Sensei Morihei Ueshiba (hijo).',
@@ -1180,8 +1234,7 @@ const SCHOOL_PROFILES = {
     discipline:'Judo', disciplineId:'judo', disciplineKanji:'柔道',
     discColor:'#4a3728',
     location:'Quilmes, Buenos Aires', address:'Rivadavia 1540', cp:'CP 1878',
-    founded:1987, rating:4.7, reviews:93, price:'$5.200', trial:'$900',
-    matricula:'$1.800', kanji:'道', verified:true, premium:false,
+    founded:1987, rating:4.7, reviews:93, kanji:'道', verified:true, premium:false,
     lat:-34.722, lng:-58.254,
     phone:'011 4253-6677', whatsapp:'5491142536677',
     desc1:'Judo Club Matsumoto fue fundado en 1987 por miembros de la colonia japonesa de Quilmes. Con casi 40 años de historia ininterrumpida, es uno de los clubes de Judo más tradicionales del conurbano bonaerense. Formamos competidores que han representado a Buenos Aires en nacionales e internacionales.',
@@ -1196,59 +1249,59 @@ const SCHOOL_PROFILES = {
     certifications:'FAJ, IJF', logros:'Campeones metropolitanos 2021, 2022 y 2024 en categorías juveniles',
     quickInfo:{ cupos:'10 libres', certs:'FAJ, IJF', dist:'28 km' },
   },
-  2: { id:2, name:'Taekwondo Olimpia', nameHtml:'Taekwondo Olimpia', discipline:'Taekwondo', disciplineId:'taekwondo', disciplineKanji:'道', discColor:'#c0392b', location:'Belgrano, Buenos Aires', address:'Cabildo 1450, Piso 3', cp:'CP 1426', founded:1995, rating:4.6, reviews:55, price:'$5.900', trial:'$1.000', matricula:'$2.000', kanji:'道', verified:false, premium:false, lat:-34.560, lng:-58.460, phone:'011 4786-3322', whatsapp:'5491147863322', desc1:'Taekwondo Olimpia es una escuela olímpica fundada en 1995 en Belgrano con instructores de selección nacional. Formamos deportistas en todas las categorías bajo los estándares de la World Taekwondo Federation.', desc2:'Nuestro programa incluye clases de Poomsae (formas), Kyorugi (combate olímpico) y Defensa Personal, con énfasis en la disciplina y el desarrollo personal. Participamos anualmente en el Campeonato Bonaerense.', stat1:'30+', stat1l:'Años activos', stat2:'+400', stat2l:'Alumnos formados', stat3:'3', stat3l:'Instructores', subcats:['Infantil','Poomsae (formas)','Adultos'], instructors:[
+  2: { id:2, name:'Taekwondo Olimpia', nameHtml:'Taekwondo Olimpia', discipline:'Taekwondo', disciplineId:'taekwondo', disciplineKanji:'道', discColor:'#c0392b', location:'Belgrano, Buenos Aires', address:'Cabildo 1450, Piso 3', cp:'CP 1426', founded:1995, rating:4.6, reviews:55, kanji:'道', verified:false, premium:false, lat:-34.560, lng:-58.460, phone:'011 4786-3322', whatsapp:'5491147863322', desc1:'Taekwondo Olimpia es una escuela olímpica fundada en 1995 en Belgrano con instructores de selección nacional. Formamos deportistas en todas las categorías bajo los estándares de la World Taekwondo Federation.', desc2:'Nuestro programa incluye clases de Poomsae (formas), Kyorugi (combate olímpico) y Defensa Personal, con énfasis en la disciplina y el desarrollo personal. Participamos anualmente en el Campeonato Bonaerense.', stat1:'30+', stat1l:'Años activos', stat2:'+400', stat2l:'Alumnos formados', stat3:'3', stat3l:'Instructores', subcats:['Infantil','Poomsae (formas)','Adultos'], instructors:[
       { initials:'KL', name:'Maestro Kim Lee', grade:'5 Dan WT', cert:'World Taekwondo · FAT' },
       { initials:'PV', name:'Inst. Patricia Vélez', grade:'3 Dan WT', cert:'FAT · Poomsae' },
       { initials:'NR', name:'Inst. Nicolás Roca', grade:'2 Dan WT', cert:'FAT · Infantil' }
     ], certifications:'World Taekwondo, FAT', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'6 libres', certs:'World Taekwondo, FAT', dist:'Cercano' } },
-  4: { id:4, name:'Samurai Judo Club', nameHtml:'Samurai<br>Judo Club', discipline:'Judo', disciplineId:'judo', disciplineKanji:'柔道', discColor:'#4a3728', location:'Flores, Buenos Aires', address:'Av. Rivadavia 7240', cp:'CP 1406', founded:1992, rating:4.7, reviews:89, price:'$5.500', trial:'$900', matricula:'$1.800', kanji:'侍', verified:true, premium:false, lat:-34.625, lng:-58.462, phone:'011 4631-5599', whatsapp:'5491146315599', desc1:'Samurai Judo Club lleva más de 30 años en el barrio de Flores, siendo uno de los clubes de Judo más queridos y tradicionales de la zona oeste de Capital Federal.', desc2:'El club cuenta con un tatami de 80m2 homologado por la Federación Argentina de Judo y una comunidad muy activa de familias. Participamos en torneos zonales y bonaerenses.', stat1:'33+', stat1l:'Años activos', stat2:'+550', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Randori','Ne-waza','Infantil'], instructors:[
+  4: { id:4, name:'Samurai Judo Club', nameHtml:'Samurai<br>Judo Club', discipline:'Judo', disciplineId:'judo', disciplineKanji:'柔道', discColor:'#4a3728', location:'Flores, Buenos Aires', address:'Av. Rivadavia 7240', cp:'CP 1406', founded:1992, rating:4.7, reviews:89, kanji:'侍', verified:true, premium:false, lat:-34.625, lng:-58.462, phone:'011 4631-5599', whatsapp:'5491146315599', desc1:'Samurai Judo Club lleva más de 30 años en el barrio de Flores, siendo uno de los clubes de Judo más queridos y tradicionales de la zona oeste de Capital Federal.', desc2:'El club cuenta con un tatami de 80m2 homologado por la Federación Argentina de Judo y una comunidad muy activa de familias. Participamos en torneos zonales y bonaerenses.', stat1:'33+', stat1l:'Años activos', stat2:'+550', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Randori','Ne-waza','Infantil'], instructors:[
       { initials:'JM', name:'Sensei Jorge Matsuda', grade:'5 Dan Judo', cert:'FAJ · IJF · Ex campeón' },
       { initials:'SB', name:'Inst. Sofia Burgos', grade:'2 Dan Judo', cert:'FAJ · Infantil' }
     ], certifications:'FAJ, IJF', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'8 libres', certs:'FAJ, IJF', dist:'Cercano' } },
-  5: { id:5, name:'Kung Fu Shaolin BA', nameHtml:'Kung Fu<br>Shaolin BA', discipline:'Kung Fu', disciplineId:'kung-fu', disciplineKanji:'功夫', discColor:'#b5451b', location:'Once, Buenos Aires', address:'Av. Corrientes 3100, PB', cp:'CP 1193', founded:2005, rating:4.7, reviews:103, price:'$7.000', trial:'$1.100', matricula:'$2.500', kanji:'功', verified:true, premium:false, lat:-34.609, lng:-58.408, phone:'011 4862-7711', whatsapp:'5491148627711', desc1:'Kung Fu Shaolin BA es la unica escuela en Buenos Aires con linaje directo del Templo Shaolin original. Nuestro Maestro fue formado durante 7 anos en Henan, China.', desc2:'Ensenamos Kung Fu Shaolin tradicional con formas originales, armas y Chi Kung. No somos un gimnasio deportivo: somos una escuela de artes marciales autenticas. Cupos muy limitados.', stat1:'20+', stat1l:'Años activos', stat2:'+150', stat2l:'Alumnos formados', stat3:'2', stat3l:'Maestros', subcats:['Shaolin','Formas tradicionales','Adultos'], instructors:[
+  5: { id:5, name:'Kung Fu Shaolin BA', nameHtml:'Kung Fu<br>Shaolin BA', discipline:'Kung Fu', disciplineId:'kung-fu', disciplineKanji:'功夫', discColor:'#b5451b', location:'Once, Buenos Aires', address:'Av. Corrientes 3100, PB', cp:'CP 1193', founded:2005, rating:4.7, reviews:103, kanji:'功', verified:true, premium:false, lat:-34.609, lng:-58.408, phone:'011 4862-7711', whatsapp:'5491148627711', desc1:'Kung Fu Shaolin BA es la unica escuela en Buenos Aires con linaje directo del Templo Shaolin original. Nuestro Maestro fue formado durante 7 anos en Henan, China.', desc2:'Ensenamos Kung Fu Shaolin tradicional con formas originales, armas y Chi Kung. No somos un gimnasio deportivo: somos una escuela de artes marciales autenticas. Cupos muy limitados.', stat1:'20+', stat1l:'Años activos', stat2:'+150', stat2l:'Alumnos formados', stat3:'2', stat3l:'Maestros', subcats:['Shaolin','Formas tradicionales','Adultos'], instructors:[
       { initials:'WC', name:'Maestro Wu Chen', grade:'Monje Shaolin 7 generacion', cert:'Templo Shaolin Henan' },
       { initials:'DA', name:'Inst. Diego Almada', grade:'Instructor certificado', cert:'Linaje Wu Chen' }
     ], certifications:'Templo Shaolin Henan', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'3 libres', certs:'Templo Shaolin Henan', dist:'Cercano' } },
-  7: { id:7, name:'Hapkido Buenos Aires', nameHtml:'Hapkido<br>Buenos Aires', discipline:'Hapkido', disciplineId:'hapkido', disciplineKanji:'합기', discColor:'#1e8449', location:'Villa del Parque, Bs As', address:'Av. San Martin 3750', cp:'CP 1419', founded:2010, rating:4.5, reviews:44, price:'$5.800', trial:'$900', matricula:'$1.600', kanji:'합', verified:false, premium:false, lat:-34.606, lng:-58.490, phone:'011 4503-2244', whatsapp:'5491145032244', desc1:'Hapkido Buenos Aires es una escuela de Hapkido coreano tradicional en Villa del Parque con instructores certificados por la Korea Hapkido Federation.', desc2:'El Hapkido combina tecnicas de luxaciones, proyecciones y golpes. Ideal para adultos que buscan defensa personal practica. Grupos reducidos.', stat1:'15+', stat1l:'Años activos', stat2:'+200', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Adultos','Luxaciones','Defensa personal'], instructors:[
+  7: { id:7, name:'Hapkido Buenos Aires', nameHtml:'Hapkido<br>Buenos Aires', discipline:'Hapkido', disciplineId:'hapkido', disciplineKanji:'합기', discColor:'#1e8449', location:'Villa del Parque, Bs As', address:'Av. San Martin 3750', cp:'CP 1419', founded:2010, rating:4.5, reviews:44, kanji:'합', verified:false, premium:false, lat:-34.606, lng:-58.490, phone:'011 4503-2244', whatsapp:'5491145032244', desc1:'Hapkido Buenos Aires es una escuela de Hapkido coreano tradicional en Villa del Parque con instructores certificados por la Korea Hapkido Federation.', desc2:'El Hapkido combina tecnicas de luxaciones, proyecciones y golpes. Ideal para adultos que buscan defensa personal practica. Grupos reducidos.', stat1:'15+', stat1l:'Años activos', stat2:'+200', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Adultos','Luxaciones','Defensa personal'], instructors:[
       { initials:'BK', name:'Maestro Baek Kim', grade:'7 Dan KHF', cert:'Korea Hapkido Federation · FAMA' },
       { initials:'LR', name:'Inst. Luis Rodriguez', grade:'3 Dan KHF', cert:'FAMA · Defensa personal' }
     ], certifications:'Korea Hapkido Federation, FAMA', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'7 libres', certs:'Korea Hapkido Federation, FAMA', dist:'Cercano' } },
-  8: { id:8, name:'Pakua Zen Buenos Aires', nameHtml:'Pakua Zen<br>Buenos Aires', discipline:'Pakua', disciplineId:'pakua', disciplineKanji:'八卦', discColor:'#6c3483', location:'Caballito, Buenos Aires', address:'Av. Rivadavia 5100', cp:'CP 1424', founded:2000, rating:4.9, reviews:188, price:'$7.500', trial:'$1.200', matricula:'$2.200', kanji:'八', verified:true, premium:true, lat:-34.616, lng:-58.435, phone:'011 4903-8866', whatsapp:'5491149038866', desc1:'Pakua Zen Buenos Aires es el centro integral de Pakua y artes marciales internas mas completo de Argentina. Con mas de 25 anos de historia, ofrecemos Pakua marcial, Tai Chi y meditacion.', desc2:'Nuestro director es instructor certificado de Pakua Zhang con estudios en Beijing y Taiwan. Contamos con mas de 15 clases semanales en horarios extendidos.', stat1:'25+', stat1l:'Años activos', stat2:'+350', stat2l:'Alumnos formados', stat3:'4', stat3l:'Instructores', subcats:['Tai Chi','Meditación','Adultos'], instructors:[
+  8: { id:8, name:'Pakua Zen Buenos Aires', nameHtml:'Pakua Zen<br>Buenos Aires', discipline:'Pakua', disciplineId:'pakua', disciplineKanji:'八卦', discColor:'#6c3483', location:'Caballito, Buenos Aires', address:'Av. Rivadavia 5100', cp:'CP 1424', founded:2000, rating:4.9, reviews:188, kanji:'八', verified:true, premium:true, lat:-34.616, lng:-58.435, phone:'011 4903-8866', whatsapp:'5491149038866', desc1:'Pakua Zen Buenos Aires es el centro integral de Pakua y artes marciales internas mas completo de Argentina. Con mas de 25 anos de historia, ofrecemos Pakua marcial, Tai Chi y meditacion.', desc2:'Nuestro director es instructor certificado de Pakua Zhang con estudios en Beijing y Taiwan. Contamos con mas de 15 clases semanales en horarios extendidos.', stat1:'25+', stat1l:'Años activos', stat2:'+350', stat2l:'Alumnos formados', stat3:'4', stat3l:'Instructores', subcats:['Tai Chi','Meditación','Adultos'], instructors:[
       { initials:'MA', name:'Dir. Miguel Torres', grade:'Instructor superior Pakua', cert:'Pakua Zhang Beijing · Taipei' },
       { initials:'VF', name:'Inst. Valeria Flores', grade:'Instructora Pakua y Tai Chi', cert:'Pakua Zhang' },
       { initials:'RP', name:'Inst. Roberto Paz', grade:'Instructor Chi Kung', cert:'Qigong Institute' },
       { initials:'CL', name:'Inst. Carolina Lopez', grade:'Instructora Tai Chi', cert:'Yang Family Tai Chi' }
     ], certifications:'Pakua Zhang, FAMA', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'5 libres', certs:'Pakua Zhang, FAMA', dist:'Cercano' } },
-  9: { id:9, name:'Judo Ryu Kan', nameHtml:'Judo<br>Ryu Kan', discipline:'Judo', disciplineId:'judo', disciplineKanji:'柔道', discColor:'#4a3728', location:'Núñez, Buenos Aires', address:'Av. Cabildo 3850', cp:'CP 1429', founded:2008, rating:4.6, reviews:72, price:'$6.000', trial:'$950', matricula:'$1.800', kanji:'柔', verified:false, premium:false, lat:-34.543, lng:-58.468, phone:'011 4543-1177', whatsapp:'5491145431177', desc1:'Judo Ryu Kan en Nunez es un club especializado en Judo de competicion con enfoque tecnico riguroso. Nuestros alumnos han obtenido medallas en campeonatos bonaerenses.', desc2:'Trabajamos con grupos pequenos para garantizar correccion tecnica. El enfasis esta en Tachi-waza y la preparacion fisica especifica para Judo deportivo.', stat1:'17+', stat1l:'Años activos', stat2:'+180', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Juvenil','Tachi-waza','Preparación física'], instructors:[
+  9: { id:9, name:'Judo Ryu Kan', nameHtml:'Judo<br>Ryu Kan', discipline:'Judo', disciplineId:'judo', disciplineKanji:'柔道', discColor:'#4a3728', location:'Núñez, Buenos Aires', address:'Av. Cabildo 3850', cp:'CP 1429', founded:2008, rating:4.6, reviews:72, kanji:'柔', verified:false, premium:false, lat:-34.543, lng:-58.468, phone:'011 4543-1177', whatsapp:'5491145431177', desc1:'Judo Ryu Kan en Nunez es un club especializado en Judo de competicion con enfoque tecnico riguroso. Nuestros alumnos han obtenido medallas en campeonatos bonaerenses.', desc2:'Trabajamos con grupos pequenos para garantizar correccion tecnica. El enfasis esta en Tachi-waza y la preparacion fisica especifica para Judo deportivo.', stat1:'17+', stat1l:'Años activos', stat2:'+180', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Juvenil','Tachi-waza','Preparación física'], instructors:[
       { initials:'AK', name:'Sensei Adrian Kobayashi', grade:'4 Dan Judo', cert:'FAJ · Competicion · Ex seleccion BA' },
       { initials:'MH', name:'Inst. Marina Herrera', grade:'2 Dan Judo', cert:'FAJ · Tachi-waza' }
     ], certifications:'FAJ, IJF', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'9 libres', certs:'FAJ, IJF', dist:'Cercano' } },
-  11: { id:11, name:'Taekwondo Hankuk', nameHtml:'Taekwondo Hankuk', discipline:'Taekwondo', disciplineId:'taekwondo', disciplineKanji:'道', discColor:'#c0392b', location:'Ramos Mejía, Bs As', address:'Gral. Rodriguez 850', cp:'B1704', founded:2007, rating:4.4, reviews:38, price:'$4.800', trial:'$800', matricula:'$1.500', kanji:'태', verified:false, premium:false, lat:-34.648, lng:-58.559, phone:'011 4656-4488', whatsapp:'5491146564488', desc1:'Taekwondo Hankuk es una escuela familiar en Ramos Mejia con mas de 15 anos en la zona oeste del Gran Buenos Aires. Ensenamos Taekwondo tradicional coreano para todas las edades.', desc2:'Ofrecemos Poomsae, Kyorugi y Defensa Personal Hoshinsul. El ambiente familiar y la cercania con los alumnos son nuestras caracteristicas mas valoradas.', stat1:'18+', stat1l:'Años activos', stat2:'+300', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Infantil','Juvenil','Defensa personal'], instructors:[
+  11: { id:11, name:'Taekwondo Hankuk', nameHtml:'Taekwondo Hankuk', discipline:'Taekwondo', disciplineId:'taekwondo', disciplineKanji:'道', discColor:'#c0392b', location:'Ramos Mejía, Bs As', address:'Gral. Rodriguez 850', cp:'B1704', founded:2007, rating:4.4, reviews:38, kanji:'태', verified:false, premium:false, lat:-34.648, lng:-58.559, phone:'011 4656-4488', whatsapp:'5491146564488', desc1:'Taekwondo Hankuk es una escuela familiar en Ramos Mejia con mas de 15 anos en la zona oeste del Gran Buenos Aires. Ensenamos Taekwondo tradicional coreano para todas las edades.', desc2:'Ofrecemos Poomsae, Kyorugi y Defensa Personal Hoshinsul. El ambiente familiar y la cercania con los alumnos son nuestras caracteristicas mas valoradas.', stat1:'18+', stat1l:'Años activos', stat2:'+300', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Infantil','Juvenil','Defensa personal'], instructors:[
       { initials:'JH', name:'Maestro Jun Ho Park', grade:'4 Dan WT', cert:'World Taekwondo · FAT · Corea' },
       { initials:'GN', name:'Inst. Gabriela Nunes', grade:'2 Dan WT', cert:'FAT · Infantil y juvenil' }
     ], certifications:'World Taekwondo, FAT', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'12 libres', certs:'World Taekwondo, FAT', dist:'Cercano' } },
-  12: { id:12, name:'Kung Fu Wing Chun BA', nameHtml:'Kung Fu<br>Wing Chun BA', discipline:'Kung Fu', disciplineId:'kung-fu', disciplineKanji:'功夫', discColor:'#b5451b', location:'San Cristóbal, Bs As', address:'Av. Belgrano 2800', cp:'CP 1209', founded:2012, rating:4.7, reviews:91, price:'$6.800', trial:'$1.000', matricula:'$2.000', kanji:'詠', verified:true, premium:false, lat:-34.623, lng:-58.395, phone:'011 4941-3355', whatsapp:'5491149413355', desc1:'Kung Fu Wing Chun BA es la escuela especialista en Wing Chun de Buenos Aires, el arte marcial que popularizo el maestro Ip Man. Nuestro linaje proviene de la asociacion Ip Man Wing Chun de Hong Kong.', desc2:'El Wing Chun es eficaz en combate a corta distancia. Ideal para cualquier complexion fisica. No se requiere experiencia previa.', stat1:'13+', stat1l:'Años activos', stat2:'+160', stat2l:'Alumnos formados', stat3:'2', stat3l:'Maestros', subcats:['Wing Chun','Defensa personal','Adultos'], instructors:[
+  12: { id:12, name:'Kung Fu Wing Chun BA', nameHtml:'Kung Fu<br>Wing Chun BA', discipline:'Kung Fu', disciplineId:'kung-fu', disciplineKanji:'功夫', discColor:'#b5451b', location:'San Cristóbal, Bs As', address:'Av. Belgrano 2800', cp:'CP 1209', founded:2012, rating:4.7, reviews:91, kanji:'詠', verified:true, premium:false, lat:-34.623, lng:-58.395, phone:'011 4941-3355', whatsapp:'5491149413355', desc1:'Kung Fu Wing Chun BA es la escuela especialista en Wing Chun de Buenos Aires, el arte marcial que popularizo el maestro Ip Man. Nuestro linaje proviene de la asociacion Ip Man Wing Chun de Hong Kong.', desc2:'El Wing Chun es eficaz en combate a corta distancia. Ideal para cualquier complexion fisica. No se requiere experiencia previa.', stat1:'13+', stat1l:'Años activos', stat2:'+160', stat2l:'Alumnos formados', stat3:'2', stat3l:'Maestros', subcats:['Wing Chun','Defensa personal','Adultos'], instructors:[
       { initials:'LW', name:'Sifu Leon Wong', grade:'5 generacion Wing Chun', cert:'Ip Man Wing Chun Association HK' },
       { initials:'FG', name:'Inst. Fernando Garcia', grade:'Instructor Wing Chun', cert:'Linaje Leon Wong' }
     ], certifications:'Ip Man Wing Chun Association', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'4 libres', certs:'Ip Man Wing Chun Association', dist:'Cercano' } },
-  13: { id:13, name:'Aikido Takeda Dojo', nameHtml:'Aikido<br>Takeda Dojo', discipline:'Aikido', disciplineId:'aikido', disciplineKanji:'合気', discColor:'#1a5276', location:'Almagro, Buenos Aires', address:'Av. Corrientes 4250', cp:'CP 1195', founded:2011, rating:4.6, reviews:49, price:'$5.500', trial:'$900', matricula:'$1.800', kanji:'気', verified:false, premium:false, lat:-34.613, lng:-58.420, phone:'011 4863-9900', whatsapp:'5491148639900', desc1:'Aikido Takeda Dojo en Almagro es un dojo con enfoque en la filosofia y tecnica clasica de O-Sensei Morihei Ueshiba. Aceptamos alumnos desde los 14 anos.', desc2:'La practica combina el trabajo tecnico con el estudio de la filosofia del Budo japones. Los jueves hay clase especial para jovenes de 14 a 18 anos.', stat1:'14+', stat1l:'Años activos', stat2:'+130', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Infantil','Adultos','Técnicas de inmovilización'], instructors:[
+  13: { id:13, name:'Aikido Takeda Dojo', nameHtml:'Aikido<br>Takeda Dojo', discipline:'Aikido', disciplineId:'aikido', disciplineKanji:'合気', discColor:'#1a5276', location:'Almagro, Buenos Aires', address:'Av. Corrientes 4250', cp:'CP 1195', founded:2011, rating:4.6, reviews:49, kanji:'気', verified:false, premium:false, lat:-34.613, lng:-58.420, phone:'011 4863-9900', whatsapp:'5491148639900', desc1:'Aikido Takeda Dojo en Almagro es un dojo con enfoque en la filosofia y tecnica clasica de O-Sensei Morihei Ueshiba. Aceptamos alumnos desde los 14 anos.', desc2:'La practica combina el trabajo tecnico con el estudio de la filosofia del Budo japones. Los jueves hay clase especial para jovenes de 14 a 18 anos.', stat1:'14+', stat1l:'Años activos', stat2:'+130', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Infantil','Adultos','Técnicas de inmovilización'], instructors:[
       { initials:'FT', name:'Sensei Francisco Takeda', grade:'5 Dan Aikikai', cert:'Aikikai Foundation · FAA' },
       { initials:'MO', name:'Inst. Mariana Ortiz', grade:'2 Dan Aikikai', cert:'FAA · Juvenil e infantil' }
     ], certifications:'Aikikai Foundation, FAA', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'10 libres', certs:'Aikikai Foundation, FAA', dist:'Cercano' } },
-  14: { id:14, name:'Hapkido Seoul Center', nameHtml:'Hapkido<br>Seoul Center', discipline:'Hapkido', disciplineId:'hapkido', disciplineKanji:'합기', discColor:'#1e8449', location:'Palermo, Buenos Aires', address:'Av. Santa Fe 4100', cp:'CP 1425', founded:2015, rating:4.7, reviews:62, price:'$6.300', trial:'$1.000', matricula:'$2.000', kanji:'합', verified:true, premium:false, lat:-34.579, lng:-58.429, phone:'011 4831-7722', whatsapp:'5491148317722', desc1:'Hapkido Seoul Center en Palermo tiene instructores llegados directamente desde Corea del Sur. Ofrecemos el programa completo de la Korea Hapkido Federation.', desc2:'El centro tiene acuerdo directo con la KHF para certificacion de grados en Argentina. Los alumnos pueden rendir examenes reconocidos internacionalmente.', stat1:'10+', stat1l:'Años activos', stat2:'+120', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Juvenil','Adultos','Proyecciones','Combate/Sparring'], instructors:[
+  14: { id:14, name:'Hapkido Seoul Center', nameHtml:'Hapkido<br>Seoul Center', discipline:'Hapkido', disciplineId:'hapkido', disciplineKanji:'합기', discColor:'#1e8449', location:'Palermo, Buenos Aires', address:'Av. Santa Fe 4100', cp:'CP 1425', founded:2015, rating:4.7, reviews:62, kanji:'합', verified:true, premium:false, lat:-34.579, lng:-58.429, phone:'011 4831-7722', whatsapp:'5491148317722', desc1:'Hapkido Seoul Center en Palermo tiene instructores llegados directamente desde Corea del Sur. Ofrecemos el programa completo de la Korea Hapkido Federation.', desc2:'El centro tiene acuerdo directo con la KHF para certificacion de grados en Argentina. Los alumnos pueden rendir examenes reconocidos internacionalmente.', stat1:'10+', stat1l:'Años activos', stat2:'+120', stat2l:'Alumnos formados', stat3:'2', stat3l:'Instructores', subcats:['Juvenil','Adultos','Proyecciones','Combate/Sparring'], instructors:[
       { initials:'SK', name:'Maestro Seung Kim', grade:'8 Dan KHF', cert:'Korea Hapkido Federation' },
       { initials:'JY', name:'Inst. Ji Young Lee', grade:'4 Dan KHF', cert:'KHF · FAMA · Combate' }
     ], certifications:'Korea Hapkido Federation, FAMA', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'6 libres', certs:'Korea Hapkido Federation, FAMA', dist:'Cercano' } },
-  15: { id:15, name:'Pakua Marcial Norte', nameHtml:'Pakua<br>Marcial Norte', discipline:'Pakua', disciplineId:'pakua', disciplineKanji:'八卦', discColor:'#6c3483', location:'Villa Urquiza, Bs As', address:'Av. Triunvirato 4500', cp:'CP 1431', founded:2004, rating:4.8, reviews:77, price:'$7.200', trial:'$1.100', matricula:'$2.100', kanji:'卦', verified:true, premium:false, lat:-34.572, lng:-58.489, phone:'011 4521-6633', whatsapp:'5491145216633', desc1:'Pakua Marcial Norte es la escuela referente del aspecto marcial del Pakua Zhang en la zona norte de Capital. Especialistas en aplicaciones de combate del Pakua con linea directa de Beijing.', desc2:'Ofrecemos Tai Chi Yang para mayores de 50 anos, Armas Tradicionales y formacion de instructores con reconocimiento internacional.', stat1:'21+', stat1l:'Años activos', stat2:'+210', stat2l:'Alumnos formados', stat3:'3', stat3l:'Instructores', subcats:['Marcial Jr','Armas tradicionales','Defensa personal'], instructors:[
+  15: { id:15, name:'Pakua Marcial Norte', nameHtml:'Pakua<br>Marcial Norte', discipline:'Pakua', disciplineId:'pakua', disciplineKanji:'八卦', discColor:'#6c3483', location:'Villa Urquiza, Bs As', address:'Av. Triunvirato 4500', cp:'CP 1431', founded:2004, rating:4.8, reviews:77, kanji:'卦', verified:true, premium:false, lat:-34.572, lng:-58.489, phone:'011 4521-6633', whatsapp:'5491145216633', desc1:'Pakua Marcial Norte es la escuela referente del aspecto marcial del Pakua Zhang en la zona norte de Capital. Especialistas en aplicaciones de combate del Pakua con linea directa de Beijing.', desc2:'Ofrecemos Tai Chi Yang para mayores de 50 anos, Armas Tradicionales y formacion de instructores con reconocimiento internacional.', stat1:'21+', stat1l:'Años activos', stat2:'+210', stat2l:'Alumnos formados', stat3:'3', stat3l:'Instructores', subcats:['Marcial Jr','Armas tradicionales','Defensa personal'], instructors:[
       { initials:'HC', name:'Inst. Hector Castro', grade:'Instructor superior Pakua', cert:'Pakua Zhang Beijing · FAMA' },
       { initials:'AG', name:'Inst. Andrea Gonzalez', grade:'Pakua y Tai Chi', cert:'Yang Family Tai Chi' },
       { initials:'EM', name:'Inst. Eduardo Morales', grade:'Armas tradicionales', cert:'Pakua Zhang' }
     ], certifications:'Pakua Zhang, FAMA', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'7 libres', certs:'Pakua Zhang, FAMA', dist:'Cercano' } },
-  16: { id:16, name:'Kenjutsu Ryu Osaka', nameHtml:'Kenjutsu<br>Ryu Osaka', discipline:'Kenjutsu', disciplineId:'kenjutsu', disciplineKanji:'剣', discColor:'#2c3e50', location:'Microcentro, Buenos Aires', address:'Av. de Mayo 1370, PB', cp:'CP 1085', founded:2011, rating:4.8, reviews:34, price:'$8.200', trial:'$1.500', matricula:'$3.000', kanji:'刀', verified:true, premium:true, lat:-34.603, lng:-58.381, phone:'011 4383-5511', whatsapp:'5491143835511', desc1:'Kenjutsu Ryu Osaka fue fundado por el Maestro Hiroshi Tanaka, formado 12 anos en el dojo Osaka Ryu de Japon. Unica academia en Buenos Aires con Kenjutsu con espadas de acero real bajo protocolo tradicional.', desc2:'El dojo tiene tatami de madera tradicional de 60m2, sala de meditacion y coleccion de bokken, shinai y katanas autenticas. Examenes ante maestros visitantes de Japon.', stat1:'14+', stat1l:'Años activos', stat2:'+80', stat2l:'Alumnos formados', stat3:'2', stat3l:'Maestros', subcats:['Iaido','Kenjutsu avanzado','Historia samurái','Adultos'], instructors:[
+  16: { id:16, name:'Kenjutsu Ryu Osaka', nameHtml:'Kenjutsu<br>Ryu Osaka', discipline:'Kenjutsu', disciplineId:'kenjutsu', disciplineKanji:'剣', discColor:'#2c3e50', location:'Microcentro, Buenos Aires', address:'Av. de Mayo 1370, PB', cp:'CP 1085', founded:2011, rating:4.8, reviews:34, kanji:'刀', verified:true, premium:true, lat:-34.603, lng:-58.381, phone:'011 4383-5511', whatsapp:'5491143835511', desc1:'Kenjutsu Ryu Osaka fue fundado por el Maestro Hiroshi Tanaka, formado 12 anos en el dojo Osaka Ryu de Japon. Unica academia en Buenos Aires con Kenjutsu con espadas de acero real bajo protocolo tradicional.', desc2:'El dojo tiene tatami de madera tradicional de 60m2, sala de meditacion y coleccion de bokken, shinai y katanas autenticas. Examenes ante maestros visitantes de Japon.', stat1:'14+', stat1l:'Años activos', stat2:'+80', stat2l:'Alumnos formados', stat3:'2', stat3l:'Maestros', subcats:['Iaido','Kenjutsu avanzado','Historia samurái','Adultos'], instructors:[
       { initials:'HT', name:'Maestro Hiroshi Tanaka', grade:'8 Dan Kenjutsu Osaka Ryu', cert:'Osaka Ryu Japon' },
       { initials:'FM', name:'Inst. Federico Mora', grade:'3 Dan Kenjutsu', cert:'Linaje Tanaka · Iaido' }
     ], certifications:'Osaka Ryu, Nihon Kobudo Association', logros:'Formacion continua y actualizacion anual', quickInfo:{ cupos:'2 libres', certs:'Osaka Ryu, Nihon Kobudo Association', dist:'Cercano' } },
-  17: { id:17, name:'Centro Karate Shotokan', nameHtml:'Centro<br>Karate Shotokan', discipline:'Karate', disciplineId:'karate', disciplineKanji:'空', discColor:'#8b1a1a', location:'Villa Devoto, Buenos Aires', address:'Sanabria 2850', cp:'CP 1417', founded:2003, rating:4.6, reviews:118, price:'$6.000', trial:'$950', matricula:'$1.800', kanji:'松', verified:true, premium:false, lat:-34.598, lng:-58.514, phone:'011 4505-8844', whatsapp:'5491145058844', desc1:'Centro Karate Shotokan lleva mas de 20 anos formando karatecas en Villa Devoto. Escuela familiar con ambiente calido, recibimos alumnos desde los 4 anos hasta adultos mayores.', desc2:'El programa infantil es nuestra especialidad con clases ludicas para pequenos y tecnicas progresivas para adultos. Instructores certificados por la Federacion Argentina de Karate.', stat1:'22+', stat1l:'Años activos', stat2:'+480', stat2l:'Alumnos formados', stat3:'3', stat3l:'Instructores', subcats:['Infantil','Juvenil','Adultos','Kata','Kihon','Kumite'], instructors:[
+  17: { id:17, name:'Centro Karate Shotokan', nameHtml:'Centro<br>Karate Shotokan', discipline:'Karate', disciplineId:'karate', disciplineKanji:'空', discColor:'#8b1a1a', location:'Villa Devoto, Buenos Aires', address:'Sanabria 2850', cp:'CP 1417', founded:2003, rating:4.6, reviews:118, kanji:'松', verified:true, premium:false, lat:-34.598, lng:-58.514, phone:'011 4505-8844', whatsapp:'5491145058844', desc1:'Centro Karate Shotokan lleva mas de 20 anos formando karatecas en Villa Devoto. Escuela familiar con ambiente calido, recibimos alumnos desde los 4 anos hasta adultos mayores.', desc2:'El programa infantil es nuestra especialidad con clases ludicas para pequenos y tecnicas progresivas para adultos. Instructores certificados por la Federacion Argentina de Karate.', stat1:'22+', stat1l:'Años activos', stat2:'+480', stat2l:'Alumnos formados', stat3:'3', stat3l:'Instructores', subcats:['Infantil','Juvenil','Adultos','Kata','Kihon','Kumite'], instructors:[
       { initials:'EV', name:'Sensei Eduardo Vidal', grade:'5 Dan Karate Shotokan', cert:'JKA · FAK · Formador de instructores' },
       { initials:'LN', name:'Inst. Laura Nunez', grade:'3 Dan Karate', cert:'FAK · Especialista infantil' },
       { initials:'CO', name:'Inst. Carlos Olivera', grade:'2 Dan Karate', cert:'FAK · Competicion juvenil' }
@@ -1473,36 +1526,7 @@ function openModal(type) {
 
   if (type === 'trial') {
     title.textContent = 'Reservar clase trial';
-    body.innerHTML = `
-      <div class="modal-field">
-        <label class="modal-label">Tu nombre completo</label>
-        <input class="modal-input" type="text" placeholder="Ej: Martín González">
-      </div>
-      <div class="modal-field">
-        <label class="modal-label">Email</label>
-        <input class="modal-input" type="email" placeholder="tu@email.com">
-      </div>
-      <div class="modal-field">
-        <label class="modal-label">Teléfono / WhatsApp</label>
-        <input class="modal-input" type="tel" placeholder="+54 9 11 0000-0000">
-      </div>
-      <div class="modal-field">
-        <label class="modal-label">Día preferido</label>
-        <select class="modal-select">
-          <option>Lunes</option><option>Martes</option><option>Miércoles</option>
-          <option>Jueves</option><option>Viernes</option><option>Sábado</option>
-        </select>
-      </div>
-      <div class="modal-field">
-        <label class="modal-label">Nivel</label>
-        <select class="modal-select">
-          <option>Principiante (nunca practiqué)</option>
-          <option>Intermedio (tengo experiencia)</option>
-          <option>Avanzado</option>
-        </select>
-      </div>
-      <button class="btn-modal-submit" onclick="submitModal('trial')">Confirmar reserva</button>
-      <p style="font-size:11px;color:var(--wood-light);text-align:center;margin-top:10px">Te contactaremos en menos de 24hs para confirmar el horario</p>`;
+    renderReservaStep(1);
   } else {
     title.textContent = 'Enviar mensaje';
     body.innerHTML = `
@@ -1530,13 +1554,186 @@ function closeModal(e) {
   }
 }
 
+// ══════════════════════════════
+// SISTEMA DE RESERVA — STEPPER
+// ══════════════════════════════
+var reservaData = {};
+var reservaStep = 1;
+
+var SLOTS = [
+  { dia:'Lunes',    hora:'09:00', libre:true  },
+  { dia:'Lunes',    hora:'18:00', libre:true  },
+  { dia:'Martes',   hora:'10:00', libre:false },
+  { dia:'Martes',   hora:'19:00', libre:true  },
+  { dia:'Miércoles',hora:'09:00', libre:true  },
+  { dia:'Miércoles',hora:'18:30', libre:true  },
+  { dia:'Jueves',   hora:'10:00', libre:true  },
+  { dia:'Jueves',   hora:'19:00', libre:false },
+  { dia:'Viernes',  hora:'09:00', libre:true  },
+  { dia:'Viernes',  hora:'18:00', libre:true  },
+  { dia:'Sábado',   hora:'10:00', libre:true  },
+  { dia:'Sábado',   hora:'11:00', libre:true  },
+];
+
+function stepperHTML(current) {
+  var steps = ['Tus datos', 'Elegí horario', 'Confirmación'];
+  return '<div class="reserva-stepper">' +
+    steps.map(function(label, i) {
+      var n = i + 1;
+      var cls = n < current ? 'done' : n === current ? 'active' : '';
+      var num = n < current ? '✓' : n;
+      var sep = i < steps.length - 1 ? '<div class="reserva-step-line"></div>' : '';
+      return '<div class="reserva-step ' + cls + '">' +
+        '<div class="reserva-step-num">' + num + '</div>' +
+        '<div class="reserva-step-label">' + label + '</div>' +
+      '</div>' + sep;
+    }).join('') +
+  '</div>';
+}
+
+function renderReservaStep(step) {
+  reservaStep = step;
+  var body = document.getElementById('modal-body');
+  var s = window._schoolForMap || {};
+
+  // Pre-rellenar con datos de sesión si los hay
+  var session = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_user')); } catch { return null; } })();
+  var perfil  = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_perfil')); } catch { return null; } })();
+
+  if (step === 1) {
+    var nombre = perfil ? (perfil.nombre + ' ' + perfil.apellido).trim() : (session ? session.name : '');
+    var email  = perfil ? perfil.email : '';
+    body.innerHTML = stepperHTML(1) +
+      '<div class="modal-field-row">' +
+        '<div class="modal-field"><label class="modal-label">Nombre *</label>' +
+        '<input class="modal-input" id="rv-nombre" type="text" placeholder="Martín" value="' + (nombre.split(' ')[0] || '') + '"></div>' +
+        '<div class="modal-field"><label class="modal-label">Apellido *</label>' +
+        '<input class="modal-input" id="rv-apellido" type="text" placeholder="González" value="' + (nombre.split(' ').slice(1).join(' ') || '') + '"></div>' +
+      '</div>' +
+      '<div class="modal-field"><label class="modal-label">Email *</label>' +
+      '<input class="modal-input" id="rv-email" type="email" placeholder="tu@email.com" value="' + (email || '') + '"></div>' +
+      '<div class="modal-field"><label class="modal-label">Teléfono / WhatsApp</label>' +
+      '<input class="modal-input" id="rv-tel" type="tel" placeholder="+54 9 11 0000-0000"></div>' +
+      '<div class="modal-field"><label class="modal-label">Nivel de experiencia</label>' +
+      '<select class="modal-select" id="rv-nivel">' +
+        '<option value="principiante">Principiante — nunca practiqué</option>' +
+        '<option value="intermedio">Intermedio — tengo algo de experiencia</option>' +
+        '<option value="avanzado">Avanzado</option>' +
+      '</select></div>' +
+      '<div class="modal-field"><label class="modal-label">¿Algo que quieras comentar? <span style="color:var(--wood-light);font-size:10px">(opcional)</span></label>' +
+      '<textarea class="modal-textarea" id="rv-nota" rows="2" placeholder="Ej: tengo una lesión en la rodilla, soy menor de edad..."></textarea></div>' +
+      '<button class="btn-modal-submit" onclick="goReservaStep2()">Siguiente — Elegir horario →</button>';
+
+  } else if (step === 2) {
+    body.innerHTML = stepperHTML(2) +
+      '<p style="font-size:13px;color:var(--wood-light);margin-bottom:14px">Seleccioná el turno que mejor te venga:</p>' +
+      '<div class="slot-grid">' +
+        SLOTS.map(function(slot, i) {
+          return '<button class="slot-btn' + (!slot.libre ? ' taken' : '') + '" id="slot-' + i + '" ' +
+            (slot.libre ? 'onclick="selectSlot(' + i + ')"' : 'disabled') + '>' +
+            slot.dia + '<br><strong>' + slot.hora + '</strong>' +
+            (!slot.libre ? '<br><span style="font-size:9px">Ocupado</span>' : '') +
+          '</button>';
+        }).join('') +
+      '</div>' +
+      '<p style="font-size:11px;color:var(--wood-light);margin-top:12px">Los turnos ocupados ya tienen cupo completo esta semana.</p>' +
+      '<div style="display:flex;gap:10px;margin-top:18px">' +
+        '<button class="btn-modal-submit" style="flex:0;background:var(--parchment-dark);color:var(--ink-soft);border:1px solid rgba(122,92,58,0.2)" onclick="renderReservaStep(1)">← Volver</button>' +
+        '<button class="btn-modal-submit" id="btn-confirmar" onclick="goReservaStep3()" disabled>Ver confirmación →</button>' +
+      '</div>';
+
+  } else if (step === 3) {
+      body.innerHTML = stepperHTML(3) +
+      '<div class="reserva-confirm-card">' +
+        '<div class="reserva-confirm-row"><span class="reserva-confirm-label">Escuela</span><span class="reserva-confirm-val">' + (s.name || 'Escuela') + '</span></div>' +
+        '<div class="reserva-confirm-row"><span class="reserva-confirm-label">Alumno</span><span class="reserva-confirm-val">' + reservaData.nombre + ' ' + reservaData.apellido + '</span></div>' +
+        '<div class="reserva-confirm-row"><span class="reserva-confirm-label">Email</span><span class="reserva-confirm-val">' + reservaData.email + '</span></div>' +
+        '<div class="reserva-confirm-row"><span class="reserva-confirm-label">Turno</span><span class="reserva-confirm-val">' + reservaData.slot.dia + ' ' + reservaData.slot.hora + '</span></div>' +
+        '<div class="reserva-confirm-row"><span class="reserva-confirm-label">Nivel</span><span class="reserva-confirm-val">' + reservaData.nivel + '</span></div>' +
+
+      '</div>' +
+      '<p style="font-size:12px;color:var(--wood-light);line-height:1.6;margin-bottom:18px">Al confirmar, la escuela recibirá tus datos y te contactará en menos de 24hs para validar el turno. El pago se realiza en el dojo el día de la clase.</p>' +
+      '<div style="display:flex;gap:10px">' +
+        '<button class="btn-modal-submit" style="flex:0;background:var(--parchment-dark);color:var(--ink-soft);border:1px solid rgba(122,92,58,0.2)" onclick="renderReservaStep(2)">← Volver</button>' +
+        '<button class="btn-modal-submit" onclick="confirmarReserva()">✓ Confirmar reserva</button>' +
+      '</div>';
+  }
+}
+
+function selectSlot(i) {
+  document.querySelectorAll('.slot-btn').forEach(function(b){ b.classList.remove('selected'); });
+  var btn = document.getElementById('slot-' + i);
+  if (btn) btn.classList.add('selected');
+  reservaData.slotIdx = i;
+  reservaData.slot = SLOTS[i];
+  var confirmBtn = document.getElementById('btn-confirmar');
+  if (confirmBtn) confirmBtn.disabled = false;
+}
+
+function goReservaStep2() {
+  var nombre = (document.getElementById('rv-nombre')   || {}).value || '';
+  var apellido= (document.getElementById('rv-apellido') || {}).value || '';
+  var email   = (document.getElementById('rv-email')   || {}).value || '';
+  if (!nombre.trim()) { showToast('⚠️ Ingresá tu nombre'); return; }
+  if (!email.trim() || !email.includes('@')) { showToast('⚠️ Ingresá un email válido'); return; }
+  reservaData.nombre   = nombre.trim();
+  reservaData.apellido = apellido.trim();
+  reservaData.email    = email.trim();
+  reservaData.tel      = (document.getElementById('rv-tel')   || {}).value || '';
+  reservaData.nivel    = (document.getElementById('rv-nivel') || {}).value || 'principiante';
+  reservaData.nota     = (document.getElementById('rv-nota')  || {}).value || '';
+  renderReservaStep(2);
+}
+
+function goReservaStep3() {
+  if (!reservaData.slot) { showToast('⚠️ Seleccioná un turno'); return; }
+  renderReservaStep(3);
+}
+
+function confirmarReserva() {
+  var s = window._schoolForMap || {};
+  var reserva = {
+    id:        'res-' + Date.now(),
+    escuela:   s.name || 'Escuela',
+    escuelaId: s.id || 1,
+    disc:      s.discipline || 'Karate',
+    nombre:    reservaData.nombre + ' ' + reservaData.apellido,
+    email:     reservaData.email,
+    slot:      reservaData.slot.dia + ' ' + reservaData.slot.hora,
+    nivel:     reservaData.nivel,
+    estado:    'pendiente',
+    fecha:     new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' }),
+    timestamp: Date.now()
+  };
+
+  // Guardar en sessionStorage para que aparezca en el panel del alumno
+  var reservas = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_reservas')) || []; } catch { return []; } })();
+  reservas.unshift(reserva);
+  sessionStorage.setItem('etd_reservas', JSON.stringify(reservas));
+
+  // Mostrar pantalla de éxito
+  var body = document.getElementById('modal-body');
+  body.innerHTML =
+    '<div style="text-align:center;padding:10px 0">' +
+      '<div class="reserva-success-icon">✓</div>' +
+      '<div style="font-family:var(--font-display);font-size:26px;font-weight:400;color:var(--ink);margin-bottom:8px">¡Reserva confirmada!</div>' +
+      '<div style="font-size:14px;color:var(--wood-light);line-height:1.6;margin-bottom:20px">' +
+        '<strong style="color:var(--ink)">' + reserva.escuela + '</strong> recibió tu solicitud.<br>' +
+        'Turno: <strong>' + reserva.slot + '</strong><br>' +
+        'Te contactarán a <strong>' + reserva.email + '</strong> en las próximas 24hs.' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+        '<button class="btn-modal-submit" style="background:var(--parchment-dark);color:var(--ink-soft);border:1px solid rgba(122,92,58,0.2);flex:0;padding:10px 20px" onclick="closeModal()">Cerrar</button>' +
+        '<button class="btn-modal-submit" style="flex:0;padding:10px 20px" onclick="closeModal();window.location.href=\'panel-usuario.html\'">Ver mis reservas →</button>' +
+      '</div>' +
+    '</div>';
+}
+
 function submitModal(type) {
   closeModal();
   showToast(type === 'trial'
     ? '✅  Reserva enviada — te contactaremos pronto'
     : '✅  Mensaje enviado a ' + (window._schoolForMap ? window._schoolForMap.name : 'la escuela'));
-  // Registrar lead
-  console.log('Lead registrado:', type, new Date().toISOString());
 }
 
 // ══════════════════════════════
@@ -1692,18 +1889,18 @@ function loadSchoolFromURL() {
   if (addrStrong) addrStrong.textContent = school.address;
   if (addrText)   addrText.innerHTML = '<strong>' + school.address + '</strong>' + school.location + ' — ' + school.cp;
 
-  // ── CTA precio ──
+  // ── CTA precio — no se muestra al usuario, el pago es directo con la escuela ──
   const ctaPrice = document.querySelector('.cta-price');
-  if (ctaPrice) ctaPrice.innerHTML = school.price + ' <span>/mes</span>';
+  if (ctaPrice) ctaPrice.style.display = 'none';
 
   // ── CTA features ──
   const ctaFeatures = document.querySelector('.cta-features');
   if (ctaFeatures) {
     const icon = '<svg class="cta-feature-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
     ctaFeatures.innerHTML =
-      '<div class="cta-feature">' + icon + 'Clase trial disponible — ' + school.trial + '</div>' +
+      '<div class="cta-feature">' + icon + 'Clase trial disponible</div>' +
       '<div class="cta-feature">' + icon + 'Sin contrato de permanencia</div>' +
-      '<div class="cta-feature">' + icon + 'Matrícula: ' + school.matricula + ' (única vez)</div>' +
+      '<div class="cta-feature">' + icon + 'Consultá horarios y disponibilidad</div>' +
       '<div class="cta-feature">' + icon + 'Cuota familiar disponible</div>';
   }
 

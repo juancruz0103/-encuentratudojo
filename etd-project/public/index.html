@@ -1721,6 +1721,248 @@
     .hero-kanji-strip { display: none; }
     .subcats-panel.visible { max-height: 300px; }
   }
+
+/* ══════════════════════════
+   COMPARADOR DE ESCUELAS
+══════════════════════════ */
+
+/* Botón comparar en cada card */
+.card-compare-btn {
+  position: absolute; top: 8px; right: 8px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(250,248,244,0.08);
+  border: 1px solid rgba(200,169,110,0.15);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; color: rgba(250,248,244,0.4);
+  font-size: 11px; font-weight: 600; z-index: 2;
+}
+.card-compare-btn:hover { background: rgba(200,169,110,0.15); color: var(--gold); border-color: var(--gold); transform: scale(1.1); }
+.card-compare-btn.selected { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+.school-card { position: relative; }
+.school-card.in-compare { border-color: rgba(200,169,110,0.4) !important; box-shadow: 0 0 0 2px rgba(200,169,110,0.15); }
+
+/* Barra flotante de comparación */
+.compare-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+  background: var(--ink); border: 1px solid rgba(200,169,110,0.2);
+  border-bottom: none; border-radius: 10px 10px 0 0;
+  padding: 14px 24px; display: flex; align-items: center; gap: 16px;
+  z-index: 300; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.4); min-width: 480px;
+  backdrop-filter: blur(12px);
+}
+.compare-bar.visible { transform: translateX(-50%) translateY(0); }
+
+.compare-bar-label {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold); flex-shrink: 0;
+}
+.compare-slots { display: flex; gap: 10px; flex: 1; }
+.compare-slot {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(250,248,244,0.05); border: 1px dashed rgba(200,169,110,0.2);
+  border-radius: 4px; padding: 7px 12px; min-width: 160px; transition: all 0.2s;
+}
+.compare-slot.filled { border-style: solid; border-color: rgba(200,169,110,0.3); background: rgba(200,169,110,0.06); }
+.compare-slot-kanji { font-family: var(--font-jp); font-size: 16px; color: var(--gold); flex-shrink: 0; }
+.compare-slot-name  { font-size: 12px; color: var(--parchment); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compare-slot-empty { font-size: 12px; color: rgba(250,248,244,0.25); font-style: italic; }
+.compare-slot-remove {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(250,248,244,0.1); border: none; cursor: pointer;
+  color: rgba(250,248,244,0.4); font-size: 11px; line-height: 1;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.compare-slot-remove:hover { background: rgba(192,57,43,0.3); color: var(--crimson-bright); }
+
+.compare-bar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.compare-bar-btn {
+  font-family: var(--font-body); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 18px; border-radius: 3px; cursor: pointer; transition: all 0.2s;
+}
+.compare-bar-btn.primary { background: var(--crimson); color: #fff; border: none; }
+.compare-bar-btn.primary:hover { background: var(--crimson-bright); }
+.compare-bar-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.compare-bar-btn.ghost { background: transparent; color: rgba(250,248,244,0.4); border: 1px solid rgba(250,248,244,0.1); }
+.compare-bar-btn.ghost:hover { color: rgba(250,248,244,0.7); border-color: rgba(250,248,244,0.2); }
+
+/* Modal comparador */
+.compare-modal-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(10,8,8,0.75); backdrop-filter: blur(6px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 20px; overflow-y: auto;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.compare-modal-overlay.visible { opacity: 1; pointer-events: all; }
+.compare-modal {
+  background: var(--parchment); border-radius: 8px;
+  width: 100%; max-width: 860px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  transform: translateY(24px); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
+.compare-modal-overlay.visible .compare-modal { transform: translateY(0); }
+
+.compare-modal-header {
+  background: var(--ink); padding: 20px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(200,169,110,0.1);
+}
+.compare-modal-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 400;
+  color: var(--parchment); letter-spacing: -0.01em;
+}
+.compare-modal-title em { font-style: italic; color: var(--gold); }
+.compare-modal-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(250,248,244,0.08); border: none; cursor: pointer;
+  color: rgba(250,248,244,0.5); font-size: 20px; display: flex;
+  align-items: center; justify-content: center; transition: all 0.2s;
+}
+.compare-modal-close:hover { background: rgba(250,248,244,0.15); color: var(--parchment); }
+
+/* Tabla comparativa */
+.compare-table { width: 100%; border-collapse: collapse; }
+
+.compare-table .col-label {
+  width: 180px; padding: 0 20px; background: var(--parchment-dark);
+  border-right: 1px solid rgba(122,92,58,0.1);
+}
+.compare-table .col-school {
+  width: calc((100% - 180px) / 2);
+  text-align: center; padding: 0 20px;
+}
+.compare-table .col-school + .col-school {
+  border-left: 1px solid rgba(122,92,58,0.07);
+}
+
+/* Header de las escuelas */
+.compare-school-header {
+  padding: 24px 20px; text-align: center;
+  border-bottom: 1px solid rgba(122,92,58,0.08);
+}
+.compare-school-kanji {
+  font-family: var(--font-jp); font-size: 48px;
+  line-height: 1; margin-bottom: 8px;
+  display: block;
+}
+.compare-school-name {
+  font-family: var(--font-display); font-size: 20px; font-weight: 600;
+  color: var(--ink); margin-bottom: 4px; letter-spacing: -0.01em;
+}
+.compare-school-disc {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #fff; padding: 3px 10px; border-radius: 2px; margin-bottom: 8px;
+}
+.compare-school-rating {
+  font-size: 13px; color: var(--ink-soft);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.compare-school-stars { color: var(--gold); }
+
+/* Filas de la tabla */
+.compare-row { border-bottom: 1px solid rgba(122,92,58,0.06); }
+.compare-row:last-child { border-bottom: none; }
+.compare-row:hover { background: rgba(250,248,244,0.5); }
+
+.compare-row-label {
+  padding: 13px 20px; font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--wood-light); background: var(--parchment-dark);
+  border-right: 1px solid rgba(122,92,58,0.1);
+  white-space: nowrap;
+}
+.compare-row-val {
+  padding: 13px 20px; font-size: 13px; color: var(--ink-soft);
+  text-align: center; vertical-align: middle;
+}
+.compare-row-val + .compare-row-val { border-left: 1px solid rgba(122,92,58,0.06); }
+.compare-row-val strong { color: var(--ink); font-weight: 500; }
+.compare-row-val .price { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--crimson); }
+.compare-row-val .winner { color: var(--success); font-weight: 500; }
+
+/* Subcats chips en tabla */
+.compare-chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.compare-chip {
+  font-size: 10px; color: var(--crimson); background: var(--crimson-pale);
+  border: 1px solid rgba(139,26,26,0.12); padding: 2px 7px; border-radius: 10px;
+}
+
+/* CTA al pie de la tabla */
+.compare-footer {
+  display: grid; grid-template-columns: 180px 1fr 1fr;
+  border-top: 2px solid rgba(122,92,58,0.1);
+  background: var(--parchment-dark);
+}
+.compare-footer-empty { padding: 16px 20px; }
+.compare-footer-cta   { padding: 16px 20px; text-align: center; }
+.compare-footer-cta + .compare-footer-cta { border-left: 1px solid rgba(122,92,58,0.07); }
+.compare-cta-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-body); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 9px 20px; border-radius: 3px; cursor: pointer;
+  border: none; transition: all 0.2s; color: #fff; background: var(--crimson);
+}
+.compare-cta-btn:hover { background: var(--crimson-bright); transform: translateY(-1px); }
+
+@media (max-width: 640px) {
+  .compare-bar { min-width: calc(100vw - 20px); }
+  .compare-table .col-label { width: 100px; }
+}
+
+/* ══ BÚSQUEDA MEJORADA ══ */
+.hero-search-wrap { position: relative; }
+.search-suggestions {
+  display: none;
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: rgba(14,12,11,0.98); border: 1px solid rgba(200,169,110,0.15);
+  border-radius: 4px; overflow: hidden; z-index: 200;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+}
+.search-suggestion-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 16px; cursor: pointer;
+  border-bottom: 1px solid rgba(200,169,110,0.06);
+  transition: background 0.15s;
+}
+.search-suggestion-item:last-child { border-bottom: none; }
+.search-suggestion-item:hover { background: rgba(250,248,244,0.05); }
+
+/* Contador de resultados */
+.results-counter {
+  font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--wood-light); margin-bottom: 12px; display: flex;
+  align-items: center; justify-content: space-between;
+}
+.results-clear-btn {
+  font-size: 11px; color: var(--crimson); background: none; border: none;
+  cursor: pointer; font-family: var(--font-body); letter-spacing: 0.06em;
+  text-transform: uppercase; transition: opacity 0.2s; padding: 0;
+}
+.results-clear-btn:hover { opacity: 0.7; }
+
+/* Empty state del sidebar */
+.no-results {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 20px; text-align: center; gap: 10px;
+}
+.no-results-kanji { font-family: var(--font-jp); font-size: 48px; color: rgba(200,169,110,0.1); line-height: 1; }
+.no-results-title { font-size: 14px; font-weight: 500; color: rgba(250,248,244,0.4); }
+.no-results-desc  { font-size: 12px; color: rgba(250,248,244,0.2); line-height: 1.5; }
+.no-results-btn   {
+  margin-top: 4px; font-size: 11px; color: var(--crimson);
+  background: var(--crimson-pale); border: 1px solid rgba(139,26,26,0.2);
+  border-radius: 3px; padding: 7px 16px; cursor: pointer;
+  font-family: var(--font-body); letter-spacing: 0.06em; text-transform: uppercase;
+  transition: all 0.2s;
+}
+.no-results-btn:hover { background: var(--crimson); color: #fff; }
 </style>
 </head>
 <body>
@@ -1740,6 +1982,7 @@
     <li><a href="#buscador">Buscador</a></li>
     <li><a href="#como-funciona">Cómo funciona</a></li>
     <li><a href="#escuelas">Escuelas destacadas</a></li>
+    <li><a href="tablero.html">Tablero comunitario</a></li>
     <li><a href="registro-escuela.html">Registrá tu escuela</a></li>
   </ul>
 
@@ -1776,18 +2019,19 @@
     </p>
 
     <div class="hero-search">
+      <div class="hero-search-wrap">
       <div class="search-box">
         <div class="search-field">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" color="#faf8f4">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
-          <input type="text" placeholder="Ciudad, barrio o escuela…" id="hero-search-input">
+          <input type="text" placeholder="Ciudad, barrio o escuela…" id="hero-search-input" oninput="heroInputLive(this.value)" onkeydown="if(event.key==='Enter')heroSearch()" autocomplete="off">
         </div>
         <div class="search-select-wrap">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" color="#faf8f4" style="left:16px">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
           </svg>
-          <select class="search-select" id="hero-discipline">
+          <select class="search-select" id="hero-discipline" onchange="heroSearch()">
             <option value="">Todas las disciplinas</option>
             <option value="taekwondo">Taekwondo</option>
             <option value="karate">Karate</option>
@@ -1799,9 +2043,11 @@
             <option value="kenjutsu">Kenjutsu</option>
           </select>
         </div>
-        <button class="btn-search" onclick="scrollToBuscador()">
+        <button class="btn-search" onclick="heroSearch()">
           Buscar
         </button>
+      </div>
+      <div class="search-suggestions" id="search-suggestions"></div>
       </div>
 
       <div class="search-tags">
@@ -1951,6 +2197,8 @@
     </div><!-- /filter-panel -->
 
     <!-- School list -->
+    <div class="results-counter"><span id="results-count">Cargando…</span><button class="results-clear-btn" onclick="clearAllFilters()" id="clear-btn" style="display:none">✕ Limpiar</button></div>
+    <div class="no-results" id="no-results"><div class="no-results-kanji">無</div><div class="no-results-title">Sin resultados</div><div class="no-results-desc">Probá con otra búsqueda o menos filtros.</div><button class="no-results-btn" onclick="clearAllFilters()">Ver todas las escuelas</button></div>
     <div class="school-list" id="school-list"></div>
   </aside>
 
@@ -2319,6 +2567,16 @@ function refreshActiveBar() {
 // ══════════════════════════════
 // CLEAR ALL
 // ══════════════════════════════
+function updateClearBtn() {
+  const btn = document.getElementById('clear-btn');
+  if (!btn) return;
+  const hasFilters = filterState.disciplines.size > 0 ||
+                     filterState.subcats.size > 0 ||
+                     filterState.general.size > 0 ||
+                     filterState.query !== '';
+  btn.style.display = hasFilters ? 'block' : 'none';
+}
+
 function clearAllFilters() {
   filterState.disciplines.clear();
   filterState.subcats.clear();
@@ -2370,14 +2628,18 @@ function applyFilters() {
     );
   }
 
-  // 4. Búsqueda texto
+  // 4. Búsqueda texto — nombre, ubicación, disciplina, subcats, descripción
   if (query) {
     const q = query.toLowerCase();
+    // Normalizar texto (quitar tildes) para búsqueda más permisiva
+    const norm = str => str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const qn = norm(q);
     filtered = filtered.filter(s =>
-      s.name.toLowerCase().includes(q)       ||
-      s.location.toLowerCase().includes(q)   ||
-      s.discipline.toLowerCase().includes(q) ||
-      s.subcats.some(sc => sc.toLowerCase().includes(q))
+      norm(s.name).includes(qn)         ||
+      norm(s.location).includes(qn)     ||
+      norm(s.discipline).includes(qn)   ||
+      s.subcats.some(sc => norm(sc).includes(qn)) ||
+      (s.description && norm(s.description).includes(qn))
     );
   }
 
@@ -2391,61 +2653,57 @@ function applyFilters() {
   if (map) addMarkers(filtered);
   refreshActiveBar();
   saveFiltersToURL();
+  updateClearBtn();
 }
 
 // ══════════════════════════════
 // RENDER CARDS
 // ══════════════════════════════
 function renderCards(data) {
-  const list = document.getElementById('school-list');
-  const meta = document.getElementById('results-meta');
-  const n    = data.length;
-  meta.textContent = `${n} escuela${n !== 1 ? 's' : ''} encontrada${n !== 1 ? 's' : ''}`;
+  const n       = data.length;
+  const list    = document.getElementById('school-list');
+  const countEl = document.getElementById('results-count');
+  const emptyEl = document.getElementById('no-results');
+  const metaEl  = document.getElementById('results-meta');
 
-  if (n === 0) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-kanji">無</div>
-        <div class="empty-title">Sin resultados</div>
-        <div class="empty-desc">No hay escuelas con esos filtros. Probá con otras combinaciones.</div>
-        <button class="empty-btn" onclick="clearAllFilters()">Limpiar filtros</button>
-      </div>`;
-    return;
+  // Actualizar contador
+  if (countEl) {
+    countEl.textContent = n === 0 ? 'Sin resultados' : n === 1 ? '1 escuela encontrada' : n + ' escuelas encontradas';
+    countEl.style.color = n === 0 ? 'var(--crimson-bright)' : 'var(--wood-light)';
   }
+  // Compatibilidad con results-meta anterior
+  if (metaEl) metaEl.textContent = n + ' escuela' + (n !== 1 ? 's' : '') + ' encontrada' + (n !== 1 ? 's' : '');
 
-  const discInfo = id => DISCIPLINES.find(d => d.id === id) || { label: id, kanji: '武' };
+  // Empty state
+  if (emptyEl) emptyEl.style.display = n === 0 ? 'flex' : 'none';
+  if (list)    list.style.display    = n === 0 ? 'none' : '';
 
-  list.innerHTML = data.map((s, i) => {
+  if (n === 0) return;
+
+  const discInfo = function(id) { return DISCIPLINES.find(function(d){ return d.id === id; }) || { label: id, kanji: '武' }; };
+
+  list.innerHTML = data.map(function(s, i) {
     const di = discInfo(s.discipline);
-    return `
-    <div class="school-card" data-id="${s.id}" style="animation-delay:${i * 35}ms" onclick="selectSchool(${s.id})">
-      ${s.premium
-        ? '<span class="card-badge-premium">Premium</span>'
-        : s.verified ? '<span class="card-badge-verified">Verificada</span>' : ''}
-      <div class="card-inner">
-        <div class="card-logo">${s.kanji}</div>
-        <div class="card-info">
-          <div class="card-name">${s.name}</div>
-          <div class="card-location">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-            </svg>${s.location}
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">${di.label}</span>
-            ${s.subcats.slice(0, 2).map(sc => `<span class="card-tag" style="opacity:.7">${sc}</span>`).join('')}
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="card-rating">
-          <span class="stars">${'★'.repeat(Math.round(s.rating))}${'☆'.repeat(5 - Math.round(s.rating))}</span>
-          <span class="rating-num">${s.rating}</span>
-          <span class="rating-count">(${s.reviews})</span>
-        </div>
-        <div class="card-price">${s.price}<span>${s.priceNote}</span></div>
-      </div>
-    </div>`;
+    return '\n    <div class="school-card" data-id="' + s.id + '" style="animation-delay:' + (i * 35) + 'ms" onclick="selectSchool(' + s.id + ')">' +
+      (s.premium ? '<span class="card-badge-premium">Premium</span>' : s.verified ? '<span class="card-badge-verified">Verificada</span>' : '') +
+      '<button class="card-compare-btn" id="cmp-btn-' + s.id + '" title="Comparar esta escuela" onclick="event.stopPropagation(); toggleCompare(' + s.id + ')">+</button>' +
+      '<div class="card-inner">' +
+        '<div class="card-logo">' + s.kanji + '</div>' +
+        '<div class="card-info">' +
+          '<div class="card-disc">' + di.kanji + ' ' + di.label + '</div>' +
+          '<div class="card-name">' + s.name + '</div>' +
+          '<div class="card-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' + s.location + '</div>' +
+          '<div class="card-tags">' + s.subcats.slice(0,3).map(function(t){ return '<span class="card-tag">' + t + '</span>'; }).join('') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-meta">' +
+        '<div class="card-rating"><span class="card-stars">★</span> ' + s.rating + ' <span class="card-reviews">(' + s.reviews + ')</span></div>' +
+        '<div class="card-price">' + s.price + '<span class="card-price-note">' + s.priceNote + '</span></div>' +
+      '</div>' +
+      '<div class="card-footer">' +
+        '<button class="btn-card" onclick="window.location.href=\'perfil-escuela.html?id=' + s.id + '\'">Ver perfil</button>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
@@ -2679,6 +2937,104 @@ function filterByDiscipline(disc) {
   }
 }
 
+
+// ══════════════════════════════
+// BÚSQUEDA DESDE EL HERO
+// ══════════════════════════════
+function heroSearch() {
+  const q    = document.getElementById('hero-search-input').value.trim();
+  const disc = document.getElementById('hero-discipline').value;
+
+  // Sincronizar con el sidebar
+  if (q) {
+    filterState.query = q.toLowerCase();
+    document.getElementById('sidebar-search').value = q;
+  }
+
+  // Disciplina del hero select → activar el chip correspondiente
+  if (disc && disc !== '') {
+    // Limpiar disciplinas actuales y activar la seleccionada
+    filterState.disciplines.clear();
+    filterState.disciplines.add(disc);
+    // Actualizar UI de chips
+    document.querySelectorAll('.disc-chip').forEach(chip => {
+      const chipDisc = chip.dataset.disc;
+      chip.classList.toggle('active', chipDisc === disc);
+    });
+  }
+
+  scrollToBuscador();
+  setTimeout(applyFilters, 400);
+}
+
+let heroLiveTimer = null;
+function heroInputLive(val) {
+  // Debounce de 300ms para no filtrar en cada keystroke
+  clearTimeout(heroLiveTimer);
+  heroLiveTimer = setTimeout(function() {
+    if (val.length >= 2 || val.length === 0) {
+      filterState.query = val.toLowerCase();
+      document.getElementById('sidebar-search').value = val;
+      applyFilters();
+      // Mostrar sugerencias
+      showSearchSuggestions(val);
+    }
+  }, 300);
+}
+
+// ══════════════════════════════
+// SUGERENCIAS DE BÚSQUEDA
+// ══════════════════════════════
+function showSearchSuggestions(q) {
+  const wrap = document.getElementById('search-suggestions');
+  if (!wrap) return;
+  if (!q || q.length < 2) { wrap.style.display = 'none'; return; }
+
+  const qn = q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const norm = str => str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+  // Buscar coincidencias en nombre y ubicación
+  const matches = schools.filter(s =>
+    norm(s.name).includes(qn) || norm(s.location).includes(qn)
+  ).slice(0, 5);
+
+  if (matches.length === 0) { wrap.style.display = 'none'; return; }
+
+  wrap.innerHTML = matches.map(function(s) {
+    return '<div class="search-suggestion-item" onclick="selectSuggestion(' + s.id + ')">' +
+      '<span style="font-family:var(--font-jp);font-size:14px;color:var(--crimson-bright)">' + s.kanji + '</span>' +
+      '<div>' +
+        '<div style="font-size:13px;color:var(--parchment);font-weight:500">' + s.name + '</div>' +
+        '<div style="font-size:11px;color:rgba(250,248,244,0.4)">' + s.location + ' \xb7 ' + s.discipline + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  wrap.style.display = 'block';
+}
+
+function selectSuggestion(id) {
+  var s = schools.find(function(s){ return s.id === id; });
+  if (!s) return;
+  document.getElementById('hero-search-input').value = s.name;
+  document.getElementById('search-suggestions').style.display = 'none';
+  filterState.query = s.name.toLowerCase();
+  document.getElementById('sidebar-search').value = s.name;
+  scrollToBuscador();
+  setTimeout(function() {
+    applyFilters();
+    selectSchool(id);
+  }, 450);
+}
+
+// Cerrar sugerencias al hacer click afuera
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('search-suggestions');
+  const input = document.getElementById('hero-search-input');
+  if (wrap && input && !wrap.contains(e.target) && e.target !== input) {
+    wrap.style.display = 'none';
+  }
+});
+
 function scrollToBuscador() {
   document.getElementById('buscador').scrollIntoView({ behavior: 'smooth' });
 }
@@ -2841,6 +3197,193 @@ function doLogout() {
 }
 
 document.addEventListener('DOMContentLoaded', applySessionToNav);
+
+// ══════════════════════════════
+// COMPARADOR DE ESCUELAS
+// ══════════════════════════════
+let compareList = [];
+
+function toggleCompare(id) {
+  const idx = compareList.indexOf(id);
+  if (idx > -1) {
+    compareList.splice(idx, 1);
+  } else {
+    if (compareList.length >= 2) {
+      showToast('⚠️  Solo podés comparar 2 escuelas a la vez');
+      return;
+    }
+    compareList.push(id);
+  }
+  updateCompareUI();
+}
+
+function removeFromCompare(id) {
+  compareList = compareList.filter(function(i){ return i !== id; });
+  updateCompareUI();
+}
+
+function clearCompare() {
+  compareList = [];
+  updateCompareUI();
+}
+
+function updateCompareUI() {
+  const bar = document.getElementById('compare-bar');
+  const btn = document.getElementById('btn-comparar');
+
+  document.querySelectorAll('.card-compare-btn').forEach(function(b) {
+    const cardId = parseInt(b.id.replace('cmp-btn-', ''));
+    const inList = compareList.indexOf(cardId) > -1;
+    b.classList.toggle('selected', inList);
+    b.textContent = inList ? '✓' : '+';
+    b.closest('.school-card').classList.toggle('in-compare', inList);
+  });
+
+  bar.classList.toggle('visible', compareList.length > 0);
+
+  [0, 1].forEach(function(i) {
+    const slot = document.getElementById('compare-slot-' + i);
+    if (!slot) return;
+    const id = compareList[i];
+    if (id) {
+      const s = schools.find(function(s){ return s.id === id; });
+      slot.classList.add('filled');
+      slot.innerHTML =
+        '<span class="compare-slot-kanji">' + s.kanji + '</span>' +
+        '<span class="compare-slot-name">' + s.name + '</span>' +
+        '<button class="compare-slot-remove" onclick="removeFromCompare(' + id + ')" title="Quitar">×</button>';
+    } else {
+      slot.classList.remove('filled');
+      slot.innerHTML = '<span class="compare-slot-empty">Seleccioná una escuela</span>';
+    }
+  });
+
+  btn.disabled = compareList.length < 2;
+}
+
+function openCompareModal() {
+  if (compareList.length < 2) return;
+  var a = schools.find(function(s){ return s.id === compareList[0]; });
+  var b = schools.find(function(s){ return s.id === compareList[1]; });
+  var body = document.getElementById('compare-modal-body');
+
+  var discColors = { karate:'#8b1a1a', taekwondo:'#c0392b', judo:'#4a3728', 'kung-fu':'#b5451b', aikido:'#1a5276', hapkido:'#1e8449', pakua:'#6c3483', kenjutsu:'#2c3e50' };
+  var colorA = discColors[a.discipline] || '#8b1a1a';
+  var colorB = discColors[b.discipline] || '#8b1a1a';
+
+  var priceA = parseFloat(a.price.replace(/[^0-9.]/g,''));
+  var priceB = parseFloat(b.price.replace(/[^0-9.]/g,''));
+
+  function row(label, va, vb, type) {
+    var cellA = '', cellB = '';
+    if (type === 'rating') {
+      var wA = a.rating > b.rating, wB = b.rating > a.rating;
+      cellA = '<td class="compare-row-val">' + (wA ? '<span class="winner">⭐ ' : '') + va + (wA ? '</span>' : '') + '</td>';
+      cellB = '<td class="compare-row-val">' + (wB ? '<span class="winner">⭐ ' : '') + vb + (wB ? '</span>' : '') + '</td>';
+    } else if (type === 'price') {
+      var wA2 = priceA < priceB, wB2 = priceB < priceA;
+      cellA = '<td class="compare-row-val"><span class="price' + (wA2?' winner':'') + '">' + va + '</span>' + (wA2?' <span style="font-size:10px;color:var(--success)">✓ Mejor</span>':'') + '</td>';
+      cellB = '<td class="compare-row-val"><span class="price' + (wB2?' winner':'') + '">' + vb + '</span>' + (wB2?' <span style="font-size:10px;color:var(--success)">✓ Mejor</span>':'') + '</td>';
+    } else if (type === 'chips') {
+      var chipsA = va.split(', ').map(function(t){ return '<span class="compare-chip">'+t+'</span>'; }).join('');
+      var chipsB = vb.split(', ').map(function(t){ return '<span class="compare-chip">'+t+'</span>'; }).join('');
+      cellA = '<td class="compare-row-val"><div class="compare-chips">' + chipsA + '</div></td>';
+      cellB = '<td class="compare-row-val"><div class="compare-chips">' + chipsB + '</div></td>';
+    } else {
+      cellA = '<td class="compare-row-val">' + va + '</td>';
+      cellB = '<td class="compare-row-val">' + vb + '</td>';
+    }
+    return '<tr class="compare-row"><td class="compare-row-label">' + label + '</td>' + cellA + cellB + '</tr>';
+  }
+
+  var discA = a.discipline.charAt(0).toUpperCase() + a.discipline.slice(1).replace('-',' ');
+  var discB = b.discipline.charAt(0).toUpperCase() + b.discipline.slice(1).replace('-',' ');
+
+  var starsA = '★'.repeat(Math.round(a.rating)) + '☆'.repeat(5-Math.round(a.rating));
+  var starsB = '★'.repeat(Math.round(b.rating)) + '☆'.repeat(5-Math.round(b.rating));
+
+  body.innerHTML =
+    '<table class="compare-table">' +
+      '<colgroup><col class="col-label"><col class="col-school"><col class="col-school"></colgroup>' +
+      '<thead><tr>' +
+        '<td style="padding:0;background:var(--parchment-dark)"></td>' +
+        '<td class="compare-school-header">' +
+          '<span class="compare-school-kanji" style="color:'+colorA+'">' + a.kanji + '</span>' +
+          '<div class="compare-school-name">' + a.name + '</div>' +
+          '<span class="compare-school-disc" style="background:'+colorA+'">' + discA + '</span>' +
+          '<div class="compare-school-rating"><span class="compare-school-stars">' + starsA + '</span>&nbsp;' + a.rating + ' (' + a.reviews + ' reseñas)</div>' +
+        '</td>' +
+        '<td class="compare-school-header">' +
+          '<span class="compare-school-kanji" style="color:'+colorB+'">' + b.kanji + '</span>' +
+          '<div class="compare-school-name">' + b.name + '</div>' +
+          '<span class="compare-school-disc" style="background:'+colorB+'">' + discB + '</span>' +
+          '<div class="compare-school-rating"><span class="compare-school-stars">' + starsB + '</span>&nbsp;' + b.rating + ' (' + b.reviews + ' reseñas)</div>' +
+        '</td>' +
+      '</tr></thead>' +
+      '<tbody>' +
+        row('Disciplina',     discA, discB) +
+        row('Ubicación',      a.location, b.location) +
+        row('Calificación',   a.rating + ' ★', b.rating + ' ★', 'rating') +
+        row('Cuota mensual',  '$' + a.price, '$' + b.price, 'price') +
+        row('Verificada',     a.verified ? '✅ Sí' : '—', b.verified ? '✅ Sí' : '—') +
+        row('Modalidad',      a.premium ? '⭐ Premium' : 'Estándar', b.premium ? '⭐ Premium' : 'Estándar') +
+        row('Subcategorías',  a.subcats.slice(0,4).join(', '), b.subcats.slice(0,4).join(', '), 'chips') +
+      '</tbody>' +
+    '</table>' +
+    '<div class="compare-footer">' +
+      '<div class="compare-footer-empty"></div>' +
+      '<div class="compare-footer-cta">' +
+        '<button class="compare-cta-btn" onclick="closeCompareModal();window.location.href=\'perfil-escuela.html?id=' + a.id + '\'">' +
+          'Ver perfil completo →' +
+        '</button>' +
+      '</div>' +
+      '<div class="compare-footer-cta">' +
+        '<button class="compare-cta-btn" onclick="closeCompareModal();window.location.href=\'perfil-escuela.html?id=' + b.id + '\'">' +
+          'Ver perfil completo →' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById('compare-modal-overlay').classList.add('visible');
+}
+
+function closeCompareModal() {
+  document.getElementById('compare-modal-overlay').classList.remove('visible');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCompareModal();
+});
 </script>
+
+<!-- ══ COMPARADOR: BARRA FLOTANTE ══ -->
+<div class="compare-bar" id="compare-bar">
+  <span class="compare-bar-label">Comparar</span>
+  <div class="compare-slots">
+    <div class="compare-slot" id="compare-slot-0">
+      <span class="compare-slot-empty">Seleccioná una escuela</span>
+    </div>
+    <div class="compare-slot" id="compare-slot-1">
+      <span class="compare-slot-empty">Seleccioná otra escuela</span>
+    </div>
+  </div>
+  <div class="compare-bar-actions">
+    <button class="compare-bar-btn primary" id="btn-comparar" onclick="openCompareModal()" disabled>
+      Ver comparación
+    </button>
+    <button class="compare-bar-btn ghost" onclick="clearCompare()">Limpiar</button>
+  </div>
+</div>
+
+<!-- ══ COMPARADOR: MODAL ══ -->
+<div class="compare-modal-overlay" id="compare-modal-overlay" onclick="if(event.target===this)closeCompareModal()">
+  <div class="compare-modal">
+    <div class="compare-modal-header">
+      <span class="compare-modal-title">Comparando <em>escuelas</em></span>
+      <button class="compare-modal-close" onclick="closeCompareModal()">×</button>
+    </div>
+    <div id="compare-modal-body"></div>
+  </div>
+</div>
 </body>
 </html>

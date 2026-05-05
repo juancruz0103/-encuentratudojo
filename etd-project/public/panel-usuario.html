@@ -718,6 +718,10 @@ td strong { color: var(--ink); font-weight: 500; }
   </nav>
 
   <div class="sidebar-footer">
+    <a href="tablero.html" style="margin-bottom:8px;display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(250,248,244,0.5);text-decoration:none;transition:color 0.2s" onmouseover="this.style.color='rgba(200,169,110,0.7)'" onmouseout="this.style.color='rgba(250,248,244,0.5)'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Tablero comunitario
+    </a>
     <a href="javascript:void(0)" onclick="history.length > 1 ? history.back() : window.location.href='index.html'">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Volver al buscador
@@ -887,7 +891,7 @@ td strong { color: var(--ink); font-weight: 500; }
             <input type="text" placeholder="Buscar reserva…">
           </div>
         </div>
-        <table><thead><tr><th>Escuela</th><th>Disciplina</th><th>Fecha y hora</th><th>Tipo</th><th>Monto</th><th>Estado</th><th>Acción</th></tr></thead>
+        <table><thead><tr><th>Escuela</th><th>Disciplina</th><th>Fecha y hora</th><th>Tipo</th><th>Estado</th><th>Acción</th></tr></thead>
         <tbody id="reservas-tbody"></tbody></table>
       </div>
     </div>
@@ -968,7 +972,7 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="page-header-title">Editar <em>perfil</em></div>
           <div class="page-header-sub">Tu información personal en la plataforma</div>
         </div>
-        <button class="btn btn-primary" onclick="showToastUser('✅ Cambios guardados correctamente')">
+        <button class="btn btn-primary" onclick="guardarPerfil()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           Guardar cambios
         </button>
@@ -980,18 +984,18 @@ td strong { color: var(--ink); font-weight: 500; }
             <div class="perfil-cover"><span class="perfil-cover-kanji">道</span></div>
             <div class="perfil-body">
               <div class="perfil-avatar-wrap">
-                <div class="perfil-avatar">MG</div>
+                <div class="perfil-avatar" id="perfil-avatar-initials">MG</div>
                 <button class="perfil-change-photo-btn" onclick="showToastUser('Subir foto — próximamente')">Cambiar foto</button>
               </div>
-              <div class="perfil-user-name">Martín González</div>
+              <div class="perfil-user-name" id="perfil-display-name">Martín González</div>
               <div class="perfil-user-since">Miembro desde enero 2025</div>
               <div class="perfil-info-row">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                martin.g@email.com
+                <span id="perfil-display-email">martin.g@email.com</span>
               </div>
               <div class="perfil-info-row">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-                Palermo, Buenos Aires
+                <span id="perfil-display-location">Palermo, Buenos Aires</span>
               </div>
               <div class="perfil-divider"></div>
               <div class="perfil-stat-mini">
@@ -1008,12 +1012,12 @@ td strong { color: var(--ink); font-weight: 500; }
           <div class="form-card">
             <div class="form-section-title">Datos personales</div>
             <div class="form-grid">
-              <div class="form-field"><label class="form-label">Nombre</label><input class="form-input" type="text" value="Martín"></div>
-              <div class="form-field"><label class="form-label">Apellido</label><input class="form-input" type="text" value="González"></div>
-              <div class="form-field"><label class="form-label">Email</label><input class="form-input" type="email" value="martin.g@email.com"></div>
+              <div class="form-field"><label class="form-label">Nombre</label><input class="form-input" id="pf-nombre" type="text" value="Martín"></div>
+              <div class="form-field"><label class="form-label">Apellido</label><input class="form-input" id="pf-apellido" type="text" value="González"></div>
+              <div class="form-field"><label class="form-label">Email</label><input class="form-input" id="pf-email" type="email" value="martin.g@email.com"></div>
               <div class="form-field"><label class="form-label">Teléfono</label><input class="form-input" type="text" value="+54 9 11 5555-6666"></div>
-              <div class="form-field"><label class="form-label">Ciudad</label><input class="form-input" type="text" value="Buenos Aires"></div>
-              <div class="form-field"><label class="form-label">Barrio</label><input class="form-input" type="text" value="Palermo"></div>
+              <div class="form-field"><label class="form-label">Ciudad</label><input class="form-input" id="pf-ciudad" type="text" value="Buenos Aires"></div>
+              <div class="form-field"><label class="form-label">Barrio</label><input class="form-input" id="pf-barrio" type="text" value="Palermo"></div>
               <div class="form-field span-2"><label class="form-label">Sobre mí</label><textarea class="form-textarea" rows="3">Practico Karate Shotokan desde hace 8 meses. Busco mejorar mi técnica y competir en torneos regionales.</textarea></div>
             </div>
           </div>
@@ -1121,12 +1125,17 @@ const favSchools = [
   { id:10, kanji:'剣', name:'Kenjutsu Dojo Musashi',   loc:'Palermo Soho, Bs As',  disc:'kenjutsu', subcats:['Iaijutsu','Adultos'],rating:4.9, reviews:56,  price:'$9.000', priceNote:'/mes', verified:true,  color:'#2c3e50' },
 ];
 
-const reservas = [
-  { school:'Dragon Gate Dojo', disc:'Karate', fecha:'Sábado 3 mayo, 10:00', tipo:'Clase grupal',  monto:'Incluida', status:'confirmada' },
-  { school:'Bushido Karate',   disc:'Karate', fecha:'Miér 7 mayo, 19:00',  tipo:'Clase trial',   monto:'$1.500',   status:'pendiente'  },
-  { school:'Aikido Shinbukan', disc:'Aikido', fecha:'Lunes 12 mayo, 20:00', tipo:'Clase privada', monto:'$3.200',   status:'confirmada' },
-  { school:'Dragon Gate Dojo', disc:'Karate', fecha:'Sáb 25 abr, 10:00',   tipo:'Clase grupal',  monto:'Incluida', status:'completada' },
+// Reservas — combina las demo con las reales del sessionStorage
+const reservasDemo = [
+  { id:'demo-1', escuela:'Dragon Gate Dojo', disc:'Karate', slot:'Sábado 3 mayo, 10:00', estado:'confirmada', fecha:'3 may 2025' },
+  { id:'demo-2', escuela:'Aikido Shinbukan', disc:'Aikido', slot:'Lunes 12 mayo, 20:00', estado:'confirmada', fecha:'12 may 2025' },
+  { id:'demo-3', escuela:'Dragon Gate Dojo', disc:'Karate', slot:'Sáb 25 abr, 10:00',   estado:'completada', fecha:'25 abr 2025' },
 ];
+function getReservas() {
+  var fromStorage = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_reservas')) || []; } catch { return []; } })();
+  return fromStorage.concat(reservasDemo);
+}
+var reservas = getReservas();
 
 const historial = [
   { date:'Hoy 10:32',     action:'Guardó en favoritos', school:'Pakua Zen Buenos Aires', detail:'Favorito agregado' },
@@ -1190,33 +1199,55 @@ function renderFavGrid() {
 }
 
 function renderReservasPreview() {
+  reservas = getReservas();
   const el = document.getElementById('reservas-preview');
   if (!el) return;
-  el.innerHTML = reservas.slice(0,3).map(r => `
-    <tr>
-      <td><strong>${r.school}</strong></td>
-      <td>${r.fecha}</td>
-      <td>${r.tipo}</td>
-      <td><span class="status ${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
-    </tr>`).join('');
+  el.innerHTML = reservas.slice(0,3).map(function(r) {
+    var school = r.escuela || r.school || '—';
+    var slot   = r.slot   || r.fecha  || '—';
+    var tipo   = r.tipo   || 'Clase trial';
+    var estado = r.estado || r.status || 'pendiente';
+    var estadoCap = estado.charAt(0).toUpperCase() + estado.slice(1);
+    return '<tr>' +
+      '<td><strong>' + school + '</strong></td>' +
+      '<td>' + slot + '</td>' +
+      '<td>' + tipo + '</td>' +
+      '<td><span class="status ' + estado + '">' + estadoCap + '</span></td>' +
+    '</tr>';
+  }).join('');
 }
 
 function renderReservasFull() {
+  reservas = getReservas();
   const el = document.getElementById('reservas-tbody');
   if (!el) return;
-  el.innerHTML = reservas.map(r => `
-    <tr>
-      <td><strong>${r.school}</strong></td>
-      <td>${r.disc}</td>
-      <td>${r.fecha}</td>
-      <td>${r.tipo}</td>
-      <td><strong style="color:${r.monto==='Incluida'?'var(--success)':'var(--crimson)'}">${r.monto}</strong></td>
-      <td><span class="status ${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
-      <td style="display:flex;gap:6px">
-        ${r.status==='confirmada'||r.status==='pendiente'?'<button class="tbl-btn" style="color:var(--crimson-bright)" onclick="showToastUser(\'Reserva cancelada\')>Cancelar</button>':''}
-        ${r.status==='completada'?'<button class="tbl-btn prim" onclick="showSection(\'resenas\')">Reseñar</button>':''}
-      </td>
-    </tr>`).join('');
+  if (reservas.length === 0) {
+    el.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--wood-light)">No tenés reservas aún. <a href="index.html" style="color:var(--crimson)">Buscá una escuela</a> y reservá tu clase trial.</td></tr>';
+    return;
+  }
+  el.innerHTML = reservas.map(function(r) {
+    var school = r.escuela || r.school || '—';
+    var disc   = r.disc || '—';
+    var slot   = r.slot || r.fecha || '—';
+    var tipo   = r.tipo || 'Clase trial';
+    var estado = r.estado || r.status || 'pendiente';
+    var estadoCap = estado.charAt(0).toUpperCase() + estado.slice(1);
+    var cancelBtn = (estado === 'confirmada' || estado === 'pendiente')
+      ? '<button class="tbl-btn" style="color:var(--crimson-bright)" onclick="showToastUser(\'Reserva cancelada\')">Cancelar</button>'
+      : '';
+    var resenarBtn = estado === 'completada'
+      ? '<button class="tbl-btn" style="color:var(--success)" onclick="showSection(\'resenas\')">Reseñar</button>'
+      : '';
+    return '<tr>' +
+      '<td><strong>' + school + '</strong></td>' +
+      '<td>' + disc + '</td>' +
+      '<td>' + slot + '</td>' +
+      '<td>' + tipo + '</td>' +
+      
+      '<td><span class="status ' + estado + '">' + estadoCap + '</span></td>' +
+      '<td style="display:flex;gap:6px">' + cancelBtn + resenarBtn + '</td>' +
+    '</tr>';
+  }).join('');
 }
 
 function renderHistorial() {
@@ -1372,6 +1403,113 @@ function markAllRead() {
   const badge = document.querySelector('.nav-item[onclick*="notificaciones"] .nav-badge');
   if (badge) badge.remove();
 }
+
+// ══════════════════════════════
+// PERFIL EDITABLE
+// ══════════════════════════════
+function cargarPerfil() {
+  var s = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_user')); } catch { return null; } })();
+  var perfil = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_perfil')); } catch { return null; } })();
+
+  if (!perfil && s) {
+    // Datos iniciales desde sesión
+    var parts = (s.name || 'Martín González').split(' ');
+    perfil = {
+      nombre:   parts[0] || 'Martín',
+      apellido: parts.slice(1).join(' ') || 'González',
+      email:    s.type === 'alumno' ? 'martin.g@email.com' : 'escuela@demo.com',
+      ciudad:   'Buenos Aires',
+      barrio:   'Palermo'
+    };
+  }
+
+  if (!perfil) return;
+
+  // Rellenar inputs
+  var campos = { nombre:'pf-nombre', apellido:'pf-apellido', email:'pf-email', ciudad:'pf-ciudad', barrio:'pf-barrio' };
+  Object.keys(campos).forEach(function(key) {
+    var el = document.getElementById(campos[key]);
+    if (el && perfil[key]) el.value = perfil[key];
+  });
+
+  // Actualizar sidebar del perfil
+  actualizarSidebarPerfil(perfil);
+}
+
+function actualizarSidebarPerfil(perfil) {
+  var nombre   = perfil.nombre || '';
+  var apellido = perfil.apellido || '';
+  var fullName = (nombre + ' ' + apellido).trim();
+  var initials = fullName.split(' ').map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase();
+
+  var elAvatar   = document.getElementById('perfil-avatar-initials');
+  var elName     = document.getElementById('perfil-display-name');
+  var elEmail    = document.getElementById('perfil-display-email');
+  var elLocation = document.getElementById('perfil-display-location');
+
+  if (elAvatar)   elAvatar.textContent   = initials || 'MG';
+  if (elName)     elName.textContent     = fullName || 'Martín González';
+  if (elEmail)    elEmail.textContent    = perfil.email || '';
+  if (elLocation) elLocation.textContent = [perfil.barrio, perfil.ciudad].filter(Boolean).join(', ');
+
+  // Actualizar también el avatar del topbar (iniciales del nav)
+  var topAvatar = document.querySelector('.topbar-avatar');
+  if (topAvatar) topAvatar.textContent = initials || 'MG';
+}
+
+function guardarPerfil() {
+  var nombre   = (document.getElementById('pf-nombre')   || {}).value || '';
+  var apellido = (document.getElementById('pf-apellido') || {}).value || '';
+  var email    = (document.getElementById('pf-email')    || {}).value || '';
+  var ciudad   = (document.getElementById('pf-ciudad')   || {}).value || '';
+  var barrio   = (document.getElementById('pf-barrio')   || {}).value || '';
+
+  if (!nombre.trim()) { showToastUser('⚠️  El nombre no puede estar vacío'); return; }
+
+  var perfil = { nombre: nombre.trim(), apellido: apellido.trim(), email: email.trim(), ciudad: ciudad.trim(), barrio: barrio.trim() };
+
+  // Guardar en sessionStorage
+  sessionStorage.setItem('etd_perfil', JSON.stringify(perfil));
+
+  // Actualizar también el nombre en la sesión
+  var s = (function(){ try { return JSON.parse(sessionStorage.getItem('etd_user')); } catch { return null; } })();
+  if (s) {
+    s.name = (nombre.trim() + ' ' + apellido.trim()).trim();
+    sessionStorage.setItem('etd_user', JSON.stringify(s));
+  }
+
+  // Actualizar el sidebar
+  actualizarSidebarPerfil(perfil);
+
+  // Actualizar nombre en el sidebar nav del panel
+  var sidebarName = document.querySelector('.user-name');
+  if (sidebarName) sidebarName.textContent = perfil.nombre + ' ' + perfil.apellido;
+
+  showToastUser('✅ Perfil actualizado correctamente');
+}
+
+// Actualizar preview del sidebar en tiempo real al escribir
+(function() {
+  var campos = ['pf-nombre', 'pf-apellido', 'pf-email', 'pf-ciudad', 'pf-barrio'];
+  campos.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function() {
+      var perfil = {
+        nombre:   (document.getElementById('pf-nombre')   || {}).value || '',
+        apellido: (document.getElementById('pf-apellido') || {}).value || '',
+        email:    (document.getElementById('pf-email')    || {}).value || '',
+        ciudad:   (document.getElementById('pf-ciudad')   || {}).value || '',
+        barrio:   (document.getElementById('pf-barrio')   || {}).value || '',
+      };
+      actualizarSidebarPerfil(perfil);
+    });
+  });
+})();
+
+
+// Cargar perfil al inicio
+cargarPerfil();
 </script>
 </body>
 </html>
