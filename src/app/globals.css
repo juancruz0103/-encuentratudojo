@@ -37,9 +37,9 @@ a { text-decoration: none; }
 .etd-nav-kanji { font-family: var(--font-jp); font-size: 20px; color: var(--crimson-bright); }
 .etd-nav-name { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--parchment); letter-spacing: 0.07em; }
 .etd-nav-links { display: flex; align-items: center; gap: 6px; }
-.etd-nav-link { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(250,248,244,0.45); padding: 6px 14px; border-radius: 3px; transition: all 0.2s; }
+.etd-nav-link { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(250,248,244,0.45); padding: 6px 14px; border-radius: 3px; transition: all 0.2s; }
 .etd-nav-link:hover { color: var(--parchment); background: rgba(250,248,244,0.05); }
-.etd-nav-cta { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); background: var(--gold); padding: 8px 18px; border-radius: 3px; transition: all 0.2s; }
+.etd-nav-cta { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); background: var(--gold); padding: 8px 18px; border-radius: 3px; transition: all 0.2s; }
 .etd-nav-cta:hover { background: var(--gold-bright); }
 
 /* ── HERO ── */
@@ -50,13 +50,13 @@ a { text-decoration: none; }
 .etd-hero-inner { max-width: 1400px; margin: 0 auto; padding: 64px 64px 48px; position: relative; z-index: 1; width: 100%; }
 .etd-eyebrow { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
 .etd-eyebrow-line { width: 36px; height: 1px; background: var(--crimson-bright); }
-.etd-eyebrow-text { font-size: 10px; color: var(--gold); letter-spacing: 0.22em; text-transform: uppercase; }
+.etd-eyebrow-text { font-size: 12px; color: var(--gold); letter-spacing: 0.22em; text-transform: uppercase; }
 .etd-hero-title { font-family: var(--font-display); font-size: clamp(48px,7vw,96px); font-weight: 300; color: var(--parchment); line-height: 0.92; letter-spacing: -0.02em; margin-bottom: 18px; }
 .etd-hero-title em { font-style: italic; color: var(--crimson-bright); }
-.etd-hero-desc { font-size: 15px; font-weight: 300; color: rgba(250,248,244,0.45); line-height: 1.7; max-width: 560px; margin-bottom: 36px; }
+.etd-hero-desc { font-size: 17px; font-weight: 300; color: rgba(250,248,244,0.45); line-height: 1.7; max-width: 560px; margin-bottom: 36px; }
 .etd-hero-stats { display: flex; gap: 40px; flex-wrap: wrap; padding-top: 32px; border-top: 1px solid rgba(200,169,110,0.08); margin-top: 40px; }
 .etd-hero-stat-num { font-family: var(--font-display); font-size: 32px; font-weight: 600; color: var(--parchment); line-height: 1; margin-bottom: 3px; }
-.etd-hero-stat-lbl { font-size: 10px; color: rgba(250,248,244,0.35); letter-spacing: 0.12em; text-transform: uppercase; }
+.etd-hero-stat-lbl { font-size: 12px; color: rgba(250,248,244,0.35); letter-spacing: 0.12em; text-transform: uppercase; }
 
 /* ── DISCIPLINE STRIP ── */
 .etd-disc-strip { background: var(--parchment-dark); border-top: 1px solid rgba(122,92,58,0.12); border-bottom: 1px solid rgba(122,92,58,0.12); }
@@ -65,16 +65,16 @@ a { text-decoration: none; }
 .etd-disc-item:last-child { border-right: none; }
 .etd-disc-item:hover { background: var(--parchment); }
 .etd-disc-kanji { font-family: var(--font-jp); font-size: 28px; line-height: 1; }
-.etd-disc-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink); font-weight: 500; }
-.etd-disc-count { font-size: 11px; color: var(--wood-light); }
+.etd-disc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink); font-weight: 500; }
+.etd-disc-count { font-size: 13px; color: var(--wood-light); }
 
 /* ── SECTION ── */
 .etd-section { max-width: 1400px; margin: 0 auto; padding: 80px 64px; }
 .etd-section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; }
-.etd-section-eyebrow { font-size: 9px; color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px; }
+.etd-section-eyebrow { font-size: 11px; color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px; }
 .etd-section-title { font-family: var(--font-display); font-size: 36px; font-weight: 300; color: var(--ink); letter-spacing: -0.01em; }
 .etd-section-title em { font-style: italic; color: var(--crimson); }
-.etd-section-link { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--crimson); transition: opacity 0.2s; }
+.etd-section-link { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--crimson); transition: opacity 0.2s; }
 .etd-section-link:hover { opacity: 0.7; }
 
 /* ── SCHOOL CARDS ── */
@@ -85,16 +85,16 @@ a { text-decoration: none; }
 .etd-card-kanji { font-family: var(--font-jp); font-size: 72px; line-height: 1; opacity: 0.25; color: #fff; }
 .etd-card-badge-premium { position: absolute; top: 10px; left: 10px; font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; background: var(--gold); color: var(--ink); padding: 3px 8px; border-radius: 2px; }
 .etd-card-body { padding: 16px; }
-.etd-card-disc { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; margin-bottom: 4px; }
+.etd-card-disc { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; margin-bottom: 4px; }
 .etd-card-name { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 4px; line-height: 1.3; }
-.etd-card-location { font-size: 12px; color: var(--wood-light); margin-bottom: 12px; }
+.etd-card-location { font-size: 14px; color: var(--wood-light); margin-bottom: 12px; }
 .etd-card-footer { display: flex; align-items: center; justify-content: space-between; }
-.etd-card-rating { font-size: 12px; color: var(--gold); }
+.etd-card-rating { font-size: 14px; color: var(--gold); }
 .etd-card-rating span { color: var(--wood-light); }
-.etd-card-btn { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--crimson); border: 1px solid rgba(139,26,26,0.2); padding: 5px 12px; border-radius: 2px; }
+.etd-card-btn { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--crimson); border: 1px solid rgba(139,26,26,0.2); padding: 5px 12px; border-radius: 2px; }
 
 /* ── BUTTONS ── */
-.etd-btn-primary { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; background: var(--crimson); border: none; padding: 14px 28px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+.etd-btn-primary { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; background: var(--crimson); border: none; padding: 14px 28px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
 .etd-btn-primary:hover { background: var(--crimson-bright); transform: translateY(-1px); }
 
 /* ── FOOTER ── */
@@ -106,14 +106,14 @@ a { text-decoration: none; }
 .etd-auth-wrap > *:not(div[style*="absolute"]) { position: relative; z-index: 1; }
 .etd-auth-card { background: var(--parchment); border-radius: var(--radius); width: 100%; max-width: 440px; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
 .etd-auth-tabs { display: flex; border-bottom: 1px solid rgba(122,92,58,0.15); }
-.etd-auth-tab { flex: 1; padding: 16px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; border: none; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; background: transparent; color: rgba(122,92,58,0.6); border-bottom: 2px solid transparent; }
+.etd-auth-tab { flex: 1; padding: 16px; font-size: 14px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; border: none; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; background: transparent; color: rgba(122,92,58,0.6); border-bottom: 2px solid transparent; }
 .etd-auth-tab.active { color: var(--crimson); border-bottom-color: var(--crimson); background: #fff; }
 .etd-auth-body { padding: 32px; }
 .etd-form-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-.etd-form-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--wood-light); }
+.etd-form-label { font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--wood-light); }
 .etd-form-input { font-family: var(--font-body); font-size: 14px; color: var(--ink); background: #fff; border: 1px solid rgba(122,92,58,0.2); border-radius: 3px; padding: 10px 14px; outline: none; transition: border-color 0.2s; }
 .etd-form-input:focus { border-color: var(--crimson); }
-.etd-btn-submit { width: 100%; font-family: var(--font-body); font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; background: var(--crimson); border: none; padding: 14px; border-radius: 3px; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+.etd-btn-submit { width: 100%; font-family: var(--font-body); font-size: 14px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; background: var(--crimson); border: none; padding: 14px; border-radius: 3px; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
 .etd-btn-submit:hover { background: var(--crimson-bright); }
 .etd-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
