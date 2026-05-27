@@ -25,8 +25,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; }
-body { font-family: var(--font-body); background: var(--parchment); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.6; }
+html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
+body { font-family: var(--font-body); background: var(--parchment); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.6; overflow-x: hidden; max-width: 100%; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(139,26,26,0.25); border-radius: 2px; }
 a { text-decoration: none; }
@@ -45,7 +45,7 @@ a { text-decoration: none; }
 /* ── HERO ── */
 .etd-hero { min-height: 100vh; background: var(--ink); display: flex; align-items: center; padding-top: var(--nav-h); position: relative; overflow: hidden; }
 .etd-hero-grid { position: absolute; inset: 0; pointer-events: none; background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,169,110,0.03) 59px, rgba(200,169,110,0.03) 60px), repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,169,110,0.03) 59px, rgba(200,169,110,0.03) 60px); }
-.etd-hero-kanji-bg { position: absolute; right: -40px; top: 50%; transform: translateY(-50%); font-family: var(--font-jp); font-size: 360px; line-height: 1; color: rgba(200,169,110,0.04); pointer-events: none; user-select: none; }
+.etd-hero-kanji-bg { position: absolute; right: 0; transform: translateX(10%) translateY(-50%) !important; top: 50%; transform: translateY(-50%); font-family: var(--font-jp); font-size: 360px; line-height: 1; color: rgba(200,169,110,0.04); pointer-events: none; user-select: none; }
 .etd-hero-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, transparent, var(--crimson) 20%, var(--crimson-bright) 80%, transparent); }
 .etd-hero-inner { max-width: 1400px; margin: 0 auto; padding: 64px 64px 48px; position: relative; z-index: 1; width: 100%; }
 .etd-eyebrow { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }

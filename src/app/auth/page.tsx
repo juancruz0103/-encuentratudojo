@@ -73,7 +73,7 @@ function AuthContent() {
       }} />
       {/* Kanji de fondo */}
       <div style={{
-        position: 'absolute', right: '-40px', top: '50%', transform: 'translateY(-50%)',
+        position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%) translateX(40%)', maxWidth: '100%',
         fontFamily: 'var(--font-jp)', fontSize: 360, lineHeight: 1,
         color: 'rgba(200,169,110,0.03)', pointerEvents: 'none', userSelect: 'none',
       }}>武道</div>
