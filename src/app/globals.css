@@ -25,8 +25,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: var(--font-body); background: var(--parchment); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: var(--font-body); background: var(--parchment); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; font-size: 15px; line-height: 1.6; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: rgba(139,26,26,0.25); border-radius: 2px; }
 a { text-decoration: none; }
@@ -131,9 +131,76 @@ a { text-decoration: none; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
-  .etd-nav { padding: 0 20px; }
-  .etd-hero-inner, .etd-section, .etd-footer-inner { padding-left: 20px; padding-right: 20px; }
-  .etd-disc-strip-inner { padding: 0 20px; }
+  .etd-nav { padding: 0 16px; }
+  .etd-nav-name { font-size: 15px; }
+  .etd-hero-inner, .etd-section, .etd-footer-inner { padding-left: 16px; padding-right: 16px; }
+  .etd-disc-strip-inner { padding: 0 16px; }
   .etd-cards-grid { grid-template-columns: 1fr; }
-  .etd-profile-layout { grid-template-columns: 1fr; padding: 20px; }
+  .etd-profile-layout { grid-template-columns: 1fr; padding: 16px; }
+  .etd-section { padding: 40px 16px; }
+}
+
+/* ── BUSCADOR MOBILE — sidebar colapsable ── */
+.etd-search-toggle {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  background: var(--ink);
+  color: var(--gold);
+  border: 1px solid rgba(200,169,110,0.3);
+  border-radius: 24px;
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.etd-search-toggle:hover { background: var(--ink-mid); }
+
+.etd-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(14,12,11,0.6);
+  z-index: 490;
+  backdrop-filter: blur(2px);
+}
+
+@media (max-width: 900px) {
+  /* Mostrar botón flotante */
+  .etd-search-toggle { display: flex; }
+
+  /* Sidebar se convierte en drawer desde la izquierda */
+  .etd-buscador-sidebar {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 500;
+    width: 320px !important;
+    transform: translateX(-100%);
+    transition: transform 0.3s var(--ease);
+    box-shadow: 8px 0 40px rgba(0,0,0,0.4);
+  }
+  .etd-buscador-sidebar.open {
+    transform: translateX(0);
+  }
+  .etd-sidebar-overlay.open {
+    display: block;
+  }
+
+  /* El mapa ocupa todo el ancho */
+  .etd-buscador-map {
+    grid-column: 1 / -1 !important;
+  }
 }

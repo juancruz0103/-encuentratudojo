@@ -40,6 +40,7 @@ export default function BuscadorPage() {
   const [selGeneral, setSelGeneral] = useState<Set<string>>(new Set())
   const [loading, setLoading]     = useState(true)
   const [selected, setSelected]   = useState<School | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const mapRef       = useRef<HTMLDivElement>(null)
   const mapInst      = useRef<any>(null)
   const markers      = useRef<any[]>([])
@@ -183,8 +184,16 @@ export default function BuscadorPage() {
 
       <div style={{ flex:1, display:'grid', gridTemplateColumns:'340px 1fr', overflow:'hidden' }}>
 
+        {/* Overlay mobile */}
+        <div
+          className={`etd-sidebar-overlay${sidebarOpen ? ' open' : ''}`}
+          onClick={() => setSidebarOpen(false)}
+        />
+
         {/* SIDEBAR */}
-        <div style={{ background:'var(--parchment)', borderRight:'1px solid rgba(122,92,58,0.1)', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        <div
+          className={`etd-buscador-sidebar${sidebarOpen ? ' open' : ''}`}
+          style={{ background:'var(--parchment)', borderRight:'1px solid rgba(122,92,58,0.1)', display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
           {/* Buscador */}
           <div style={{ padding:'14px 16px', borderBottom:'1px solid rgba(122,92,58,0.1)', flexShrink:0 }}>
@@ -302,10 +311,18 @@ export default function BuscadorPage() {
         </div>
 
         {/* MAPA limpio */}
-        <div style={{ position:'relative', height:'100%', width:'100%' }}>
+        <div className="etd-buscador-map" style={{ position:'relative', height:'100%', width:'100%' }}>
           <div ref={mapRef} style={{ height:'100%', width:'100%', background:'#0e0c0b' }} />
         </div>
       </div>
+
+      {/* Botón flotante toggle sidebar — solo en mobile */}
+      <button
+        className="etd-search-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        {sidebarOpen ? '✕ Cerrar' : '☰ Filtros y lista'}
+      </button>
 
       <style>{`
         .etd-map-popup .leaflet-popup-content-wrapper { background:#0e0c0b; border:1px solid rgba(200,169,110,0.2); border-radius:6px; padding:0; box-shadow:0 12px 40px rgba(0,0,0,0.5); }
