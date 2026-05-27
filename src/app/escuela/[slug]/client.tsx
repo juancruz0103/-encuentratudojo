@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import NavBar from '@/components/NavBar'
 import { trackContactEvent } from '@/lib/supabase/public'
 import type { School } from '@/types/database'
 
@@ -89,18 +90,7 @@ export default function SchoolProfileClient({ school }: { school: School }) {
     <main style={{ minHeight:'100vh', background:'var(--parchment)' }}>
 
       {/* NAV */}
-      <nav className="etd-nav">
-        <Link href="/" className="etd-nav-logo">
-          <span className="etd-nav-kanji">武</span>
-          <span className="etd-nav-name">EncuentraTuDojo</span>
-        </Link>
-        <div className="etd-nav-links">
-          <Link href="/buscador" className="etd-nav-link">Buscador</Link>
-          <button onClick={() => window.history.back()} style={{ background:'none', border:'none', cursor:'pointer', color:'rgba(250,248,244,0.35)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.08em', fontFamily:'var(--font-body)' }}>
-            ← Volver
-          </button>
-        </div>
-      </nav>
+      <NavBar />
 
       {/* COVER */}
       <div style={{ paddingTop:'var(--nav-h)', background:`linear-gradient(135deg, ${discColor}33, #0e0c0b)`, position:'relative', overflow:'hidden' }}>

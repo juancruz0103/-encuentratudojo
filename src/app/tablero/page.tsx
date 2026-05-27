@@ -1,5 +1,6 @@
 import { getPublicAnnouncements, getTopSchools } from '@/lib/supabase/public'
 import Link from 'next/link'
+import NavBar from '@/components/NavBar'
 import TableroClient from './client'
 
 export default async function TableroPage() {
@@ -12,17 +13,7 @@ export default async function TableroPage() {
     <main style={{ background: 'var(--ink)', minHeight: '100vh' }}>
 
       {/* NAV */}
-      <nav className="etd-nav">
-        <Link href="/" className="etd-nav-logo">
-          <span className="etd-nav-kanji">武</span>
-          <span className="etd-nav-name">EncuentraTuDojo</span>
-        </Link>
-        <div className="etd-nav-links">
-          <Link href="/buscador" className="etd-nav-link">Buscador</Link>
-          <Link href="/tablero"  className="etd-nav-link" style={{ color: 'var(--gold)' }}>Tablero</Link>
-          <Link href="/auth"     className="etd-nav-cta">Ingresar</Link>
-        </div>
-      </nav>
+      <NavBar currentPath='/tablero' />
 
       {/* HERO */}
       <div style={{ paddingTop: 'var(--nav-h)', position: 'relative', overflow: 'hidden' }}>

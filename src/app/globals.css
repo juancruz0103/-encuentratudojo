@@ -204,3 +204,96 @@ a { text-decoration: none; }
     grid-column: 1 / -1 !important;
   }
 }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE MOBILE — max 768px
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── NAV MOBILE ── */
+  .etd-nav { padding: 0 16px; height: 54px; }
+  .etd-nav-name { font-size: 15px; letter-spacing: 0.04em; }
+  .etd-nav-kanji { font-size: 17px; }
+  /* Ocultar links del nav en mobile — van al hamburguesa */
+  .etd-nav-links { display: none; }
+  /* Mostrar hamburguesa en mobile */
+  .etd-nav-hamburger { display: flex !important; }
+  .etd-nav-links.open { 
+    display: flex; flex-direction: column; align-items: stretch;
+    position: fixed; top: 54px; left: 0; right: 0; z-index: 300;
+    background: rgba(10,8,8,0.98); backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(200,169,110,0.12);
+    padding: 12px 16px 20px; gap: 4px;
+  }
+  .etd-nav-links.open .etd-nav-link {
+    padding: 14px 16px; font-size: 14px; border-radius: 4px;
+    color: rgba(250,248,244,0.6);
+    border-bottom: 1px solid rgba(200,169,110,0.06);
+  }
+  .etd-nav-links.open .etd-nav-cta {
+    margin-top: 8px; justify-content: center; padding: 14px;
+    font-size: 13px; border-radius: 4px;
+  }
+  .etd-nav-hamburger {
+    display: flex; /* override inline none via CSS */ align-items: center; justify-content: center;
+    width: 36px; height: 36px; background: none; border: none;
+    cursor: pointer; color: rgba(250,248,244,0.6); font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  /* ── HERO MOBILE ── */
+  .etd-hero-inner { padding: 40px 20px 40px; }
+  .etd-hero-title { font-size: clamp(40px, 11vw, 64px); margin-bottom: 16px; }
+  .etd-hero-desc { font-size: 15px; margin-bottom: 24px; }
+  .etd-hero-stats { gap: 20px; flex-wrap: wrap; }
+  .etd-hero-stat-num { font-size: 26px; }
+
+  /* Buscador rápido hero */
+  .etd-hero-inner form { flex-direction: column; }
+  .etd-hero-inner form input { border-radius: 3px; }
+
+  /* Tags de disciplinas en hero */
+  .etd-hero-inner > div[style*="gap: 8px"] { gap: 6px !important; }
+
+  /* ── DISC STRIP MOBILE ── */
+  .etd-disc-strip-inner {
+    padding: 0 12px; gap: 0;
+    scrollbar-width: none;
+  }
+  .etd-disc-strip-inner::-webkit-scrollbar { display: none; }
+  .etd-disc-item { min-width: 80px; padding: 14px 10px; }
+  .etd-disc-kanji { font-size: 22px; }
+  .etd-disc-label { font-size: 9px; letter-spacing: 0.1em; }
+  .etd-disc-count { font-size: 11px; }
+
+  /* ── SECCIÓN ESCUELAS MOBILE ── */
+  .etd-section { padding: 36px 16px; }
+  .etd-section-header { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 20px; }
+  .etd-cards-grid { grid-template-columns: 1fr; gap: 12px; }
+  .etd-card-cover { height: 110px; }
+  .etd-card-kanji { font-size: 56px; }
+
+  /* ── SECCIÓN CTA TABLERO (homepage) ── */
+  .etd-tablero-cta-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .etd-tablero-cta-icons { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── FOOTER MOBILE ── */
+  .etd-footer-inner { 
+    flex-direction: column; gap: 16px; text-align: center; padding: 0 20px;
+  }
+  .etd-footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+
+  /* ── PERFIL ESCUELA MOBILE ── */
+  .etd-profile-layout { 
+    grid-template-columns: 1fr; padding: 16px; gap: 16px;
+  }
+  .etd-cta-card { position: relative; top: 0; }
+
+  /* ── TABLERO MOBILE ── */
+  .etd-tablero-layout { grid-template-columns: 1fr !important; }
+  .etd-tablero-sidebar { display: none; }
+  .etd-tablero-filtros { padding: 0 16px !important; margin-left: -16px !important; margin-right: -16px !important; }
+  .etd-anuncio-premium-grid { grid-template-columns: 1fr !important; }
+  .etd-anuncio-std-grid { grid-template-columns: 80px 1fr !important; }
+
+}

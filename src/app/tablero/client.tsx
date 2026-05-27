@@ -40,10 +40,10 @@ export default function TableroClient({
   const std  = filtered.filter(a => !a.school?.premium)
 
   return (
-    <div style={{ maxWidth:1400, margin:'0 auto', padding:'0 64px 80px' }}>
+    <div style={{ maxWidth:1400, margin:'0 auto', padding:'0 clamp(16px, 4vw, 64px) 80px' }}>
 
       {/* BARRA FILTROS */}
-      <div style={{ position:'sticky', top:'var(--nav-h)', zIndex:100, background:'rgba(14,12,11,0.97)', backdropFilter:'blur(8px)', borderBottom:'1px solid rgba(200,169,110,0.08)', marginLeft:'-64px', marginRight:'-64px', padding:'0 64px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
+      <div className='etd-tablero-filtros' style={{ position:'sticky', top:'var(--nav-h)', zIndex:100, background:'rgba(14,12,11,0.97)', backdropFilter:'blur(8px)', borderBottom:'1px solid rgba(200,169,110,0.08)', marginLeft:'-64px', marginRight:'-64px', padding:'0 64px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
         <div style={{ display:'flex', overflow:'auto' }}>
           {FILTROS.map(f => (
             <button key={f.id} onClick={() => setFiltro(f.id)}
@@ -62,7 +62,7 @@ export default function TableroClient({
       </div>
 
       {/* LAYOUT */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:32, alignItems:'start', paddingTop:32 }}>
+      <div className='etd-tablero-layout' style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:32, alignItems:'start', paddingTop:32 }}>
 
         {/* FEED */}
         <div>
@@ -108,7 +108,7 @@ export default function TableroClient({
         </div>
 
         {/* SIDEBAR */}
-        <div style={{ position:'sticky', top:'calc(var(--nav-h) + 56px)' }}>
+        <div className='etd-tablero-sidebar' style={{ position:'sticky', top:'calc(var(--nav-h) + 56px)' }}>
 
           {/* Escuelas activas */}
           <div style={{ background:'rgba(250,248,244,0.03)', border:'1px solid rgba(200,169,110,0.08)', borderRadius:'var(--radius)', overflow:'hidden', marginBottom:16 }}>
@@ -150,7 +150,7 @@ function AnuncioCard({ ann, premium }: { ann: any; premium?: boolean }) {
     return (
       <div style={{ background:'linear-gradient(135deg,#1a0e0e,#0e0c0b)', border:'1px solid rgba(200,169,110,0.25)', borderRadius:'var(--radius)', overflow:'hidden', position:'relative' }}>
         <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,transparent,var(--gold),var(--gold-bright),var(--gold),transparent)' }} />
-        <div style={{ display:'grid', gridTemplateColumns:'160px 1fr' }}>
+        <div className='etd-anuncio-premium-grid' style={{ display:'grid', gridTemplateColumns:'160px 1fr' }}>
           <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'24px 16px', borderRight:'1px solid rgba(200,169,110,0.1)', background:'rgba(200,169,110,0.04)', gap:8 }}>
             <div style={{ width:44, height:44, borderRadius:4, background:'rgba(200,169,110,0.1)', border:'1px solid rgba(200,169,110,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-jp)', fontSize:20, color:'var(--gold)' }}>{school?.kanji}</div>
             <div style={{ fontSize:12, fontWeight:500, color:'rgba(250,248,244,0.6)', textAlign:'center', lineHeight:1.3 }}>{school?.name}</div>
@@ -179,7 +179,7 @@ function AnuncioCard({ ann, premium }: { ann: any; premium?: boolean }) {
   }
 
   return (
-    <div style={{ background:'rgba(250,248,244,0.03)', border:'1px solid rgba(200,169,110,0.08)', borderRadius:'var(--radius)', display:'grid', gridTemplateColumns:'90px 1fr', overflow:'hidden', transition:'border-color 0.2s' }}>
+    <div className='etd-anuncio-std-grid' style={{ background:'rgba(250,248,244,0.03)', border:'1px solid rgba(200,169,110,0.08)', borderRadius:'var(--radius)', display:'grid', gridTemplateColumns:'90px 1fr', overflow:'hidden', transition:'border-color 0.2s' }}>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'16px 12px', borderRight:'1px solid rgba(200,169,110,0.07)', background:'rgba(14,12,11,0.4)' }}>
         <div style={{ width:40, height:40, borderRadius:4, background:'rgba(200,169,110,0.08)', border:`1px solid ${t.color}44`, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-jp)', fontSize:18, color:t.color }}>
           {school?.kanji || t.kanji}

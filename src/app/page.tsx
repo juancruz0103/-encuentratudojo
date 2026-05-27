@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import NavBar from '@/components/NavBar'
 import { getPublicSchools, getPublicDisciplines } from '@/lib/supabase/public'
 
 export default async function HomePage() {
@@ -14,17 +15,7 @@ export default async function HomePage() {
   return (
     <main>
       {/* NAV */}
-      <nav className="etd-nav">
-        <Link href="/" className="etd-nav-logo">
-          <span className="etd-nav-kanji">武</span>
-          <span className="etd-nav-name">EncuentraTuDojo</span>
-        </Link>
-        <div className="etd-nav-links">
-          <Link href="/buscador" className="etd-nav-link">Buscador</Link>
-          <Link href="/tablero"  className="etd-nav-link">Tablero</Link>
-          <Link href="/auth"     className="etd-nav-cta">Ingresar</Link>
-        </div>
-      </nav>
+      <NavBar />
 
       {/* HERO */}
       <section className="etd-hero">

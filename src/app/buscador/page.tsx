@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import type { School, Discipline } from '@/types/database'
 import Link from 'next/link'
+import NavBar from '@/components/NavBar'
 
 const DISC_COLORS: Record<string, string> = {
   taekwondo: '#c0392b', karate: '#8b1a1a', judo: '#4a3728',
@@ -177,8 +178,8 @@ export default function BuscadorPage() {
           <span className="etd-nav-name">EncuentraTuDojo</span>
         </Link>
         <div className="etd-nav-links">
-          <Link href="/tablero" className="etd-nav-link">Tablero</Link>
-          <Link href="/auth" className="etd-nav-cta">Ingresar</Link>
+          <Link href='/tablero' className='etd-nav-link'>Tablero</Link>
+          <Link href='/auth' className='etd-nav-cta'>Ingresar</Link>
         </div>
       </nav>
 
