@@ -67,15 +67,17 @@ export default function SchoolProfileClient({ school }: { school: School }) {
     window.open(`https://wa.me/${school.whatsapp}?text=${msg}`, '_blank')
   }
 
-  function confirmarReserva() {
+  async function confirmarReserva() {
     if (slotIdx === null) return
     trackContactEvent(school.id, 'trial_confirmed', { slot: SLOTS[slotIdx], nivel: form.nivel })
+
+    const slotStr = `${SLOTS[slotIdx].dia} ${SLOTS[slotIdx].hora}`
+    const nombreCompleto = `${form.nombre} ${form.apellido}`.trim()
+
     const reserva = {
       id: 'res-' + Date.now(), escuela: school.name, escuelaId: school.id,
-      disc: school.discipline?.label,
-      nombre: `${form.nombre} ${form.apellido}`.trim(),
-      email: form.email, slot: `${SLOTS[slotIdx].dia} ${SLOTS[slotIdx].hora}`,
-      nivel: form.nivel, estado: 'pendiente',
+      disc: school.discipline?.label, nombre: nombreCompleto,
+      email: form.email, slot: slotStr, nivel: form.nivel, estado: 'pendiente',
       fecha: new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' }),
       timestamp: Date.now(),
     }
@@ -83,6 +85,31 @@ export default function SchoolProfileClient({ school }: { school: School }) {
       const prev = JSON.parse(sessionStorage.getItem('etd_reservas') || '[]')
       sessionStorage.setItem('etd_reservas', JSON.stringify([reserva, ...prev]))
     } catch {}
+
+    // Enviar emails de notificación
+    try {
+      await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'trial_confirmed',
+          data: {
+            schoolName:    school.name,
+            schoolEmail:   school.email,
+            schoolAddress: school.address,
+            studentName:   nombreCompleto,
+            studentEmail:  form.email,
+            studentPhone:  form.tel,
+            slot:          slotStr,
+            nivel:         form.nivel,
+          }
+        })
+      })
+    } catch (e) {
+      // No bloquear el flujo si falla el email
+      console.warn('Email error:', e)
+    }
+
     setSuccess(true)
   }
 

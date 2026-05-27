@@ -27,6 +27,74 @@ const NAV_ICONS: Record<Section, string> = {
   overview:'▦', leads:'◎', anuncios:'✦', metricas:'↗', comision:'$', perfil:'◉'
 }
 
+
+// ── Botón actualizar alumnos ──
+function UpdateAlumnosBtn({ schoolId, current }: { schoolId: number; current: number }) {
+  const [editing, setEditing] = useState(false)
+  const [value, setValue]     = useState(current)
+  const [saving, setSaving]   = useState(false)
+
+  async function save() {
+    setSaving(true)
+    const sb = createClient()
+    await sb.from('schools').update({ student_count: value }).eq('id', schoolId)
+    setSaving(false)
+    setEditing(false)
+    window.location.reload()
+  }
+
+  if (!editing) return (
+    <button
+      onClick={() => setEditing(true)}
+      style={{ padding:'8px 16px', background:'rgba(200,169,110,0.15)', color:'var(--gold)', border:'1px solid rgba(200,169,110,0.3)', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:500 }}>
+      Actualizar alumnos
+    </button>
+  )
+
+  return (
+    <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+      <input
+        type="number" min="1" value={value}
+        onChange={e => setValue(+e.target.value)}
+        style={{ width:80, padding:'7px 10px', border:'1px solid rgba(200,169,110,0.3)', borderRadius:3, background:'rgba(250,248,244,0.07)', color:'var(--parchment)', fontFamily:'var(--font-body)', fontSize:13, outline:'none' }}
+      />
+      <button onClick={save} disabled={saving}
+        style={{ padding:'8px 14px', background:'var(--gold)', color:'var(--ink)', border:'none', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:600 }}>
+        {saving ? '...' : 'Guardar'}
+      </button>
+      <button onClick={() => setEditing(false)}
+        style={{ padding:'8px 12px', background:'transparent', color:'rgba(250,248,244,0.4)', border:'1px solid rgba(250,248,244,0.15)', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)' }}>
+        ✕
+      </button>
+    </div>
+  )
+}
+
+// ── Botón pagar comisión con Stripe ──
+function PagarComisionBtn({ fee }: { fee: number }) {
+  const [loading, setLoading] = useState(false)
+
+  async function handlePay() {
+    setLoading(true)
+    try {
+      const res  = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+      else alert('Error al iniciar el pago: ' + (data.error ?? 'intente nuevamente'))
+    } catch {
+      alert('Error de conexión')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <button onClick={handlePay} disabled={loading}
+      style={{ padding:'8px 16px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:500, opacity: loading ? 0.7 : 1 }}>
+      {loading ? 'Redirigiendo...' : `Pagar $${fee.toFixed(2)} USD`}
+    </button>
+  )
+}
+
 export default function DashboardPage() {
   const [section, setSection]   = useState<Section>('overview')
   const [school, setSchool]     = useState<any>(null)
@@ -36,6 +104,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const sb = createClient()
+    // Leer parámetro de pago
+    const params = new URLSearchParams(window.location.search)
+    const payment = params.get('payment')
+    if (payment === 'success') {
+      alert('✅ ¡Pago procesado exitosamente! Tu suscripción está activa.')
+      window.history.replaceState({}, '', '/dashboard')
+    } else if (payment === 'cancelled') {
+      alert('El pago fue cancelado. Podés intentarlo nuevamente cuando quieras.')
+      window.history.replaceState({}, '', '/dashboard')
+    }
+
     sb.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { window.location.href = '/auth'; return }
       setUser(user)
