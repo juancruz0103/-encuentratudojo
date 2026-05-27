@@ -109,25 +109,27 @@ export default async function HomePage() {
       </section>
 
       {/* CTA TABLERO */}
-      <section style={{ background: 'var(--ink)', padding: '80px 0' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 64px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: '9px', color: 'var(--gold)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '12px' }}>Comunidad marcial</div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 300, color: 'var(--parchment)', lineHeight: 1.1, marginBottom: '16px' }}>
-              Tablero <em style={{ fontStyle: 'italic', color: 'var(--crimson-bright)' }}>comunitario</em>
-            </h2>
-            <p style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(250,248,244,0.45)', lineHeight: 1.7, marginBottom: '24px' }}>
-              Torneos, eventos, clases especiales y novedades de todas las escuelas de Argentina.
-            </p>
-            <Link href="/tablero" className="etd-btn-primary">Ver tablero →</Link>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            {[{ icon: '武', label: 'Torneos' }, { icon: '祭', label: 'Eventos' }, { icon: '春', label: 'Promociones' }, { icon: '道', label: 'Clases especiales' }].map(item => (
-              <div key={item.label} style={{ background: 'rgba(250,248,244,0.04)', border: '1px solid rgba(200,169,110,0.1)', borderRadius: '6px', padding: '24px', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-jp)', fontSize: '36px', color: 'rgba(200,169,110,0.4)', marginBottom: '8px' }}>{item.icon}</div>
-                <div style={{ fontSize: '12px', color: 'rgba(250,248,244,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{item.label}</div>
-              </div>
-            ))}
+      <section style={{ background: 'var(--ink)', padding: 'clamp(40px,8vw,80px) 0', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 clamp(20px,5vw,64px)' }}>
+          <div className="etd-tablero-cta-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(28px,5vw,60px)', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '11px', color: 'var(--gold)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '12px' }}>Comunidad marcial</div>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(26px,5vw,40px)', fontWeight: 300, color: 'var(--parchment)', lineHeight: 1.1, marginBottom: '16px' }}>
+                Tablero <em style={{ fontStyle: 'italic', color: 'var(--crimson-bright)' }}>comunitario</em>
+              </h2>
+              <p style={{ fontSize: 'clamp(14px,2vw,16px)', fontWeight: 300, color: 'rgba(250,248,244,0.45)', lineHeight: 1.7, marginBottom: '24px' }}>
+                Torneos, eventos, clases especiales y novedades de todas las escuelas de Argentina.
+              </p>
+              <Link href="/tablero" className="etd-btn-primary">Ver tablero →</Link>
+            </div>
+            <div className="etd-tablero-cta-icons" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              {[{ icon: '武', label: 'Torneos' }, { icon: '祭', label: 'Eventos' }, { icon: '春', label: 'Promociones' }, { icon: '道', label: 'Clases especiales' }].map(item => (
+                <div key={item.label} style={{ background: 'rgba(250,248,244,0.04)', border: '1px solid rgba(200,169,110,0.1)', borderRadius: '6px', padding: 'clamp(14px,3vw,24px)', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'var(--font-jp)', fontSize: 'clamp(26px,4vw,36px)', color: 'rgba(200,169,110,0.4)', marginBottom: '8px' }}>{item.icon}</div>
+                  <div style={{ fontSize: 'clamp(10px,1.5vw,12px)', color: 'rgba(250,248,244,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{item.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

@@ -134,16 +134,16 @@ export default function RegistroPage() {
                   ))}
                 </select>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:12 }}>
                 <div className="etd-form-field"><label className="etd-form-label">Ciudad *</label><input className="etd-form-input" value={form.city} onChange={e => setForm({...form, city:e.target.value})} placeholder="Buenos Aires" /></div>
                 <div className="etd-form-field"><label className="etd-form-label">Barrio *</label><input className="etd-form-input" value={form.neighborhood} onChange={e => setForm({...form, neighborhood:e.target.value})} placeholder="Palermo" /></div>
               </div>
               <div className="etd-form-field"><label className="etd-form-label">Dirección</label><input className="etd-form-input" value={form.address} onChange={e => setForm({...form, address:e.target.value})} placeholder="Av. Santa Fe 1234" /></div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:12 }}>
                 <div className="etd-form-field"><label className="etd-form-label">Teléfono</label><input className="etd-form-input" value={form.phone} onChange={e => setForm({...form, phone:e.target.value})} placeholder="011 4444-5555" /></div>
                 <div className="etd-form-field"><label className="etd-form-label">WhatsApp</label><input className="etd-form-input" value={form.whatsapp} onChange={e => setForm({...form, whatsapp:e.target.value})} placeholder="+54 9 11 1234-5678" /></div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:12 }}>
                 <div className="etd-form-field"><label className="etd-form-label">Email de contacto</label><input className="etd-form-input" type="email" value={form.email} onChange={e => setForm({...form, email:e.target.value})} placeholder="info@escuela.com" /></div>
                 <div className="etd-form-field"><label className="etd-form-label">Instagram</label><input className="etd-form-input" value={form.instagram} onChange={e => setForm({...form, instagram:e.target.value})} placeholder="@mi.escuela" /></div>
               </div>
@@ -236,7 +236,7 @@ export default function RegistroPage() {
           {step === 3 && (
             <div style={{ padding:32 }}>
               <h2 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, marginBottom:20, color:'var(--ink)' }}>Creá tu cuenta</h2>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:12 }}>
                 <div className="etd-form-field"><label className="etd-form-label">Nombre *</label><input className="etd-form-input" value={form.firstName} onChange={e => setForm({...form, firstName:e.target.value})} placeholder="Martín" /></div>
                 <div className="etd-form-field"><label className="etd-form-label">Apellido</label><input className="etd-form-input" value={form.lastName} onChange={e => setForm({...form, lastName:e.target.value})} placeholder="González" /></div>
               </div>

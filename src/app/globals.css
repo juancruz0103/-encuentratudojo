@@ -297,3 +297,16 @@ a { text-decoration: none; }
   .etd-anuncio-std-grid { grid-template-columns: 80px 1fr !important; }
 
 }
+
+/* ── CTA TABLERO mobile ── */
+@media (max-width: 640px) {
+  .etd-tablero-cta-grid { grid-template-columns: 1fr !important; }
+  .etd-tablero-cta-icons { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* ── AUTH mobile ── */
+@media (max-width: 480px) {
+  .etd-auth-wrap { align-items: flex-start; padding-top: 40px; }
+  .etd-auth-card { border-radius: 8px; }
+  .etd-auth-tabs .etd-auth-tab { font-size: 13px; padding: 14px 8px; }
+}

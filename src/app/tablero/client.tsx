@@ -42,23 +42,27 @@ export default function TableroClient({
   return (
     <div style={{ maxWidth:1400, margin:'0 auto', padding:'0 clamp(16px, 4vw, 64px) 80px' }}>
 
-      {/* BARRA FILTROS */}
-      <div className='etd-tablero-filtros' style={{ position:'sticky', top:'var(--nav-h)', zIndex:100, background:'rgba(14,12,11,0.97)', backdropFilter:'blur(8px)', borderBottom:'1px solid rgba(200,169,110,0.08)', marginLeft:'-64px', marginRight:'-64px', padding:'0 64px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:16 }}>
-        <div style={{ display:'flex', overflow:'auto' }}>
+      {/* BARRA FILTROS — tabs arriba, buscador abajo */}
+      <div className='etd-tablero-filtros' style={{ position:'sticky', top:'var(--nav-h)', zIndex:100, background:'rgba(14,12,11,0.97)', backdropFilter:'blur(8px)', borderBottom:'1px solid rgba(200,169,110,0.08)', marginLeft:'-64px', marginRight:'-64px', padding:'0 64px' }}>
+        {/* Fila 1: filtros */}
+        <div style={{ display:'flex', overflow:'auto', borderBottom:'1px solid rgba(200,169,110,0.06)' }}>
           {FILTROS.map(f => (
             <button key={f.id} onClick={() => setFiltro(f.id)}
-              style={{ padding:'16px 18px', fontSize:12, fontWeight:500, letterSpacing:'0.08em', textTransform:'uppercase', background:'transparent', border:'none', cursor:'pointer', fontFamily:'var(--font-body)', whiteSpace:'nowrap', transition:'all 0.2s',
+              style={{ padding:'13px 18px', fontSize:12, fontWeight:500, letterSpacing:'0.08em', textTransform:'uppercase', background:'transparent', border:'none', cursor:'pointer', fontFamily:'var(--font-body)', whiteSpace:'nowrap', transition:'all 0.2s',
                 color: filtro === f.id ? 'var(--gold)' : 'rgba(250,248,244,0.35)',
                 borderBottom: filtro === f.id ? '2px solid var(--gold)' : '2px solid transparent' }}>
               {f.label}
             </button>
           ))}
         </div>
-        <input
-          value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Buscar anuncio o escuela..."
-          style={{ padding:'8px 14px', fontSize:13, background:'rgba(250,248,244,0.06)', border:'1px solid rgba(200,169,110,0.15)', borderRadius:3, color:'var(--parchment)', fontFamily:'var(--font-body)', outline:'none', width:220, flexShrink:0 }}
-        />
+        {/* Fila 2: buscador */}
+        <div style={{ padding:'10px 0' }}>
+          <input
+            value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar anuncio o escuela..."
+            style={{ width:'100%', maxWidth:360, padding:'8px 14px', fontSize:13, background:'rgba(250,248,244,0.06)', border:'1px solid rgba(200,169,110,0.15)', borderRadius:3, color:'var(--parchment)', fontFamily:'var(--font-body)', outline:'none' }}
+          />
+        </div>
       </div>
 
       {/* LAYOUT */}
