@@ -71,8 +71,18 @@ export default function RegistroPage() {
   }
 
   return (
-    <main style={{ minHeight:'100vh', background:'var(--ink)' }}>
-      <nav className="etd-nav">
+    <main style={{ minHeight:'100vh', background:'var(--ink)', position:'relative', overflow:'hidden' }}>
+
+      {/* Grid de fondo */}
+      <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(200,169,110,0.03) 59px,rgba(200,169,110,0.03) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(200,169,110,0.03) 59px,rgba(200,169,110,0.03) 60px)', pointerEvents:'none', zIndex:0 }} />
+
+      {/* Acento izquierdo */}
+      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:3, background:'linear-gradient(to bottom,transparent,var(--crimson) 20%,var(--crimson-bright) 80%,transparent)', pointerEvents:'none', zIndex:0 }} />
+
+      {/* Kanji de fondo */}
+      <div style={{ position:'fixed', right:0, top:'50%', transform:'translateY(-50%) translateX(30%)', fontFamily:'var(--font-jp)', fontSize:'clamp(200px,30vw,400px)', lineHeight:1, color:'rgba(200,169,110,0.04)', pointerEvents:'none', userSelect:'none', zIndex:0 }}>武道</div>
+
+      <nav className="etd-nav" style={{ position:'relative', zIndex:10 }}>
         <Link href="/" className="etd-nav-logo">
           <span className="etd-nav-kanji">武</span>
           <span className="etd-nav-name">EncuentraTuDojo</span>
@@ -80,7 +90,7 @@ export default function RegistroPage() {
         <Link href="/" className="etd-nav-back">← Volver</Link>
       </nav>
 
-      <div style={{ paddingTop:'calc(var(--nav-h) + 60px)', paddingBottom:80, maxWidth:640, margin:'0 auto', padding:'calc(var(--nav-h) + 60px) 24px 80px' }}>
+      <div style={{ position:'relative', zIndex:1, maxWidth:640, margin:'0 auto', padding:'calc(var(--nav-h) + 40px) clamp(16px,4vw,24px) 80px' }}>
 
         {/* Header */}
         <div style={{ textAlign:'center', marginBottom:40 }}>
@@ -116,11 +126,11 @@ export default function RegistroPage() {
           </div>
         )}
 
-        <div style={{ background:'var(--parchment)', borderRadius:'var(--radius)', overflow:'hidden', boxShadow:'0 24px 80px rgba(0,0,0,0.5)' }}>
+        <div style={{ background:'var(--parchment)', borderRadius:'var(--radius)', overflow:'hidden', boxShadow:'0 24px 80px rgba(0,0,0,0.5)', width:'100%' }}>
 
           {/* PASO 1 — Datos de la escuela */}
           {step === 1 && (
-            <div style={{ padding:32 }}>
+            <div style={{ padding:'clamp(20px,5vw,32px)' }}>
               <h2 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, marginBottom:20, color:'var(--ink)' }}>Datos de la escuela</h2>
               <div className="etd-form-field">
                 <label className="etd-form-label">Nombre de la escuela *</label>
@@ -157,7 +167,7 @@ export default function RegistroPage() {
 
           {/* PASO 2 — Alumnos y comisión */}
           {step === 2 && (
-            <div style={{ padding:32 }}>
+            <div style={{ padding:'clamp(20px,5vw,32px)' }}>
               <h2 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, marginBottom:8, color:'var(--ink)' }}>Cantidad de alumnos</h2>
               <p style={{ fontSize:13, color:'var(--wood-light)', marginBottom:24, lineHeight:1.6 }}>
                 Este dato determina tu comisión mensual. Podés actualizarlo en cualquier momento desde tu dashboard.
@@ -234,7 +244,7 @@ export default function RegistroPage() {
 
           {/* PASO 3 — Cuenta */}
           {step === 3 && (
-            <div style={{ padding:32 }}>
+            <div style={{ padding:'clamp(20px,5vw,32px)' }}>
               <h2 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, marginBottom:20, color:'var(--ink)' }}>Creá tu cuenta</h2>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:12 }}>
                 <div className="etd-form-field"><label className="etd-form-label">Nombre *</label><input className="etd-form-input" value={form.firstName} onChange={e => setForm({...form, firstName:e.target.value})} placeholder="Martín" /></div>
