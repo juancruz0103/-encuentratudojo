@@ -535,7 +535,7 @@ export default function DashboardPage() {
                       </td>
                     </tr>
                   </tbody>
-                </table>
+                </table></div>
               </div>
             </div>
           )}
