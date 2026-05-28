@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
 import { trackContactEvent } from '@/lib/supabase/public'
@@ -30,6 +30,11 @@ const FEATURES = [
 
 export default function SchoolProfileClient({ school }: { school: School }) {
   const [modal, setModal]     = useState(false)
+  const [reviews, setReviews]   = useState<any[]>([])
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [reviewForm, setReviewForm] = useState({ author:'', rating:5, text:'' })
+  const [reviewSaving, setReviewSaving] = useState(false)
+  const [reviewSaved, setReviewSaved] = useState(false)
   const [step, setStep]       = useState(1)
   const [slotIdx, setSlotIdx] = useState<number | null>(null)
   const [form, setForm]       = useState({ nombre:'', apellido:'', email:'', tel:'', nivel:'principiante' })
@@ -60,6 +65,48 @@ export default function SchoolProfileClient({ school }: { school: School }) {
   ]
 
   const STEP_LABELS = ['Tus datos', 'Elegí horario', 'Confirmación']
+
+  // Cargar reseñas de Supabase
+  useEffect(() => {
+    const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    fetch(`${url}/rest/v1/reviews?school_id=eq.${school.id}&reported=eq.false&order=created_at.desc&limit=10`, {
+      headers: { 'apikey': anon, 'Authorization': `Bearer ${anon}` }
+    }).then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setReviews(data)
+    }).catch(() => {})
+  }, [school.id])
+
+  async function submitReview() {
+    if (!reviewForm.author.trim() || !reviewForm.text.trim()) return
+    setReviewSaving(true)
+    const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    await fetch(`${url}/rest/v1/reviews`, {
+      method: 'POST',
+      headers: {
+        'apikey': anon, 'Authorization': `Bearer ${anon}`,
+        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        school_id: school.id,
+        author:    reviewForm.author,
+        rating:    reviewForm.rating,
+        text:      reviewForm.text,
+      })
+    })
+    // Agregar localmente para feedback inmediato
+    setReviews(prev => [{
+      id: Date.now(), author: reviewForm.author,
+      rating: reviewForm.rating, text: reviewForm.text,
+      created_at: new Date().toISOString()
+    }, ...prev])
+    setReviewSaving(false)
+    setReviewSaved(true)
+    setReviewForm({ author:'', rating:5, text:'' })
+    setShowReviewForm(false)
+    setTimeout(() => setReviewSaved(false), 4000)
+  }
 
   function handleWA() {
     trackContactEvent(school.id, 'whatsapp_click', { school_name: school.name })
@@ -244,6 +291,85 @@ export default function SchoolProfileClient({ school }: { school: School }) {
             </div>
           )}
 
+        </div>
+
+        {/* Reseñas */}
+        <div className="etd-section-card" style={{ gridColumn:'1 / -1' }}>
+          <div className="etd-section-card-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <span className="etd-section-card-title">Reseñas ({reviews.length || school.review_count || 0})</span>
+            <button onClick={() => setShowReviewForm(!showReviewForm)}
+              style={{ fontSize:12, fontWeight:500, color:'var(--crimson)', background:'var(--crimson-pale)', border:'1px solid rgba(139,26,26,0.2)', padding:'6px 14px', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)' }}>
+              {showReviewForm ? '✕ Cancelar' : '+ Escribir reseña'}
+            </button>
+          </div>
+          <div className="etd-section-card-body">
+            {reviewSaved && (
+              <div style={{ padding:'10px 14px', background:'rgba(39,174,96,0.1)', border:'1px solid rgba(39,174,96,0.2)', borderRadius:4, fontSize:13, color:'#27ae60', marginBottom:16 }}>
+                ✓ ¡Gracias por tu reseña! Fue publicada correctamente.
+              </div>
+            )}
+            {showReviewForm && (
+              <div style={{ background:'var(--parchment-dark)', borderRadius:6, padding:20, marginBottom:20 }}>
+                <div style={{ fontWeight:500, fontSize:14, color:'var(--ink)', marginBottom:14 }}>Tu reseña</div>
+                <div style={{ marginBottom:12 }}>
+                  <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:5 }}>Tu nombre *</label>
+                  <input value={reviewForm.author} onChange={e => setReviewForm({...reviewForm, author:e.target.value})}
+                    placeholder="Martín G." className="etd-form-input" />
+                </div>
+                <div style={{ marginBottom:12 }}>
+                  <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:8 }}>Puntuación *</label>
+                  <div style={{ display:'flex', gap:6 }}>
+                    {[1,2,3,4,5].map(n => (
+                      <button key={n} onClick={() => setReviewForm({...reviewForm, rating:n})}
+                        style={{ width:36, height:36, borderRadius:4, border:`1px solid ${reviewForm.rating >= n ? 'var(--gold)' : 'rgba(122,92,58,0.2)'}`, background: reviewForm.rating >= n ? 'rgba(200,169,110,0.15)' : 'transparent', cursor:'pointer', fontSize:18, fontFamily:'var(--font-body)' }}>
+                        ★
+                      </button>
+                    ))}
+                    <span style={{ fontSize:13, color:'var(--wood-light)', alignSelf:'center', marginLeft:4 }}>{reviewForm.rating}/5</span>
+                  </div>
+                </div>
+                <div style={{ marginBottom:14 }}>
+                  <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:5 }}>Tu experiencia *</label>
+                  <textarea value={reviewForm.text} onChange={e => setReviewForm({...reviewForm, text:e.target.value})}
+                    rows={3} placeholder="Contá tu experiencia en la escuela..."
+                    style={{ width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'10px 14px', fontSize:14, fontFamily:'var(--font-body)', outline:'none', resize:'vertical', boxSizing:'border-box' }} />
+                </div>
+                <button onClick={submitReview} disabled={reviewSaving || !reviewForm.author.trim() || !reviewForm.text.trim()}
+                  className="etd-btn-submit" style={{ opacity: (reviewSaving || !reviewForm.author.trim() || !reviewForm.text.trim()) ? 0.5 : 1 }}>
+                  {reviewSaving ? 'Publicando...' : 'Publicar reseña →'}
+                </button>
+              </div>
+            )}
+            {reviews.length === 0 ? (
+              <div style={{ padding:'24px 0', textAlign:'center', color:'var(--wood-light)', fontSize:14 }}>
+                Todavía no hay reseñas. ¡Sé el primero en dejar la tuya!
+              </div>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+                {reviews.map((r: any) => (
+                  <div key={r.id} style={{ paddingBottom:16, borderBottom:'1px solid rgba(122,92,58,0.08)' }}>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                        <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--crimson)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:600, color:'#fff', flexShrink:0 }}>
+                          {r.author?.charAt(0)?.toUpperCase() ?? '?'}
+                        </div>
+                        <div>
+                          <div style={{ fontSize:14, fontWeight:500, color:'var(--ink)' }}>{r.author}</div>
+                          <div style={{ fontSize:11, color:'var(--wood-light)' }}>
+                            {new Date(r.created_at).toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' })}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ color:'var(--gold)', fontSize:14, letterSpacing:2 }}>
+                        {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                      </div>
+                    </div>
+                    <p style={{ fontSize:14, color:'var(--ink-soft)', lineHeight:1.7, margin:0, paddingLeft:44 }}>{r.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Sidebar */}
