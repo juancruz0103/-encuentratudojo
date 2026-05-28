@@ -33,8 +33,25 @@ export async function trackContactEvent(
       headers: { ...headers, 'Prefer': 'return=minimal' },
       body: JSON.stringify({ school_id: schoolId, event_type: eventType, source: 'etd', meta }),
     })
+    // Disparar notificación push para eventos de contacto reales
+    const pushEvents = ['whatsapp_click', 'trial_confirmed', 'email_click']
+    if (pushEvents.includes(eventType)) {
+      const labels: Record<string, string> = {
+        whatsapp_click:  '💬 Nuevo contacto por WhatsApp',
+        trial_confirmed: '📅 Nueva clase trial reservada',
+        email_click:     '✉️ Nuevo contacto por email',
+      }
+      fetch('/api/push', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          schoolId,
+          title:   'EncuentraTuDojo — Nuevo lead',
+          message: labels[eventType] ?? 'Nuevo contacto desde la plataforma',
+        })
+      }).catch(() => {})
+    }
   } catch (e) {
-    // No bloquear la UX si falla el tracking
     console.warn('trackContactEvent error:', e)
   }
 }

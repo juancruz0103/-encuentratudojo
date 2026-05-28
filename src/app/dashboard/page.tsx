@@ -314,6 +314,62 @@ function EditarPerfilEscuela({ school }: { school: any }) {
   )
 }
 
+
+// ── Botón activar/desactivar notificaciones push ──
+function PushButton({ schoolId, enabled, setEnabled, loading, setLoading }: {
+  schoolId: number; enabled: boolean; setEnabled: (v:boolean)=>void
+  loading: boolean; setLoading: (v:boolean)=>void
+}) {
+  async function toggle() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('Tu navegador no soporta notificaciones push')
+      return
+    }
+    setLoading(true)
+    try {
+      const reg = await navigator.serviceWorker.ready
+
+      if (enabled) {
+        // Desactivar
+        const sub = await reg.pushManager.getSubscription()
+        if (sub) {
+          await fetch('/api/push', { method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ action:'unsubscribe', subscription: sub.toJSON(), schoolId }) })
+          await sub.unsubscribe()
+        }
+        setEnabled(false)
+      } else {
+        // Activar — pedir permiso
+        const perm = await Notification.requestPermission()
+        if (perm !== 'granted') { alert('Permiso denegado. Habilitá las notificaciones en la configuración del navegador.'); setLoading(false); return }
+
+        const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidKey,
+        })
+        await fetch('/api/push', { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'subscribe', subscription: sub.toJSON(), schoolId }) })
+        setEnabled(true)
+      }
+    } catch (e) {
+      console.error('Push error:', e)
+      alert('Error al configurar notificaciones')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <button onClick={toggle} disabled={loading}
+      title={enabled ? 'Notificaciones activas — click para desactivar' : 'Activar notificaciones push'}
+      style={{ padding:'6px 12px', fontSize:12, borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', border:'none', transition:'all 0.15s', opacity: loading ? 0.6 : 1,
+        background: enabled ? 'rgba(39,174,96,0.15)' : 'rgba(250,248,244,0.07)',
+        color: enabled ? '#27ae60' : 'rgba(250,248,244,0.4)' }}>
+      {loading ? '...' : enabled ? '🔔 Activas' : '🔕 Notificaciones'}
+    </button>
+  )
+}
+
 // ── Botón actualizar alumnos ──
 function UpdateAlumnosBtn({ schoolId, current }: { schoolId: number; current: number }) {
   const [editing, setEditing] = useState(false)
@@ -382,7 +438,9 @@ function PagarComisionBtn({ fee }: { fee: number }) {
 }
 
 export default function DashboardPage() {
-  const [section, setSection]   = useState<Section>('overview')
+  const [section, setSection]    = useState<Section>('overview')
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const [pushLoading, setPushLoading] = useState(false)
   const [navOpen, setNavOpen]   = useState(false)
   const [school, setSchool]     = useState<any>(null)
   const [events, setEvents]     = useState<any[]>([])
@@ -391,6 +449,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const sb = createClient()
+    // Verificar si push está activo
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.pushManager.getSubscription().then(sub => {
+          setPushEnabled(!!sub)
+        })
+      })
+    }
+
     // Leer parámetro de pago
     const params = new URLSearchParams(window.location.search)
     const payment = params.get('payment')
@@ -534,9 +601,12 @@ export default function DashboardPage() {
               {SECTION_LABELS[section]}
             </div>
           </div>
-          <Link href={`/escuela/${school.slug}`} style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--crimson)', border:'1px solid rgba(139,26,26,0.2)', padding:'6px 14px', borderRadius:3, textDecoration:'none' }}>
-            Ver mi perfil público →
-          </Link>
+          <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+            <PushButton schoolId={school.id} enabled={pushEnabled} setEnabled={setPushEnabled} loading={pushLoading} setLoading={setPushLoading} />
+            <Link href={`/escuela/${school.slug}`} style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--crimson)', border:'1px solid rgba(139,26,26,0.2)', padding:'6px 14px', borderRadius:3, textDecoration:'none' }}>
+              Ver perfil →
+            </Link>
+          </div>
         </div>
 
         <div className='dash-main-content' style={{ padding:32 }}>
