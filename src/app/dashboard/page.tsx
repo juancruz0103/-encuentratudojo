@@ -29,6 +29,155 @@ const NAV_ICONS: Record<Section, string> = {
 
 
 
+
+// ══════════════════════════════
+// PANEL DE MÉTRICAS
+// ══════════════════════════════
+function MetricasPanel({ events, school }: { events: any[]; school: any }) {
+
+  // Agrupar eventos por día (últimos 30 días)
+  const last30 = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (29 - i))
+    return d.toISOString().split('T')[0]
+  })
+
+  const eventsByDay = last30.map(day => ({
+    day,
+    label: new Date(day).toLocaleDateString('es-AR', { day:'2-digit', month:'short' }),
+    whatsapp: events.filter(e => e.created_at?.startsWith(day) && e.event_type === 'whatsapp_click').length,
+    trial:    events.filter(e => e.created_at?.startsWith(day) && e.event_type === 'trial_confirmed').length,
+    email:    events.filter(e => e.created_at?.startsWith(day) && e.event_type === 'email_click').length,
+    view:     events.filter(e => e.created_at?.startsWith(day) && e.event_type === 'profile_view').length,
+  }))
+
+  const maxVal = Math.max(...eventsByDay.map(d => d.whatsapp + d.trial + d.email + d.view), 1)
+
+  // Totales
+  const totWA    = events.filter(e => e.event_type === 'whatsapp_click').length
+  const totTrial = events.filter(e => e.event_type === 'trial_confirmed').length
+  const totEmail = events.filter(e => e.event_type === 'email_click').length
+  const totView  = events.filter(e => e.event_type === 'profile_view').length
+  const totAll   = events.length
+
+  // Tasa de conversión (contactos / visitas)
+  const convRate = totView > 0 ? Math.round(((totWA + totTrial + totEmail) / totView) * 100) : 0
+
+  // Últimos 7 días vs 7 anteriores
+  const now  = Date.now()
+  const last7 = events.filter(e => now - new Date(e.created_at).getTime() < 7*86400000).length
+  const prev7 = events.filter(e => {
+    const age = now - new Date(e.created_at).getTime()
+    return age >= 7*86400000 && age < 14*86400000
+  }).length
+  const trend = prev7 > 0 ? Math.round(((last7 - prev7) / prev7) * 100) : (last7 > 0 ? 100 : 0)
+
+  const COLORS = {
+    whatsapp: '#25d366',
+    trial:    '#8b1a1a',
+    email:    '#2e86c1',
+    view:     'rgba(122,92,58,0.4)',
+  }
+
+  return (
+    <div>
+      {/* KPIs */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:12, marginBottom:20 }}>
+        {[
+          { label:'Contactos totales', val: totAll,   color:'var(--crimson)',  icon:'📊' },
+          { label:'WhatsApp clicks',   val: totWA,    color:'#25d366',         icon:'💬' },
+          { label:'Trials reservados', val: totTrial, color:'var(--crimson)',  icon:'📅' },
+          { label:'Visitas al perfil', val: totView,  color:'var(--gold)',     icon:'👁' },
+          { label:'Tasa conversión',   val: `${convRate}%`, color:'#2e86c1',  icon:'↗' },
+          { label:'Tendencia 7 días',  val: `${trend > 0 ? '+' : ''}${trend}%`, color: trend >= 0 ? '#27ae60' : '#e74c3c', icon: trend >= 0 ? '📈' : '📉' },
+        ].map((k, i) => (
+          <div key={i} style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:'16px 20px' }}>
+            <div style={{ fontSize:20, marginBottom:8 }}>{k.icon}</div>
+            <div style={{ fontFamily:'var(--font-display)', fontSize:28, fontWeight:600, color:k.color, lineHeight:1 }}>{k.val}</div>
+            <div style={{ fontSize:11, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.08em', marginTop:4 }}>{k.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Gráfico de barras — 30 días */}
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24, marginBottom:20 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20, flexWrap:'wrap', gap:12 }}>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:18, color:'var(--ink)' }}>Contactos — últimos 30 días</div>
+          <div style={{ display:'flex', gap:16, flexWrap:'wrap' }}>
+            {[['WhatsApp','#25d366'],['Trial','#8b1a1a'],['Email','#2e86c1']].map(([label, color]) => (
+              <div key={label} style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'var(--wood-light)' }}>
+                <div style={{ width:10, height:10, borderRadius:2, background:color, flexShrink:0 }} />
+                {label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {events.length === 0 ? (
+          <div style={{ padding:'40px 0', textAlign:'center', color:'var(--wood-light)', fontSize:13 }}>
+            Aún no hay datos. Los contactos recibidos desde EncuentraTuDojo aparecerán acá.
+          </div>
+        ) : (
+          <div style={{ display:'flex', alignItems:'flex-end', gap:3, height:140, overflowX:'auto', paddingBottom:8 }}>
+            {eventsByDay.map((d, i) => {
+              const total = d.whatsapp + d.trial + d.email + d.view
+              const h = maxVal > 0 ? Math.round((total / maxVal) * 120) : 0
+              return (
+                <div key={i} title={`${d.label}: ${total} contactos`}
+                  style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2, flex:'0 0 auto', width:24, cursor:'default' }}>
+                  <div style={{ width:'100%', display:'flex', flexDirection:'column-reverse', gap:1 }}>
+                    {d.whatsapp > 0 && <div style={{ width:'100%', height: Math.max(Math.round((d.whatsapp/maxVal)*120),2), background:'#25d366', borderRadius:1 }} />}
+                    {d.trial    > 0 && <div style={{ width:'100%', height: Math.max(Math.round((d.trial/maxVal)*120),2),    background:'#8b1a1a', borderRadius:1 }} />}
+                    {d.email    > 0 && <div style={{ width:'100%', height: Math.max(Math.round((d.email/maxVal)*120),2),    background:'#2e86c1', borderRadius:1 }} />}
+                    {total === 0    && <div style={{ width:'100%', height:2, background:'rgba(122,92,58,0.1)', borderRadius:1 }} />}
+                  </div>
+                  {(i % 5 === 0) && (
+                    <div style={{ fontSize:9, color:'var(--wood-light)', whiteSpace:'nowrap', transform:'rotate(-45deg)', transformOrigin:'center', marginTop:4 }}>
+                      {d.label}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Fuentes de contacto */}
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24, marginBottom:20 }}>
+        <div style={{ fontFamily:'var(--font-display)', fontSize:18, color:'var(--ink)', marginBottom:16 }}>Fuentes de contacto</div>
+        {totAll === 0 ? (
+          <div style={{ color:'var(--wood-light)', fontSize:13 }}>Sin datos todavía.</div>
+        ) : (
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            {[
+              { label:'WhatsApp',    count: totWA,    color:'#25d366',        pct: totAll > 0 ? Math.round((totWA/totAll)*100) : 0 },
+              { label:'Clase trial', count: totTrial, color:'var(--crimson)', pct: totAll > 0 ? Math.round((totTrial/totAll)*100) : 0 },
+              { label:'Email',       count: totEmail, color:'#2e86c1',        pct: totAll > 0 ? Math.round((totEmail/totAll)*100) : 0 },
+              { label:'Visitas',     count: totView,  color:'var(--gold)',    pct: totAll > 0 ? Math.round((totView/totAll)*100) : 0 },
+            ].map((row, i) => (
+              <div key={i}>
+                <div style={{ display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:5 }}>
+                  <span style={{ color:'var(--ink)', fontWeight:500 }}>{row.label}</span>
+                  <span style={{ color:'var(--wood-light)' }}>{row.count} ({row.pct}%)</span>
+                </div>
+                <div style={{ height:8, background:'rgba(122,92,58,0.08)', borderRadius:4, overflow:'hidden' }}>
+                  <div style={{ height:'100%', width:`${row.pct}%`, background:row.color, borderRadius:4, transition:'width .6s' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Info comisión */}
+      <div style={{ background:'var(--parchment-dark)', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:20, fontSize:13, color:'var(--wood-light)', lineHeight:1.7 }}>
+        <strong style={{ color:'var(--ink)' }}>Nota:</strong> Los datos muestran contactos recibidos desde EncuentraTuDojo. Para ver métricas de tu sitio web propio, conectá Google Analytics en la configuración.
+      </div>
+    </div>
+  )
+}
+
 // ══════════════════════════════
 // COMPONENTE EDITAR PERFIL ESCUELA
 // ══════════════════════════════
@@ -602,11 +751,7 @@ export default function DashboardPage() {
 
           {/* ═══ MÉTRICAS ═══ */}
           {section === 'metricas' && (
-            <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:32, textAlign:'center' }}>
-              <div style={{ fontFamily:'var(--font-jp)', fontSize:48, color:'rgba(122,92,58,0.15)', marginBottom:12 }}>統</div>
-              <div style={{ fontFamily:'var(--font-display)', fontSize:22, color:'var(--ink)', marginBottom:8 }}>Métricas avanzadas</div>
-              <p style={{ fontSize:13, color:'var(--wood-light)', lineHeight:1.7 }}>Gráficos de visitas, leads y conversiones. Próximamente.</p>
-            </div>
+            <MetricasPanel events={events} school={school} />
           )}
 
           {/* ═══ PERFIL ═══ */}
