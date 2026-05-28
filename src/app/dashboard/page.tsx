@@ -349,7 +349,7 @@ export default function DashboardPage() {
         {/* Nav */}
         <nav style={{ flex:1, padding:'8px 12px' }}>
           {SECTIONS.map(s => (
-            <button key={s} onClick={() => setSection(s)}
+            <button key={s}
               onClick={() => { setSection(s); setNavOpen(false) }}
               style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'10px 12px', marginBottom:2, borderRadius:4, border:'none', cursor:'pointer', fontFamily:'var(--font-body)', fontSize:13, textAlign:'left', transition:'all 0.15s',
                 background: section === s ? 'rgba(200,169,110,0.1)' : 'transparent',
