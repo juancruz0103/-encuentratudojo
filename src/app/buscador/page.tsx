@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { School, Discipline } from '@/types/database'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
@@ -31,12 +32,14 @@ const FILTROS_GENERALES = [
   { id:'gen-verificada',label:'Verificada',             fn: (s: School) => s.verified === true },
 ]
 
-export default function BuscadorPage() {
+function BuscadorContent() {
+  const searchParams = useSearchParams()
   const [schools, setSchools]     = useState<School[]>([])
+
   const [disciplines, setDiscs]   = useState<Discipline[]>([])
   const [filtered, setFiltered]   = useState<School[]>([])
   const [query, setQuery]         = useState('')
-  const [selDisc, setSelDisc]     = useState<string | null>(null)
+  const [selDisc, setSelDisc]     = useState<string | null>(searchParams.get('disciplina'))
   const [selSubcats, setSelSubcats] = useState<Set<string>>(new Set())
   const [selGeneral, setSelGeneral] = useState<Set<string>>(new Set())
   const [loading, setLoading]     = useState(true)
@@ -332,5 +335,17 @@ export default function BuscadorPage() {
         .leaflet-container { font-family:'DM Sans',sans-serif; }
       `}</style>
     </main>
+  )
+}
+
+export default function BuscadorPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight:'100vh', background:'#0e0c0b', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ fontFamily:'serif', fontSize:48, color:'rgba(200,169,110,0.2)' }}>武</div>
+      </div>
+    }>
+      <BuscadorContent />
+    </Suspense>
   )
 }
