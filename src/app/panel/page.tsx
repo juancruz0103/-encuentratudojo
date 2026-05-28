@@ -10,6 +10,7 @@ const SECTION_LABELS: Record<Section,string> = { overview:'Resumen', reservas:'M
 
 export default function PanelPage() {
   const [section, setSection] = useState<Section>('overview')
+  const [navOpen, setNavOpen] = useState(false)
   const [user, setUser]       = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -50,7 +51,8 @@ export default function PanelPage() {
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--parchment-dark)' }}>
 
       {/* SIDEBAR */}
-      <div style={{ width:220, background:'var(--ink)', display:'flex', flexDirection:'column', flexShrink:0, position:'sticky', top:0, height:'100vh' }}>
+      {navOpen && <div onClick={() => setNavOpen(false)} className="dash-overlay" style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:150, display:'none' }} />}
+      <div className={`dash-sidebar${navOpen ? ' open' : ''}`} style={{ width:220, background:'var(--ink)', display:'flex', flexDirection:'column', flexShrink:0, position:'sticky', top:0, height:'100vh' }}>
         <div style={{ padding:'20px' }}>
           <Link href="/" style={{ display:'flex', alignItems:'center', gap:8, textDecoration:'none', marginBottom:20 }}>
             <span style={{ fontFamily:'var(--font-jp)', fontSize:18, color:'var(--crimson-bright)' }}>武</span>
@@ -67,7 +69,7 @@ export default function PanelPage() {
         </div>
         <nav style={{ flex:1, padding:'8px 12px' }}>
           {SECTIONS.map(s => (
-            <button key={s} onClick={() => setSection(s)}
+            <button key={s} onClick={() => { setSection(s); setNavOpen(false) }}
               style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'10px 12px', marginBottom:2, borderRadius:4, border:'none', cursor:'pointer', fontFamily:'var(--font-body)', fontSize:13, textAlign:'left', transition:'all 0.15s',
                 background: section === s ? 'rgba(200,169,110,0.1)' : 'transparent',
                 color: section === s ? 'var(--gold)' : 'rgba(250,248,244,0.4)' }}>
@@ -88,7 +90,8 @@ export default function PanelPage() {
 
       {/* MAIN */}
       <div style={{ flex:1, overflowY:'auto' }}>
-        <div style={{ padding:'16px 32px', borderBottom:'1px solid rgba(122,92,58,0.1)', background:'#fff', position:'sticky', top:0, zIndex:50 }}>
+        <div style={{ padding:'12px 20px', borderBottom:'1px solid rgba(122,92,58,0.1)', background:'#fff', position:'sticky', top:0, zIndex:50, display:'flex', alignItems:'center' }}>
+          <button onClick={() => setNavOpen(!navOpen)} className="dash-hamburger" style={{ display:'none', background:'none', border:'none', fontSize:22, cursor:'pointer', color:'var(--ink)', marginRight:12 }}>☰</button>
           <div style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, color:'var(--ink)' }}>{SECTION_LABELS[section]}</div>
         </div>
 
@@ -183,27 +186,76 @@ export default function PanelPage() {
           )}
 
           {/* PERFIL */}
-          {section === 'perfil' && profile && (
-            <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:32 }}>
-              <div style={{ fontFamily:'var(--font-display)', fontSize:18, color:'var(--ink)', marginBottom:20 }}>Mi perfil</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                {[
-                  { label:'Nombre', val: profile.first_name },
-                  { label:'Apellido', val: profile.last_name },
-                  { label:'Email', val: profile.email },
-                  { label:'Ciudad', val: profile.city || '—' },
-                  { label:'Barrio', val: profile.neighborhood || '—' },
-                ].map((row, i) => (
-                  <div key={i} style={{ borderBottom:'1px solid rgba(122,92,58,0.08)', paddingBottom:12 }}>
-                    <div style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', marginBottom:4 }}>{row.label}</div>
-                    <div style={{ fontSize:14, color:'var(--ink)', fontWeight:500 }}>{row.val || '—'}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {section === 'perfil' && <EditarPerfilAlumno profile={profile} userId={user?.id} />}
 
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Editar perfil del alumno ──
+function EditarPerfilAlumno({ profile, userId }: { profile: any; userId?: string }) {
+  const [form, setForm] = useState({
+    first_name:   profile?.first_name   ?? '',
+    last_name:    profile?.last_name    ?? '',
+    city:         profile?.city         ?? '',
+    neighborhood: profile?.neighborhood ?? '',
+  })
+  const [saving, setSaving] = useState(false)
+  const [saved,  setSaved]  = useState(false)
+  const [error,  setError]  = useState<string|null>(null)
+
+  const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }))
+
+  async function handleSave() {
+    if (!form.first_name.trim()) { setError('El nombre es obligatorio'); return }
+    setSaving(true); setError(null)
+    const sb = createClient()
+    const { error: err } = await sb.from('users').update(form).eq('id', userId)
+    setSaving(false)
+    if (err) { setError(err.message); return }
+    setSaved(true); setTimeout(() => setSaved(false), 3000)
+  }
+
+  const inp = { width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'10px 14px', fontSize:14, fontFamily:'var(--font-body)', outline:'none', color:'var(--ink)', background:'#fff', boxSizing:'border-box' as const }
+  const lbl = { display:'block' as const, fontSize:11, textTransform:'uppercase' as const, letterSpacing:'0.1em', color:'var(--wood-light)', marginBottom:5, fontWeight:500 }
+
+  return (
+    <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12, marginBottom:24, paddingBottom:16, borderBottom:'1px solid rgba(122,92,58,0.08)' }}>
+        <div style={{ fontFamily:'var(--font-display)', fontSize:20, color:'var(--ink)' }}>Mi perfil</div>
+        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+          {saved  && <span style={{ fontSize:13, color:'#27ae60' }}>✓ Guardado</span>}
+          {error  && <span style={{ fontSize:13, color:'var(--crimson)' }}>{error}</span>}
+          <button onClick={handleSave} disabled={saving}
+            style={{ padding:'9px 20px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:13, fontFamily:'var(--font-body)', fontWeight:500, opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Guardando...' : 'Guardar'}
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:16 }}>
+        <div>
+          <label style={lbl}>Nombre *</label>
+          <input style={inp} value={form.first_name} onChange={e => set('first_name', e.target.value)} placeholder="Martín" />
+        </div>
+        <div>
+          <label style={lbl}>Apellido</label>
+          <input style={inp} value={form.last_name} onChange={e => set('last_name', e.target.value)} placeholder="González" />
+        </div>
+        <div>
+          <label style={lbl}>Ciudad</label>
+          <input style={inp} value={form.city} onChange={e => set('city', e.target.value)} placeholder="Buenos Aires" />
+        </div>
+        <div>
+          <label style={lbl}>Barrio</label>
+          <input style={inp} value={form.neighborhood} onChange={e => set('neighborhood', e.target.value)} placeholder="Palermo" />
+        </div>
+      </div>
+
+      <div style={{ marginTop:20, padding:'14px 16px', background:'var(--parchment-dark)', borderRadius:4, fontSize:13, color:'var(--wood-light)' }}>
+        <strong style={{ color:'var(--ink)' }}>Email:</strong> {profile?.email || '—'} &nbsp;·&nbsp; Para cambiar el email contactá soporte.
       </div>
     </div>
   )

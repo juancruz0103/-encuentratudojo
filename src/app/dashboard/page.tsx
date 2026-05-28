@@ -28,6 +28,143 @@ const NAV_ICONS: Record<Section, string> = {
 }
 
 
+
+// ══════════════════════════════
+// COMPONENTE EDITAR PERFIL ESCUELA
+// ══════════════════════════════
+function EditarPerfilEscuela({ school }: { school: any }) {
+  const [saving, setSaving]   = useState(false)
+  const [saved,  setSaved]    = useState(false)
+  const [error,  setError]    = useState<string|null>(null)
+  const [form,   setForm]     = useState({
+    name:         school.name         ?? '',
+    address:      school.address      ?? '',
+    city:         school.city         ?? '',
+    neighborhood: school.neighborhood ?? '',
+    phone:        school.phone        ?? '',
+    whatsapp:     school.whatsapp     ?? '',
+    email:        school.email        ?? '',
+    instagram:    school.instagram    ?? '',
+    website:      school.website      ?? '',
+    description:  school.description  ?? '',
+    description2: school.description2 ?? '',
+  })
+
+  const set = (key: string, val: string) => setForm(prev => ({ ...prev, [key]: val }))
+
+  async function handleSave() {
+    if (!form.name.trim()) { setError('El nombre no puede estar vacío'); return }
+    setSaving(true); setError(null)
+    const sb = createClient()
+    const { error: err } = await sb.from('schools').update(form).eq('id', school.id)
+    setSaving(false)
+    if (err) { setError(err.message); return }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  const inputStyle = {
+    width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3,
+    padding:'10px 14px', fontSize:14, fontFamily:'var(--font-body)',
+    outline:'none', color:'var(--ink)', background:'#fff', boxSizing:'border-box' as const,
+    transition:'border-color 0.2s',
+  }
+  const labelStyle = {
+    display:'block' as const, fontSize:11, textTransform:'uppercase' as const,
+    letterSpacing:'0.1em', color:'var(--wood-light)', marginBottom:5, fontWeight:500,
+  }
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:'20px 24px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
+        <div>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:20, fontWeight:400, color:'var(--ink)' }}>Editar perfil de la escuela</div>
+          <div style={{ fontSize:13, color:'var(--wood-light)', marginTop:2 }}>Los cambios se reflejan en tu perfil público inmediatamente</div>
+        </div>
+        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+          {saved && <span style={{ fontSize:13, color:'#27ae60', fontWeight:500 }}>✓ Guardado</span>}
+          {error && <span style={{ fontSize:13, color:'var(--crimson)' }}>{error}</span>}
+          <button onClick={handleSave} disabled={saving}
+            style={{ padding:'10px 24px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:13, fontFamily:'var(--font-body)', fontWeight:500, opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Guardando...' : 'Guardar cambios'}
+          </button>
+        </div>
+      </div>
+
+      {/* Formulario */}
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24, marginBottom:16 }}>
+        <div style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--gold)', marginBottom:16 }}>Información básica</div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16 }}>
+          <div>
+            <label style={labelStyle}>Nombre de la escuela *</label>
+            <input style={inputStyle} value={form.name} onChange={e => set('name', e.target.value)} placeholder="Dragon Gate Dojo" />
+          </div>
+          <div>
+            <label style={labelStyle}>Dirección</label>
+            <input style={inputStyle} value={form.address} onChange={e => set('address', e.target.value)} placeholder="Av. Santa Fe 1234, Piso 2" />
+          </div>
+          <div>
+            <label style={labelStyle}>Ciudad</label>
+            <input style={inputStyle} value={form.city} onChange={e => set('city', e.target.value)} placeholder="Buenos Aires" />
+          </div>
+          <div>
+            <label style={labelStyle}>Barrio</label>
+            <input style={inputStyle} value={form.neighborhood} onChange={e => set('neighborhood', e.target.value)} placeholder="Palermo" />
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24, marginBottom:16 }}>
+        <div style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--gold)', marginBottom:16 }}>Contacto</div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16 }}>
+          <div>
+            <label style={labelStyle}>Teléfono</label>
+            <input style={inputStyle} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="011 4444-5555" />
+          </div>
+          <div>
+            <label style={labelStyle}>WhatsApp (solo números)</label>
+            <input style={inputStyle} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="5491144445555" />
+          </div>
+          <div>
+            <label style={labelStyle}>Email de contacto</label>
+            <input style={inputStyle} type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="info@mescuela.com" />
+          </div>
+          <div>
+            <label style={labelStyle}>Instagram</label>
+            <input style={inputStyle} value={form.instagram} onChange={e => set('instagram', e.target.value)} placeholder="@mescuela.dojo" />
+          </div>
+          <div>
+            <label style={labelStyle}>Sitio web</label>
+            <input style={inputStyle} value={form.website} onChange={e => set('website', e.target.value)} placeholder="https://mescuela.com.ar" />
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24 }}>
+        <div style={{ fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--gold)', marginBottom:16 }}>Descripción pública</div>
+        <div style={{ marginBottom:16 }}>
+          <label style={labelStyle}>Descripción principal</label>
+          <textarea
+            value={form.description} onChange={e => set('description', e.target.value)}
+            rows={4} placeholder="Describí tu escuela, historia, estilo de enseñanza..."
+            style={{ ...inputStyle, resize:'vertical', lineHeight:1.6 }}
+          />
+          <div style={{ fontSize:11, color:'var(--wood-light)', marginTop:4 }}>{form.description.length}/500 caracteres</div>
+        </div>
+        <div>
+          <label style={labelStyle}>Descripción secundaria (opcional)</label>
+          <textarea
+            value={form.description2} onChange={e => set('description2', e.target.value)}
+            rows={3} placeholder="Información adicional, instalaciones, métodos..."
+            style={{ ...inputStyle, resize:'vertical', lineHeight:1.6 }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Botón actualizar alumnos ──
 function UpdateAlumnosBtn({ schoolId, current }: { schoolId: number; current: number }) {
   const [editing, setEditing] = useState(false)
@@ -97,6 +234,7 @@ function PagarComisionBtn({ fee }: { fee: number }) {
 
 export default function DashboardPage() {
   const [section, setSection]   = useState<Section>('overview')
+  const [navOpen, setNavOpen]   = useState(false)
   const [school, setSchool]     = useState<any>(null)
   const [events, setEvents]     = useState<any[]>([])
   const [loading, setLoading]   = useState(true)
@@ -175,8 +313,16 @@ export default function DashboardPage() {
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--parchment-dark)' }}>
 
+      {/* Overlay mobile */}
+      {navOpen && (
+        <div onClick={() => setNavOpen(false)}
+          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:150, display:'none' }}
+          className="dash-overlay" />
+      )}
+
       {/* SIDEBAR */}
-      <div style={{ width:220, background:'var(--ink)', borderRight:'1px solid rgba(200,169,110,0.08)', display:'flex', flexDirection:'column', flexShrink:0, position:'sticky', top:0, height:'100vh', overflowY:'auto' }}>
+      <div className={`dash-sidebar${navOpen ? ' open' : ''}`}
+        style={{ width:220, background:'var(--ink)', borderRight:'1px solid rgba(200,169,110,0.08)', display:'flex', flexDirection:'column', flexShrink:0, position:'sticky', top:0, height:'100vh', overflowY:'auto' }}>
 
         {/* Logo */}
         <div style={{ padding:'20px 20px 0' }}>
@@ -204,6 +350,7 @@ export default function DashboardPage() {
         <nav style={{ flex:1, padding:'8px 12px' }}>
           {SECTIONS.map(s => (
             <button key={s} onClick={() => setSection(s)}
+              onClick={() => { setSection(s); setNavOpen(false) }}
               style={{ display:'flex', alignItems:'center', gap:10, width:'100%', padding:'10px 12px', marginBottom:2, borderRadius:4, border:'none', cursor:'pointer', fontFamily:'var(--font-body)', fontSize:13, textAlign:'left', transition:'all 0.15s',
                 background: section === s ? 'rgba(200,169,110,0.1)' : 'transparent',
                 color: section === s ? 'var(--gold)' : 'rgba(250,248,244,0.4)' }}>
@@ -224,10 +371,15 @@ export default function DashboardPage() {
       </div>
 
       {/* MAIN */}
-      <div style={{ flex:1, overflowY:'auto' }}>
+      <div style={{ flex:1, overflowY:'auto', minWidth:0 }}>
 
         {/* Topbar */}
-        <div style={{ padding:'16px 32px', borderBottom:'1px solid rgba(122,92,58,0.1)', background:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 }}>
+        <div className='dash-topbar' style={{ padding:'12px 20px', borderBottom:'1px solid rgba(122,92,58,0.1)', background:'#fff', display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 }}>
+          {/* Hamburguesa — solo mobile */}
+          <button onClick={() => setNavOpen(!navOpen)} className="dash-hamburger"
+            style={{ display:'none', background:'none', border:'none', fontSize:22, cursor:'pointer', color:'var(--ink)', marginRight:12, flexShrink:0 }}>
+            ☰
+          </button>
           <div>
             <div style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, color:'var(--ink)' }}>
               {SECTION_LABELS[section]}
@@ -238,13 +390,13 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        <div style={{ padding:32 }}>
+        <div className='dash-main-content' style={{ padding:32 }}>
 
           {/* ═══ OVERVIEW ═══ */}
           {section === 'overview' && (
             <div>
               {/* Stats rápidas */}
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
+              <div className='dash-stats-grid' style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 }}>
                 {[
                   { label:'Rating',        val: school.rating || '—',        sub:'promedio',          color:'var(--gold)' },
                   { label:'Reseñas',       val: school.review_count || 0,    sub:'recibidas',         color:'var(--crimson)' },
@@ -269,7 +421,7 @@ export default function DashboardPage() {
                     {events.length} total
                   </span>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:0 }}>
+                <div className='dash-metrics-grid' style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:0 }}>
                   {[
                     { label:'WhatsApp',    count: countWA, icon:'💬', color:'#25d366' },
                     { label:'Trials',      count: countTR, icon:'📅', color:'var(--crimson)' },
@@ -355,7 +507,7 @@ export default function DashboardPage() {
               {/* Tabla de rangos */}
               <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', overflow:'hidden' }}>
                 <div style={{ padding:'14px 20px', borderBottom:'1px solid rgba(122,92,58,0.08)', fontFamily:'var(--font-display)', fontSize:18, color:'var(--ink)' }}>Todos los rangos</div>
-                <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                <div className='dash-table-wrap'><table style={{ width:'100%', borderCollapse:'collapse' }}>
                   <thead>
                     <tr style={{ background:'var(--parchment-dark)' }}>
                       {['Rango','Alumnos','Fee / alumno','Fee mensual'].map((h,i) => (
@@ -459,28 +611,7 @@ export default function DashboardPage() {
 
           {/* ═══ PERFIL ═══ */}
           {section === 'perfil' && (
-            <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:32 }}>
-              <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:400, color:'var(--ink)', marginBottom:20 }}>Datos de la escuela</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-                {[
-                  { label:'Nombre', val: school.name },
-                  { label:'Disciplina', val: school.discipline?.label },
-                  { label:'Ciudad', val: school.city },
-                  { label:'Barrio', val: school.neighborhood },
-                  { label:'Teléfono', val: school.phone },
-                  { label:'WhatsApp', val: school.whatsapp },
-                  { label:'Email', val: school.email },
-                  { label:'Instagram', val: school.instagram },
-                  { label:'Alumnos declarados', val: school.student_count },
-                  { label:'Comisión mensual', val: `$${comm.fee.toFixed(2)} USD` },
-                ].map((row, i) => (
-                  <div key={i} style={{ borderBottom:'1px solid rgba(122,92,58,0.08)', paddingBottom:12 }}>
-                    <div style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', marginBottom:4 }}>{row.label}</div>
-                    <div style={{ fontSize:14, color:'var(--ink)', fontWeight:500 }}>{row.val || '—'}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <EditarPerfilEscuela school={school} />
           )}
 
         </div>
