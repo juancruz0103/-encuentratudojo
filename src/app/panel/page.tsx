@@ -174,22 +174,80 @@ export default function PanelPage() {
           )}
 
           {/* FAVORITOS */}
-          {section === 'favoritos' && (
-            <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:32, textAlign:'center' }}>
-              <div style={{ fontFamily:'var(--font-jp)', fontSize:48, color:'rgba(122,92,58,0.15)', marginBottom:12 }}>心</div>
-              <div style={{ fontFamily:'var(--font-display)', fontSize:22, color:'var(--ink)', marginBottom:8 }}>Escuelas favoritas</div>
-              <p style={{ fontSize:13, color:'var(--wood-light)', marginBottom:16 }}>Guardá escuelas desde el buscador para verlas acá.</p>
-              <Link href="/buscador" style={{ display:'inline-block', background:'var(--crimson)', color:'#fff', padding:'10px 24px', borderRadius:3, textDecoration:'none', fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em' }}>
-                Explorar escuelas →
-              </Link>
-            </div>
-          )}
+          {section === 'favoritos' && <FavoritosPanel />}
 
           {/* PERFIL */}
           {section === 'perfil' && <EditarPerfilAlumno profile={profile} userId={user?.id} />}
 
         </div>
       </div>
+    </div>
+  )
+}
+
+
+// ── Panel de favoritos ──
+function FavoritosPanel() {
+  const [schools, setSchools] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const favIds: number[] = (() => { try { return JSON.parse(localStorage.getItem('etd_favorites') || '[]') } catch { return [] } })()
+    if (favIds.length === 0) { setLoading(false); return }
+
+    const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    fetch(`${url}/rest/v1/schools?id=in.(${favIds.join(',')})&select=id,name,slug,kanji,neighborhood,city,rating,review_count,discipline_id,discipline:disciplines(label,color)`, {
+      headers: { 'apikey': anon, 'Authorization': `Bearer ${anon}` }
+    }).then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setSchools(data)
+      setLoading(false)
+    }).catch(() => setLoading(false))
+  }, [])
+
+  function removeFav(id: number) {
+    const favs: number[] = (() => { try { return JSON.parse(localStorage.getItem('etd_favorites') || '[]') } catch { return [] } })()
+    localStorage.setItem('etd_favorites', JSON.stringify(favs.filter(f => f !== id)))
+    setSchools(prev => prev.filter(s => s.id !== id))
+  }
+
+  if (loading) return <div style={{ padding:40, textAlign:'center', color:'var(--wood-light)' }}>Cargando...</div>
+
+  if (schools.length === 0) return (
+    <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:40, textAlign:'center' }}>
+      <div style={{ fontFamily:'var(--font-jp)', fontSize:48, color:'rgba(122,92,58,0.15)', marginBottom:12 }}>心</div>
+      <div style={{ fontFamily:'var(--font-display)', fontSize:22, color:'var(--ink)', marginBottom:8 }}>Sin favoritos todavía</div>
+      <p style={{ fontSize:13, color:'var(--wood-light)', marginBottom:20 }}>Tocá el ❤️ en el perfil de una escuela para guardarla acá.</p>
+      <Link href="/buscador" style={{ display:'inline-block', background:'var(--crimson)', color:'#fff', padding:'10px 24px', borderRadius:3, textDecoration:'none', fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em' }}>
+        Explorar escuelas →
+      </Link>
+    </div>
+  )
+
+  return (
+    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:16 }}>
+      {schools.map(s => (
+        <div key={s.id} style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+          <div style={{ background:`linear-gradient(135deg,${s.discipline?.color ?? '#8b1a1a'}33,#0e0c0b)`, padding:'20px 20px 16px', display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+            <div>
+              <div style={{ fontFamily:'var(--font-jp)', fontSize:32, color:s.discipline?.color ?? '#8b1a1a', marginBottom:6 }}>{s.kanji}</div>
+              <div style={{ fontFamily:'var(--font-display)', fontSize:18, color:'var(--parchment)', lineHeight:1.2 }}>{s.name}</div>
+              <div style={{ fontSize:12, color:'rgba(250,248,244,0.45)', marginTop:4 }}>{s.neighborhood}, {s.city}</div>
+            </div>
+            <button onClick={() => removeFav(s.id)}
+              style={{ background:'none', border:'none', fontSize:20, cursor:'pointer', color:'rgba(250,248,244,0.4)', flexShrink:0 }} title="Quitar de favoritos">
+              ❤️
+            </button>
+          </div>
+          <div style={{ padding:'14px 20px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div style={{ fontSize:13, color:'var(--gold)' }}>★ {s.rating} <span style={{ color:'var(--wood-light)', fontSize:12 }}>({s.review_count})</span></div>
+            <Link href={`/escuela/${s.slug}`}
+              style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--crimson)', border:'1px solid rgba(139,26,26,0.2)', padding:'5px 12px', borderRadius:2, textDecoration:'none' }}>
+              Ver perfil →
+            </Link>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

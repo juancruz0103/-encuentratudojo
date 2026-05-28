@@ -29,7 +29,9 @@ const FEATURES = [
 ]
 
 export default function SchoolProfileClient({ school }: { school: School }) {
-  const [modal, setModal]     = useState(false)
+  const [modal, setModal]       = useState(false)
+  const [isFav, setIsFav]       = useState(false)
+  const [favLoading, setFavLoading] = useState(false)
   const [reviews, setReviews]     = useState<any[]>([])
   const [schedules, setSchedules] = useState<any[]>([])
   const [showReviewForm, setShowReviewForm] = useState(false)
@@ -72,6 +74,13 @@ export default function SchoolProfileClient({ school }: { school: School }) {
     const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     const h    = { 'apikey': anon, 'Authorization': `Bearer ${anon}` }
+    // Favorito
+    const sb_url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const sb_anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    if (typeof window !== 'undefined') {
+      const favs = (() => { try { return JSON.parse(localStorage.getItem('etd_favorites') || '[]') } catch { return [] } })()
+      setIsFav(favs.includes(school.id))
+    }
     // Reseñas
     fetch(`${url}/rest/v1/reviews?school_id=eq.${school.id}&reported=eq.false&order=created_at.desc&limit=10`, { headers: h })
       .then(r => r.json()).then(data => { if (Array.isArray(data)) setReviews(data) }).catch(() => {})
@@ -79,6 +88,29 @@ export default function SchoolProfileClient({ school }: { school: School }) {
     fetch(`${url}/rest/v1/class_schedules?school_id=eq.${school.id}&order=sort_order`, { headers: h })
       .then(r => r.json()).then(data => { if (Array.isArray(data)) setSchedules(data) }).catch(() => {})
   }, [school.id])
+
+  function toggleFavorite() {
+    setFavLoading(true)
+    const favs: number[] = (() => { try { return JSON.parse(localStorage.getItem('etd_favorites') || '[]') } catch { return [] } })()
+    let newFavs: number[]
+    if (isFav) {
+      newFavs = favs.filter(id => id !== school.id)
+    } else {
+      newFavs = [...favs, school.id]
+    }
+    localStorage.setItem('etd_favorites', JSON.stringify(newFavs))
+    setIsFav(!isFav)
+    setFavLoading(false)
+  }
+
+  function shareSchool() {
+    const url = window.location.href
+    if (navigator.share) {
+      navigator.share({ title: school.name, text: `Mirá esta escuela de ${school.discipline?.label} en EncuentraTuDojo`, url })
+    } else {
+      navigator.clipboard.writeText(url).then(() => alert('¡Link copiado al portapapeles!'))
+    }
+  }
 
   async function submitReview() {
     if (!reviewForm.author.trim() || !reviewForm.text.trim()) return
@@ -411,10 +443,22 @@ export default function SchoolProfileClient({ school }: { school: School }) {
         <div>
           {/* CTA */}
           <div className="etd-cta-card">
-            <div style={{ padding:'14px 20px', borderBottom:'1px solid rgba(200,169,110,0.1)' }}>
+            <div style={{ padding:'12px 16px', borderBottom:'1px solid rgba(200,169,110,0.1)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
               <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:12, color:'#2ecc71' }}>
                 <div style={{ width:8, height:8, borderRadius:'50%', background:'#2ecc71', flexShrink:0 }} />
                 Abierto ahora
+              </div>
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={toggleFavorite} disabled={favLoading}
+                  title={isFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+                  style={{ width:32, height:32, borderRadius:'50%', border:'1px solid rgba(200,169,110,0.2)', background: isFav ? 'rgba(200,169,110,0.15)' : 'transparent', cursor:'pointer', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  {isFav ? '❤️' : '🤍'}
+                </button>
+                <button onClick={shareSchool}
+                  title="Compartir"
+                  style={{ width:32, height:32, borderRadius:'50%', border:'1px solid rgba(200,169,110,0.2)', background:'transparent', cursor:'pointer', fontSize:15, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  📤
+                </button>
               </div>
             </div>
             <div style={{ padding:'18px 20px 20px' }}>

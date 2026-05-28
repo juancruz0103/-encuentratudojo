@@ -19,7 +19,7 @@ const SECTIONS = ['overview','leads','anuncios','metricas','comision','perfil'] 
 type Section = typeof SECTIONS[number]
 
 const SECTION_LABELS: Record<Section, string> = {
-  overview: 'Resumen', leads: 'Mis leads', anuncios: 'Anuncios',
+  overview: 'Resumen', leads: 'Mis leads', anuncios: 'Horarios',
   metricas: 'Métricas', comision: 'Mi comisión', perfil: 'Perfil'
 }
 
@@ -29,6 +29,132 @@ const NAV_ICONS: Record<Section, string> = {
 
 
 
+
+
+// ══════════════════════════════
+// EDITOR DE HORARIOS
+// ══════════════════════════════
+const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
+
+function HorariosEditor({ schoolId }: { schoolId: number }) {
+  const [schedules, setSchedules] = useState<any[]>([])
+  const [loading,   setLoading]   = useState(true)
+  const [saving,    setSaving]    = useState(false)
+  const [newRow,    setNewRow]    = useState({ dia:'Lunes', hora_inicio:'09:00', hora_fin:'10:30', clase:'', nivel:'Todos los niveles' })
+  const [showForm,  setShowForm]  = useState(false)
+
+  const sb = createClient()
+
+  useEffect(() => {
+    sb.from('class_schedules').select('*').eq('school_id', schoolId).order('sort_order')
+      .then(({ data }) => { setSchedules(data ?? []); setLoading(false) })
+  }, [schoolId])
+
+  async function addSchedule() {
+    if (!newRow.clase.trim()) return
+    setSaving(true)
+    const { data, error } = await sb.from('class_schedules').insert({
+      ...newRow, school_id: schoolId, sort_order: schedules.length + 1
+    }).select().single()
+    if (!error && data) setSchedules(prev => [...prev, data])
+    setNewRow({ dia:'Lunes', hora_inicio:'09:00', hora_fin:'10:30', clase:'', nivel:'Todos los niveles' })
+    setShowForm(false)
+    setSaving(false)
+  }
+
+  async function deleteSchedule(id: number) {
+    await sb.from('class_schedules').delete().eq('id', id)
+    setSchedules(prev => prev.filter(s => s.id !== id))
+  }
+
+  const inp = { border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'8px 12px', fontSize:13, fontFamily:'var(--font-body)', outline:'none', background:'#fff', boxSizing:'border-box' as const }
+
+  return (
+    <div>
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', overflow:'hidden', marginBottom:16 }}>
+        <div style={{ padding:'16px 20px', borderBottom:'1px solid rgba(122,92,58,0.08)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <div style={{ fontFamily:'var(--font-display)', fontSize:18, color:'var(--ink)' }}>Horarios de clases</div>
+            <div style={{ fontSize:12, color:'var(--wood-light)', marginTop:2 }}>Estos horarios se muestran en tu perfil público</div>
+          </div>
+          <button onClick={() => setShowForm(!showForm)}
+            style={{ padding:'8px 16px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:500 }}>
+            {showForm ? '✕ Cancelar' : '+ Agregar horario'}
+          </button>
+        </div>
+
+        {showForm && (
+          <div style={{ padding:'16px 20px', borderBottom:'1px solid rgba(122,92,58,0.08)', background:'var(--parchment-dark)' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:10, marginBottom:12 }}>
+              <div>
+                <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:4 }}>Día</label>
+                <select value={newRow.dia} onChange={e => setNewRow({...newRow, dia:e.target.value})} style={{ ...inp, width:'100%' }}>
+                  {DIAS.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:4 }}>Desde</label>
+                <input type="time" value={newRow.hora_inicio} onChange={e => setNewRow({...newRow, hora_inicio:e.target.value})} style={{ ...inp, width:'100%' }} />
+              </div>
+              <div>
+                <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:4 }}>Hasta</label>
+                <input type="time" value={newRow.hora_fin} onChange={e => setNewRow({...newRow, hora_fin:e.target.value})} style={{ ...inp, width:'100%' }} />
+              </div>
+              <div>
+                <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:4 }}>Clase *</label>
+                <input value={newRow.clase} onChange={e => setNewRow({...newRow, clase:e.target.value})} placeholder="Ej: Karate Infantil" style={{ ...inp, width:'100%' }} />
+              </div>
+              <div>
+                <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:4 }}>Nivel</label>
+                <input value={newRow.nivel} onChange={e => setNewRow({...newRow, nivel:e.target.value})} placeholder="Todos los niveles" style={{ ...inp, width:'100%' }} />
+              </div>
+            </div>
+            <button onClick={addSchedule} disabled={saving || !newRow.clase.trim()}
+              style={{ padding:'9px 20px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:13, fontFamily:'var(--font-body)', fontWeight:500, opacity: (!newRow.clase.trim() || saving) ? 0.5 : 1 }}>
+              {saving ? 'Guardando...' : 'Guardar horario'}
+            </button>
+          </div>
+        )}
+
+        {loading ? (
+          <div style={{ padding:40, textAlign:'center', color:'var(--wood-light)' }}>Cargando horarios...</div>
+        ) : schedules.length === 0 ? (
+          <div style={{ padding:40, textAlign:'center', color:'var(--wood-light)', fontSize:13 }}>
+            No tenés horarios cargados. Agregá el primero con el botón de arriba.
+          </div>
+        ) : (
+          <div style={{ overflowX:'auto' }}>
+            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+              <thead>
+                <tr style={{ background:'var(--parchment-dark)' }}>
+                  {['Día','Horario','Clase','Nivel',''].map((h,i) => (
+                    <th key={i} style={{ padding:'10px 16px', fontSize:11, textAlign: i===4 ? 'center' : 'left', fontWeight:500, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.08em' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {schedules.map((s, i) => (
+                  <tr key={s.id} style={{ borderTop:'1px solid rgba(122,92,58,0.06)', background: i%2===0 ? 'transparent' : 'rgba(122,92,58,0.02)' }}>
+                    <td style={{ padding:'11px 16px', fontSize:13, fontWeight:500, color:'var(--ink)' }}>{s.dia}</td>
+                    <td style={{ padding:'11px 16px', fontSize:13, color:'var(--crimson)', fontWeight:500 }}>{s.hora_inicio} – {s.hora_fin}</td>
+                    <td style={{ padding:'11px 16px', fontSize:13, color:'var(--ink)' }}>{s.clase}</td>
+                    <td style={{ padding:'11px 16px', fontSize:12, color:'var(--wood-light)' }}>{s.nivel}</td>
+                    <td style={{ padding:'11px 16px', textAlign:'center' }}>
+                      <button onClick={() => deleteSchedule(s.id)}
+                        style={{ background:'none', border:'none', cursor:'pointer', color:'rgba(122,92,58,0.4)', fontSize:16 }} title="Eliminar">
+                        ✕
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 // ══════════════════════════════
 // PANEL DE MÉTRICAS
@@ -804,19 +930,9 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* ═══ ANUNCIOS ═══ */}
+          {/* ═══ ANUNCIOS / HORARIOS ═══ */}
           {section === 'anuncios' && (
-            <div>
-              <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24 }}>
-                <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:400, color:'var(--ink)', marginBottom:8 }}>Mis anuncios en el tablero</div>
-                <p style={{ fontSize:13, color:'var(--wood-light)', lineHeight:1.7, marginBottom:20 }}>
-                  Publicá torneos, eventos, promociones y novedades que aparecen en el tablero comunitario visible para todos los usuarios.
-                </p>
-                <Link href="/tablero" style={{ display:'inline-flex', alignItems:'center', gap:8, background:'var(--crimson)', color:'#fff', padding:'10px 20px', borderRadius:3, textDecoration:'none', fontSize:12, textTransform:'uppercase', letterSpacing:'0.1em' }}>
-                  Ver tablero comunitario →
-                </Link>
-              </div>
-            </div>
+            <HorariosEditor schoolId={school.id} />
           )}
 
           {/* ═══ MÉTRICAS ═══ */}
