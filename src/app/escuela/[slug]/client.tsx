@@ -30,7 +30,8 @@ const FEATURES = [
 
 export default function SchoolProfileClient({ school }: { school: School }) {
   const [modal, setModal]     = useState(false)
-  const [reviews, setReviews]   = useState<any[]>([])
+  const [reviews, setReviews]     = useState<any[]>([])
+  const [schedules, setSchedules] = useState<any[]>([])
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [reviewForm, setReviewForm] = useState({ author:'', rating:5, text:'' })
   const [reviewSaving, setReviewSaving] = useState(false)
@@ -66,15 +67,17 @@ export default function SchoolProfileClient({ school }: { school: School }) {
 
   const STEP_LABELS = ['Tus datos', 'Elegí horario', 'Confirmación']
 
-  // Cargar reseñas de Supabase
+  // Cargar reseñas y horarios
   useEffect(() => {
     const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    fetch(`${url}/rest/v1/reviews?school_id=eq.${school.id}&reported=eq.false&order=created_at.desc&limit=10`, {
-      headers: { 'apikey': anon, 'Authorization': `Bearer ${anon}` }
-    }).then(r => r.json()).then(data => {
-      if (Array.isArray(data)) setReviews(data)
-    }).catch(() => {})
+    const h    = { 'apikey': anon, 'Authorization': `Bearer ${anon}` }
+    // Reseñas
+    fetch(`${url}/rest/v1/reviews?school_id=eq.${school.id}&reported=eq.false&order=created_at.desc&limit=10`, { headers: h })
+      .then(r => r.json()).then(data => { if (Array.isArray(data)) setReviews(data) }).catch(() => {})
+    // Horarios
+    fetch(`${url}/rest/v1/class_schedules?school_id=eq.${school.id}&order=sort_order`, { headers: h })
+      .then(r => r.json()).then(data => { if (Array.isArray(data)) setSchedules(data) }).catch(() => {})
   }, [school.id])
 
   async function submitReview() {
@@ -291,10 +294,40 @@ export default function SchoolProfileClient({ school }: { school: School }) {
             </div>
           )}
 
-        </div>
+          {/* Horarios */}
+          {schedules.length > 0 && (
+            <div className="etd-section-card">
+              <div className="etd-section-card-header">
+                <span className="etd-section-card-title">Horarios de clases</span>
+              </div>
+              <div className="etd-section-card-body" style={{ padding:0 }}>
+                <div style={{ overflowX:'auto' }}>
+                  <table style={{ width:'100%', borderCollapse:'collapse' }}>
+                    <thead>
+                      <tr style={{ background:'var(--parchment-dark)' }}>
+                        {['Día','Horario','Clase','Nivel'].map((h,i) => (
+                          <th key={i} style={{ padding:'10px 16px', fontSize:11, textAlign:'left', fontWeight:500, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.08em', whiteSpace:'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {schedules.map((s, i) => (
+                        <tr key={s.id} style={{ borderTop:'1px solid rgba(122,92,58,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(122,92,58,0.02)' }}>
+                          <td style={{ padding:'11px 16px', fontSize:13, fontWeight:500, color:'var(--ink)', whiteSpace:'nowrap' }}>{s.dia}</td>
+                          <td style={{ padding:'11px 16px', fontSize:13, color:'var(--crimson)', whiteSpace:'nowrap', fontWeight:500 }}>{s.hora_inicio} – {s.hora_fin}</td>
+                          <td style={{ padding:'11px 16px', fontSize:13, color:'var(--ink)' }}>{s.clase}</td>
+                          <td style={{ padding:'11px 16px', fontSize:12, color:'var(--wood-light)' }}>{s.nivel}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
 
-        {/* Reseñas */}
-        <div className="etd-section-card" style={{ gridColumn:'1 / -1' }}>
+          {/* Reseñas — dentro de la columna principal */}
+          <div className="etd-section-card">
           <div className="etd-section-card-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
             <span className="etd-section-card-title">Reseñas ({reviews.length || school.review_count || 0})</span>
             <button onClick={() => setShowReviewForm(!showReviewForm)}
@@ -370,6 +403,8 @@ export default function SchoolProfileClient({ school }: { school: School }) {
               </div>
             )}
           </div>
+        </div>
+
         </div>
 
         {/* Sidebar */}

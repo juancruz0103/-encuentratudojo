@@ -75,6 +75,13 @@ export async function getPublicSchoolBySlug(slug: string) {
   return data[0] ?? null
 }
 
+export async function getPublicSchoolSchedules(schoolId: number) {
+  return fetchPublic('class_schedules', [
+    `school_id=eq.${schoolId}`,
+    'order=sort_order',
+  ].join('&'))
+}
+
 // ── Disciplinas ──
 export async function getPublicDisciplines() {
   return fetchPublic('disciplines', 'select=*&order=sort_order')

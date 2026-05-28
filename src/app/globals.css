@@ -118,7 +118,7 @@ a { text-decoration: none; }
 .etd-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── PERFIL ── */
-.etd-profile-layout { max-width: 1200px; margin: 0 auto; padding: 40px 48px 80px; display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+.etd-profile-layout { max-width: 1200px; margin: 0 auto; padding: 40px 48px 80px; display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
 .etd-section-card { background: #fff; border: 1px solid rgba(122,92,58,0.1); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
 .etd-section-card-header { padding: 18px 24px; border-bottom: 1px solid rgba(122,92,58,0.08); display: flex; align-items: center; justify-content: space-between; }
 .etd-section-card-title { font-family: var(--font-display); font-size: 20px; font-weight: 400; color: var(--ink); }
@@ -287,6 +287,7 @@ a { text-decoration: none; }
   .etd-profile-layout { 
     grid-template-columns: 1fr; padding: 16px; gap: 16px;
   }
+  .etd-profile-layout > div:last-child { order: -1; }
   .etd-cta-card { position: relative; top: 0; }
 
   /* ── TABLERO MOBILE ── */
