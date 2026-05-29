@@ -489,8 +489,16 @@ export default function SchoolProfileClient({ school }: { school: School }) {
             </div>
           </div>
 
+          {/* Botón comparar */}
+          <div style={{ marginTop:12 }}>
+            <Link href={`/comparar?a=${school.slug}`}
+              style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', background:'rgba(122,92,58,0.08)', color:'var(--wood-light)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500, padding:11, borderRadius:3, border:'1px solid rgba(122,92,58,0.15)', textDecoration:'none' }}>
+              比 Comparar con otra escuela
+            </Link>
+          </div>
+
           {/* Quick info */}
-          <div className="etd-section-card" style={{ marginTop:16 }}>
+          <div className="etd-section-card" style={{ marginTop:12 }}>
             {quickInfo.map((row, i) => (
               <div key={`info-${i}`} style={{ display:'flex', justifyContent:'space-between', padding:'11px 20px', borderBottom: i < quickInfo.length - 1 ? '1px solid rgba(122,92,58,0.06)' : 'none', fontSize:13 }}>
                 <span style={{ color:'var(--wood-light)' }}>{row.label}</span>
