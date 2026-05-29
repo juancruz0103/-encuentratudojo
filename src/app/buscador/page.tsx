@@ -41,7 +41,8 @@ function BuscadorContent() {
   const [query, setQuery]         = useState('')
   const [selDisc, setSelDisc]     = useState<string | null>(searchParams.get('disciplina'))
   const [selSubcats, setSelSubcats] = useState<Set<string>>(new Set())
-  const [selGeneral, setSelGeneral] = useState<Set<string>>(new Set())
+  const [selGeneral, setSelGeneral]   = useState<Set<string>>(new Set())
+  const [selBarrio,  setSelBarrio]    = useState<string>('')
   const [loading, setLoading]     = useState(true)
   const [selected, setSelected]   = useState<School | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -159,7 +160,7 @@ function BuscadorContent() {
     })
   }
   function clearAll() {
-    setSelDisc(null); setSelSubcats(new Set()); setSelGeneral(new Set()); setQuery('')
+    setSelDisc(null); setSelSubcats(new Set()); setSelGeneral(new Set()); setQuery(''); setSelBarrio('')
   }
   function flyTo(school: School) {
     if (!mapInst.current || !school.lat || !school.lng) return
@@ -167,9 +168,12 @@ function BuscadorContent() {
     setSelected(school)
   }
 
-  const hasFilters = selDisc || selSubcats.size > 0 || selGeneral.size > 0 || query
+  const hasFilters = selDisc || selSubcats.size > 0 || selGeneral.size > 0 || query || selBarrio
   const currentSubcats = selDisc ? (SUBCATS_BY_DISC[selDisc] ?? []) : []
   const discColor = selDisc ? (DISC_COLORS[selDisc] ?? '#8b1a1a') : null
+
+  // Barrios únicos de las escuelas cargadas
+  const barrios = [...new Set(schools.map(s => s.neighborhood).filter(Boolean))].sort()
 
   return (
     <main style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
@@ -210,6 +214,20 @@ function BuscadorContent() {
                 <button onClick={clearAll} style={{ fontSize:10, color:'var(--crimson)', background:'none', border:'none', cursor:'pointer', fontFamily:'var(--font-body)' }}>✕ Limpiar todo</button>
               )}
             </div>
+          </div>
+
+          {/* Filtro por barrio/ciudad */}
+          <div style={{ padding:'10px 16px', borderBottom:'1px solid rgba(122,92,58,0.08)', flexShrink:0 }}>
+            <div style={{ fontSize:9, textTransform:'uppercase', letterSpacing:'0.15em', color:'var(--wood-light)', marginBottom:7 }}>Barrio o ciudad</div>
+            <select
+              value={selBarrio}
+              onChange={e => setSelBarrio(e.target.value)}
+              style={{ width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'7px 10px', fontSize:12, fontFamily:'var(--font-body)', outline:'none', color: selBarrio ? 'var(--ink)' : 'var(--wood-light)', background:'#fff', cursor:'pointer' }}>
+              <option value="">Todos los barrios</option>
+              {barrios.map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
           </div>
 
           {/* Filtro disciplinas */}
