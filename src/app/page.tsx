@@ -226,7 +226,7 @@ export default async function HomePage() {
             <span style={{ fontFamily: 'var(--font-display)', color: 'rgba(250,248,244,0.4)', fontSize: '16px' }}>EncuentraTuDojo</span>
           </div>
           <div style={{ display: 'flex', gap: '28px' }}>
-            {[['Buscador', '/buscador'], ['Tablero', '/tablero'], ['Ingresar', '/auth']].map(([l, h]) => (
+            {[['Buscador', '/buscador'], ['Tablero', '/tablero'], ['Para escuelas', '/para-escuelas'], ['Ingresar', '/auth']].map(([l, h]) => (
               <Link key={l} href={h} style={{ fontSize: '11px', color: 'rgba(250,248,244,0.25)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{l}</Link>
             ))}
           </div>

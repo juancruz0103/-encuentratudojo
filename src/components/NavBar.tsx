@@ -19,7 +19,7 @@ export default function NavBar({ currentPath = '' }: { currentPath?: string }) {
           <Link href="/buscador" className="etd-nav-link" onClick={() => setOpen(false)}>Buscador</Link>
           <Link href="/tablero"  className="etd-nav-link" onClick={() => setOpen(false)}>Tablero</Link>
           <Link href="/comparar" className="etd-nav-link" onClick={() => setOpen(false)}>Comparar</Link>
-          <Link href="/registro" className="etd-nav-link" onClick={() => setOpen(false)}>Registrar escuela</Link>
+          <Link href="/para-escuelas" className="etd-nav-link" onClick={() => setOpen(false)}>Para escuelas</Link>
           <Link href="/auth"     className="etd-nav-cta"  onClick={() => setOpen(false)}>Ingresar</Link>
         </div>
 

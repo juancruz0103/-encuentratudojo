@@ -15,21 +15,201 @@ function calcTier(n: number): { tier: CommissionTier; rate: number; fee: number;
   return               { tier:'multisede',   rate:0.50, fee:+(n*0.50).toFixed(2), min:401, max:999  }
 }
 
-const SECTIONS = ['overview','leads','anuncios','metricas','comision','perfil'] as const
+const SECTIONS = ['overview','leads','anuncios','publicar','metricas','comision','perfil'] as const
 type Section = typeof SECTIONS[number]
 
 const SECTION_LABELS: Record<Section, string> = {
   overview: 'Resumen', leads: 'Mis leads', anuncios: 'Horarios',
-  metricas: 'Métricas', comision: 'Mi comisión', perfil: 'Perfil'
+  publicar: 'Publicar', metricas: 'Métricas', comision: 'Mi comisión', perfil: 'Perfil'
 }
 
 const NAV_ICONS: Record<Section, string> = {
-  overview:'▦', leads:'◎', anuncios:'✦', metricas:'↗', comision:'$', perfil:'◉'
+  overview:'▦', leads:'◎', anuncios:'✦', publicar:'✉', metricas:'↗', comision:'$', perfil:'◉'
 }
 
 
 
 
+
+
+// ══════════════════════════════
+// PUBLICAR ANUNCIO EN TABLERO
+// ══════════════════════════════
+const TIPOS_ANUNCIO = [
+  { id:'torneo',  label:'Torneo',          kanji:'武' },
+  { id:'evento',  label:'Evento',          kanji:'祭' },
+  { id:'promo',   label:'Promoción',       kanji:'春' },
+  { id:'clase',   label:'Clase especial',  kanji:'道' },
+  { id:'novedad', label:'Novedad',         kanji:'新' },
+]
+
+function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; schoolName: string }) {
+  const [myAnnouncements, setMyAnnouncements] = useState<any[]>([])
+  const [loading, setLoading]   = useState(true)
+  const [saving,  setSaving]    = useState(false)
+  const [saved,   setSaved]     = useState(false)
+  const [error,   setError]     = useState<string|null>(null)
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({
+    type: 'promo',
+    title: '',
+    description: '',
+    date_start: '',
+    date_end: '',
+    location: schoolName,
+    time_info: '',
+    enrollment: '',
+  })
+
+  const sb = createClient()
+  const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }))
+
+  useEffect(() => {
+    sb.from('announcements').select('*').eq('school_id', schoolId).order('created_at', { ascending: false })
+      .then(({ data }) => { setMyAnnouncements(data ?? []); setLoading(false) })
+  }, [schoolId])
+
+  async function handlePublish() {
+    if (!form.title.trim() || !form.description.trim()) { setError('Título y descripción son obligatorios'); return }
+    setSaving(true); setError(null)
+    const { data, error: err } = await sb.from('announcements').insert({
+      school_id:   schoolId,
+      type:        form.type,
+      status:      'activo',
+      title:       form.title,
+      description: form.description,
+      date_start:  form.date_start || null,
+      date_end:    form.date_end   || null,
+      location:    form.location,
+      time_info:   form.time_info  || 'A confirmar',
+      enrollment:  form.enrollment || 'Consultar',
+      views: 0, clicks: 0,
+    }).select().single()
+
+    if (err) { setError(err.message); setSaving(false); return }
+    setMyAnnouncements(prev => [data, ...prev])
+    setForm({ type:'promo', title:'', description:'', date_start:'', date_end:'', location:schoolName, time_info:'', enrollment:'' })
+    setShowForm(false); setSaved(true); setSaving(false)
+    setTimeout(() => setSaved(false), 3000)
+  }
+
+  async function deleteAnnouncement(id: number) {
+    if (!confirm('¿Eliminár este anuncio?')) return
+    await sb.from('announcements').update({ status: 'borrador' }).eq('id', id)
+    setMyAnnouncements(prev => prev.filter(a => a.id !== id))
+  }
+
+  const inp = { width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'10px 14px', fontSize:14, fontFamily:'var(--font-body)', outline:'none', background:'#fff', boxSizing:'border-box' as const }
+  const lbl = { fontSize:11, textTransform:'uppercase' as const, letterSpacing:'0.1em', color:'var(--wood-light)', display:'block' as const, marginBottom:5, fontWeight:500 }
+
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:'16px 24px', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
+        <div>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:20, color:'var(--ink)' }}>Publicar en el tablero comunitario</div>
+          <div style={{ fontSize:12, color:'var(--wood-light)', marginTop:2 }}>Tus anuncios aparecen en el tablero público visible para todos los usuarios</div>
+        </div>
+        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+          {saved && <span style={{ fontSize:13, color:'#27ae60' }}>✓ Publicado en el tablero</span>}
+          <button onClick={() => setShowForm(!showForm)}
+            style={{ padding:'9px 20px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:500 }}>
+            {showForm ? '✕ Cancelar' : '+ Nuevo anuncio'}
+          </button>
+        </div>
+      </div>
+
+      {/* Formulario nuevo anuncio */}
+      {showForm && (
+        <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24, marginBottom:16 }}>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:17, color:'var(--ink)', marginBottom:16 }}>Nuevo anuncio</div>
+          {error && <div style={{ padding:'10px 14px', background:'rgba(192,57,43,0.1)', border:'1px solid rgba(192,57,43,0.2)', borderRadius:4, color:'var(--crimson)', fontSize:13, marginBottom:14 }}>{error}</div>}
+
+          {/* Tipo */}
+          <div style={{ marginBottom:16 }}>
+            <label style={lbl}>Tipo de anuncio</label>
+            <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+              {TIPOS_ANUNCIO.map(t => (
+                <button key={t.id} onClick={() => set('type', t.id)}
+                  style={{ padding:'6px 14px', fontSize:12, borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', border:'none', transition:'all 0.15s',
+                    background: form.type === t.id ? 'var(--ink)' : 'var(--parchment-dark)',
+                    color: form.type === t.id ? 'var(--gold)' : 'var(--ink-soft)' }}>
+                  <span style={{ fontFamily:'var(--font-jp)', marginRight:5 }}>{t.kanji}</span>{t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:14 }}>
+            <div>
+              <label style={lbl}>Título *</label>
+              <input style={inp} value={form.title} onChange={e => set('title', e.target.value)} placeholder="Ej: Torneo de Karate — Julio 2025" />
+            </div>
+            <div>
+              <label style={lbl}>Descripción *</label>
+              <textarea style={{ ...inp, resize:'vertical', lineHeight:1.6 }} rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describí el anuncio en detalle..." />
+            </div>
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:12, marginTop:12 }}>
+            <div><label style={lbl}>Fecha inicio</label><input type="date" style={inp} value={form.date_start} onChange={e => set('date_start', e.target.value)} /></div>
+            <div><label style={lbl}>Fecha fin</label><input type="date" style={inp} value={form.date_end} onChange={e => set('date_end', e.target.value)} /></div>
+            <div><label style={lbl}>Horario</label><input style={inp} value={form.time_info} onChange={e => set('time_info', e.target.value)} placeholder="14:00 a 18:00 hs" /></div>
+            <div><label style={lbl}>Inscripción</label><input style={inp} value={form.enrollment} onChange={e => set('enrollment', e.target.value)} placeholder="$2.500 / Gratuita" /></div>
+            <div><label style={lbl}>Ubicación</label><input style={inp} value={form.location} onChange={e => set('location', e.target.value)} /></div>
+          </div>
+
+          <div style={{ marginTop:16, display:'flex', gap:10 }}>
+            <button onClick={() => setShowForm(false)} style={{ padding:'10px 20px', background:'var(--parchment-dark)', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', fontSize:13 }}>Cancelar</button>
+            <button onClick={handlePublish} disabled={saving}
+              style={{ flex:1, padding:'11px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', fontSize:13, fontWeight:500, opacity: saving ? 0.7 : 1 }}>
+              {saving ? 'Publicando...' : '✓ Publicar en el tablero'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Mis anuncios */}
+      <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+        <div style={{ padding:'14px 20px', borderBottom:'1px solid rgba(122,92,58,0.08)', fontFamily:'var(--font-display)', fontSize:17, color:'var(--ink)' }}>
+          Mis anuncios ({myAnnouncements.length})
+        </div>
+        {loading ? (
+          <div style={{ padding:40, textAlign:'center', color:'var(--wood-light)' }}>Cargando...</div>
+        ) : myAnnouncements.length === 0 ? (
+          <div style={{ padding:'48px 20px', textAlign:'center' }}>
+            <div style={{ fontFamily:'var(--font-jp)', fontSize:40, color:'rgba(122,92,58,0.15)', marginBottom:12 }}>無</div>
+            <div style={{ fontSize:14, color:'var(--wood-light)' }}>Todavía no publicaste anuncios. Usá el botón de arriba para crear el primero.</div>
+          </div>
+        ) : (
+          <div>
+            {myAnnouncements.map((a, i) => (
+              <div key={a.id} style={{ padding:'14px 20px', borderTop: i > 0 ? '1px solid rgba(122,92,58,0.06)' : 'none', display:'flex', alignItems:'flex-start', gap:14 }}>
+                <div style={{ width:36, height:36, borderRadius:4, background:'rgba(122,92,58,0.08)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--font-jp)', fontSize:18, color:'var(--wood-light)', flexShrink:0 }}>
+                  {TIPOS_ANUNCIO.find(t => t.id === a.type)?.kanji ?? '武'}
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:2 }}>
+                    <span style={{ fontSize:14, fontWeight:500, color:'var(--ink)' }}>{a.title}</span>
+                    <span style={{ fontSize:10, padding:'2px 7px', borderRadius:2, background: a.status === 'activo' ? 'rgba(39,174,96,0.1)' : 'rgba(122,92,58,0.1)', color: a.status === 'activo' ? '#27ae60' : 'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.08em' }}>
+                      {a.status}
+                    </span>
+                  </div>
+                  <div style={{ fontSize:12, color:'var(--wood-light)' }}>
+                    {a.date_start && `📅 ${a.date_start}`}{a.date_start && a.location && ' · '}{a.location && `📍 ${a.location}`}
+                    {' · '}<span>{a.views} vistas · {a.clicks} clicks</span>
+                  </div>
+                </div>
+                <button onClick={() => deleteAnnouncement(a.id)}
+                  style={{ background:'none', border:'none', cursor:'pointer', color:'rgba(122,92,58,0.3)', fontSize:16, flexShrink:0, padding:4 }} title="Eliminar">✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 // ══════════════════════════════
 // EDITOR DE HORARIOS
@@ -933,6 +1113,11 @@ export default function DashboardPage() {
           {/* ═══ ANUNCIOS / HORARIOS ═══ */}
           {section === 'anuncios' && (
             <HorariosEditor schoolId={school.id} />
+          )}
+
+          {/* ═══ PUBLICAR ANUNCIO ═══ */}
+          {section === 'publicar' && (
+            <PublicarAnuncioPanel schoolId={school.id} schoolName={school.name} />
           )}
 
           {/* ═══ MÉTRICAS ═══ */}

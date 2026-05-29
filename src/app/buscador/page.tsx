@@ -43,6 +43,8 @@ function BuscadorContent() {
   const [selSubcats, setSelSubcats] = useState<Set<string>>(new Set())
   const [selGeneral, setSelGeneral]   = useState<Set<string>>(new Set())
   const [selBarrio,  setSelBarrio]    = useState<string>('')
+  const [geoLoading, setGeoLoading]  = useState(false)
+  const [geoActive,  setGeoActive]   = useState(false)
   const [loading, setLoading]     = useState(true)
   const [selected, setSelected]   = useState<School | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -162,6 +164,35 @@ function BuscadorContent() {
   function clearAll() {
     setSelDisc(null); setSelSubcats(new Set()); setSelGeneral(new Set()); setQuery(''); setSelBarrio('')
   }
+  function usarMiUbicacion() {
+    if (!navigator.geolocation) { alert('Tu navegador no soporta geolocalización'); return }
+    setGeoLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords
+        if (mapInst.current) {
+          mapInst.current.flyTo([latitude, longitude], 13, { duration: 1 })
+          // Agregar marcador de posición actual
+          const L = (window as any).L
+          if (L) {
+            const icon = L.divIcon({
+              html: `<div style="width:16px;height:16px;border-radius:50%;background:#2e86c1;border:3px solid #fff;box-shadow:0 0 0 3px rgba(46,134,193,0.3)"></div>`,
+              className:'', iconSize:[16,16], iconAnchor:[8,8]
+            })
+            L.marker([latitude, longitude], { icon })
+              .bindPopup('<div style="background:#0e0c0b;color:#faf8f4;padding:8px 12px;font-size:12px">📍 Tu ubicación</div>', { className:'etd-map-popup' })
+              .addTo(mapInst.current)
+              .openPopup()
+          }
+        }
+        setGeoActive(true)
+        setGeoLoading(false)
+      },
+      () => { alert('No se pudo obtener tu ubicación'); setGeoLoading(false) },
+      { timeout: 8000 }
+    )
+  }
+
   function flyTo(school: School) {
     if (!mapInst.current || !school.lat || !school.lng) return
     mapInst.current.flyTo([school.lat, school.lng], 15, { duration: 0.8 })
@@ -214,6 +245,13 @@ function BuscadorContent() {
                 <button onClick={clearAll} style={{ fontSize:10, color:'var(--crimson)', background:'none', border:'none', cursor:'pointer', fontFamily:'var(--font-body)' }}>✕ Limpiar todo</button>
               )}
             </div>
+            {/* Botón geolocalización */}
+            <button onClick={usarMiUbicacion} disabled={geoLoading}
+              style={{ marginTop:8, width:'100%', padding:'7px 12px', fontSize:11, borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', border:'1px solid rgba(122,92,58,0.2)', transition:'all 0.15s',
+                background: geoActive ? 'rgba(46,134,193,0.1)' : 'transparent',
+                color: geoActive ? '#2e86c1' : 'var(--wood-light)' }}>
+              {geoLoading ? '📍 Buscando...' : geoActive ? '📍 Ubicación activa' : '📍 Cerca de mí'}
+            </button>
           </div>
 
           {/* Filtro por barrio/ciudad */}
