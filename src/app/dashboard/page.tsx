@@ -310,7 +310,7 @@ function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; scho
                     {' · '}<span>{a.views} vistas · {a.clicks} clicks</span>
                   </div>
                 </div>
-                <div style={{ display:'flex', gap:6', flexShrink:0 }}>
+                <div style={{ display:'flex', gap:6, flexShrink:0 }}>
                   <button onClick={() => startEdit(a)}
                     style={{ background:'none', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, cursor:'pointer', color:'var(--wood-light)', fontSize:11, padding:'3px 8px', fontFamily:'var(--font-body)' }}>Editar</button>
                   <button onClick={() => deleteAnnouncement(a.id)}
