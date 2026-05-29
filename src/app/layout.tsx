@@ -65,6 +65,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             });
           }
         `}} />
+        {/* Google Analytics — reemplazar G-XXXXXXXXXX con tu ID real */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <script async src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} />
+            <script dangerouslySetInnerHTML={{ __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', { page_path: window.location.pathname });
+            `}} />
+          </>
+        )}
       </head>
       <body style={{ fontFamily: "'DM Sans', sans-serif" }}>{children}</body>
     </html>

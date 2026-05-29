@@ -44,6 +44,7 @@ function BuscadorContent() {
   const [selGeneral, setSelGeneral]   = useState<Set<string>>(new Set())
   const [selBarrio,  setSelBarrio]    = useState<string>('')
   const [geoLoading, setGeoLoading]  = useState(false)
+  const [minRating,  setMinRating]   = useState<number>(0)
   const [geoActive,  setGeoActive]   = useState(false)
   const [loading, setLoading]     = useState(true)
   const [selected, setSelected]   = useState<School | null>(null)
@@ -139,6 +140,7 @@ function BuscadorContent() {
     if (q)        result = result.filter(s => [s.name, s.neighborhood, s.city, s.discipline?.label ?? ''].some(f => norm(f).includes(norm(q))))
     if (subcats.size > 0) result = result.filter(s => [...subcats].some(sub => s.subcats?.some(sc => sc.name === sub)))
     if (general.size > 0) result = result.filter(s => [...general].every(gid => FILTROS_GENERALES.find(f => f.id === gid)?.fn(s)))
+    if (minRating > 0)   result = result.filter(s => (s.rating ?? 0) >= minRating)
     setFiltered(result)
     if (mapInst.current) addMarkers(result)
   }, [])
@@ -162,7 +164,7 @@ function BuscadorContent() {
     })
   }
   function clearAll() {
-    setSelDisc(null); setSelSubcats(new Set()); setSelGeneral(new Set()); setQuery(''); setSelBarrio('')
+    setSelDisc(null); setSelSubcats(new Set()); setSelGeneral(new Set()); setQuery(''); setSelBarrio(''); setMinRating(0)
   }
   function usarMiUbicacion() {
     if (!navigator.geolocation) { alert('Tu navegador no soporta geolocalización'); return }
@@ -199,7 +201,7 @@ function BuscadorContent() {
     setSelected(school)
   }
 
-  const hasFilters = selDisc || selSubcats.size > 0 || selGeneral.size > 0 || query || selBarrio
+  const hasFilters = selDisc || selSubcats.size > 0 || selGeneral.size > 0 || query || selBarrio || minRating > 0
   const currentSubcats = selDisc ? (SUBCATS_BY_DISC[selDisc] ?? []) : []
   const discColor = selDisc ? (DISC_COLORS[selDisc] ?? '#8b1a1a') : null
 
@@ -319,6 +321,22 @@ function BuscadorContent() {
                     color: selGeneral.has(f.id) ? 'var(--gold)' : 'var(--ink-soft)',
                     border: `1px solid ${selGeneral.has(f.id) ? 'var(--ink)' : 'rgba(122,92,58,0.2)'}` }}>
                   {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Rating mínimo */}
+          <div style={{ padding:'10px 16px', borderBottom:'1px solid rgba(122,92,58,0.08)', flexShrink:0 }}>
+            <div style={{ fontSize:9, textTransform:'uppercase', letterSpacing:'0.15em', color:'var(--wood-light)', marginBottom:7 }}>Rating mínimo</div>
+            <div style={{ display:'flex', gap:6 }}>
+              {[0,3,4,5].map(r => (
+                <button key={r} onClick={() => setMinRating(r)}
+                  style={{ flex:1, padding:'5px 4px', fontSize:11, borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', border:'none', transition:'all 0.15s', textAlign:'center',
+                    background: minRating === r ? 'var(--ink)' : 'transparent',
+                    color: minRating === r ? 'var(--gold)' : 'var(--ink-soft)',
+                    outline: minRating === r ? 'none' : '1px solid rgba(122,92,58,0.2)' }}>
+                  {r === 0 ? 'Todos' : `${r}★+`}
                 </button>
               ))}
             </div>

@@ -132,11 +132,12 @@ const TIPOS_ANUNCIO = [
 
 function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; schoolName: string }) {
   const [myAnnouncements, setMyAnnouncements] = useState<any[]>([])
-  const [loading, setLoading]   = useState(true)
-  const [saving,  setSaving]    = useState(false)
-  const [saved,   setSaved]     = useState(false)
-  const [error,   setError]     = useState<string|null>(null)
-  const [showForm, setShowForm] = useState(false)
+  const [loading,   setLoading]   = useState(true)
+  const [saving,    setSaving]    = useState(false)
+  const [saved,     setSaved]     = useState(false)
+  const [error,     setError]     = useState<string|null>(null)
+  const [showForm,  setShowForm]  = useState(false)
+  const [editingId, setEditingId] = useState<number|null>(null)
   const [form, setForm] = useState({
     type: 'promo',
     title: '',
@@ -156,25 +157,47 @@ function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; scho
       .then(({ data }) => { setMyAnnouncements(data ?? []); setLoading(false) })
   }, [schoolId])
 
+  function startEdit(ann: any) {
+    setEditingId(ann.id)
+    setForm({
+      type:        ann.type,
+      title:       ann.title,
+      description: ann.description,
+      date_start:  ann.date_start ?? '',
+      date_end:    ann.date_end   ?? '',
+      location:    ann.location,
+      time_info:   ann.time_info  ?? '',
+      enrollment:  ann.enrollment ?? '',
+    })
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   async function handlePublish() {
     if (!form.title.trim() || !form.description.trim()) { setError('Título y descripción son obligatorios'); return }
     setSaving(true); setError(null)
-    const { data, error: err } = await sb.from('announcements').insert({
-      school_id:   schoolId,
-      type:        form.type,
-      status:      'activo',
-      title:       form.title,
-      description: form.description,
-      date_start:  form.date_start || null,
-      date_end:    form.date_end   || null,
-      location:    form.location,
-      time_info:   form.time_info  || 'A confirmar',
-      enrollment:  form.enrollment || 'Consultar',
-      views: 0, clicks: 0,
-    }).select().single()
-
-    if (err) { setError(err.message); setSaving(false); return }
-    setMyAnnouncements(prev => [data, ...prev])
+    if (editingId) {
+      // Editar existente
+      const { error: err } = await sb.from('announcements').update({
+        type: form.type, title: form.title, description: form.description,
+        date_start: form.date_start || null, date_end: form.date_end || null,
+        location: form.location, time_info: form.time_info || 'A confirmar', enrollment: form.enrollment || 'Consultar',
+      }).eq('id', editingId)
+      if (err) { setError(err.message); setSaving(false); return }
+      setMyAnnouncements(prev => prev.map(a => a.id === editingId ? { ...a, ...form } : a))
+      setEditingId(null)
+    } else {
+      // Crear nuevo
+      const { data, error: err } = await sb.from('announcements').insert({
+        school_id: schoolId, type: form.type, status: 'activo',
+        title: form.title, description: form.description,
+        date_start: form.date_start || null, date_end: form.date_end || null,
+        location: form.location, time_info: form.time_info || 'A confirmar',
+        enrollment: form.enrollment || 'Consultar', views: 0, clicks: 0,
+      }).select().single()
+      if (err) { setError(err.message); setSaving(false); return }
+      setMyAnnouncements(prev => [data, ...prev])
+    }
     setForm({ type:'promo', title:'', description:'', date_start:'', date_end:'', location:schoolName, time_info:'', enrollment:'' })
     setShowForm(false); setSaved(true); setSaving(false)
     setTimeout(() => setSaved(false), 3000)
@@ -201,7 +224,7 @@ function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; scho
           {saved && <span style={{ fontSize:13, color:'#27ae60' }}>✓ Publicado en el tablero</span>}
           <button onClick={() => setShowForm(!showForm)}
             style={{ padding:'9px 20px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:500 }}>
-            {showForm ? '✕ Cancelar' : '+ Nuevo anuncio'}
+            {showForm ? '✕ Cancelar' : editingId ? 'Editando anuncio' : '+ Nuevo anuncio'}
           </button>
         </div>
       </div>
@@ -250,7 +273,7 @@ function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; scho
             <button onClick={() => setShowForm(false)} style={{ padding:'10px 20px', background:'var(--parchment-dark)', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', fontSize:13 }}>Cancelar</button>
             <button onClick={handlePublish} disabled={saving}
               style={{ flex:1, padding:'11px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', fontSize:13, fontWeight:500, opacity: saving ? 0.7 : 1 }}>
-              {saving ? 'Publicando...' : '✓ Publicar en el tablero'}
+              {saving ? 'Guardando...' : editingId ? '✓ Guardar cambios' : '✓ Publicar en el tablero'}
             </button>
           </div>
         </div>
@@ -287,8 +310,12 @@ function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; scho
                     {' · '}<span>{a.views} vistas · {a.clicks} clicks</span>
                   </div>
                 </div>
-                <button onClick={() => deleteAnnouncement(a.id)}
-                  style={{ background:'none', border:'none', cursor:'pointer', color:'rgba(122,92,58,0.3)', fontSize:16, flexShrink:0, padding:4 }} title="Eliminar">✕</button>
+                <div style={{ display:'flex', gap:6', flexShrink:0 }}>
+                  <button onClick={() => startEdit(a)}
+                    style={{ background:'none', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, cursor:'pointer', color:'var(--wood-light)', fontSize:11, padding:'3px 8px', fontFamily:'var(--font-body)' }}>Editar</button>
+                  <button onClick={() => deleteAnnouncement(a.id)}
+                    style={{ background:'none', border:'none', cursor:'pointer', color:'rgba(122,92,58,0.3)', fontSize:16, padding:4 }} title="Eliminar">✕</button>
+                </div>
               </div>
             ))}
           </div>
