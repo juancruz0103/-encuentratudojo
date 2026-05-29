@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { COMMISSION_TIERS } from '@/types/database'
@@ -31,6 +31,93 @@ const NAV_ICONS: Record<Section, string> = {
 
 
 
+
+
+// ══════════════════════════════
+// EDITOR DE FOTOS
+// ══════════════════════════════
+function FotosEditor({ schoolId }: { schoolId: number }) {
+  const [photos,    setPhotos]    = useState<any[]>([])
+  const [loading,   setLoading]   = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [error,     setError]     = useState<string|null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const sb = createClient()
+
+  useEffect(() => {
+    sb.from('school_photos').select('*').eq('school_id', schoolId).order('sort_order')
+      .then(({ data }) => { setPhotos(data ?? []); setLoading(false) })
+  }, [schoolId])
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    setUploading(true); setError(null)
+
+    for (const file of Array.from(files)) {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res  = await fetch('/api/photos', { method:'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error); break }
+      setPhotos(prev => [...prev, data.photo])
+    }
+    setUploading(false)
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  async function deletePhoto(id: number) {
+    await fetch('/api/photos', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ photoId: id }) })
+    setPhotos(prev => prev.filter(p => p.id !== id))
+  }
+
+  return (
+    <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', padding:24 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20, flexWrap:'wrap', gap:12 }}>
+        <div>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:18, color:'var(--ink)' }}>Fotos de la escuela</div>
+          <div style={{ fontSize:12, color:'var(--wood-light)', marginTop:2 }}>Las fotos aparecen en tu perfil público · Máximo 5MB por foto</div>
+        </div>
+        <button onClick={() => fileRef.current?.click()} disabled={uploading}
+          style={{ padding:'9px 20px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:500, opacity: uploading ? 0.7 : 1 }}>
+          {uploading ? 'Subiendo...' : '+ Subir fotos'}
+        </button>
+        <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} style={{ display:'none' }} />
+      </div>
+
+      {error && <div style={{ padding:'10px 14px', background:'rgba(192,57,43,0.1)', borderRadius:4, color:'var(--crimson)', fontSize:13, marginBottom:14 }}>{error}</div>}
+
+      {loading ? (
+        <div style={{ padding:32, textAlign:'center', color:'var(--wood-light)' }}>Cargando fotos...</div>
+      ) : photos.length === 0 ? (
+        <div style={{ padding:'32px', textAlign:'center', border:'2px dashed rgba(122,92,58,0.15)', borderRadius:6, cursor:'pointer' }}
+          onClick={() => fileRef.current?.click()}>
+          <div style={{ fontSize:32, marginBottom:10 }}>📷</div>
+          <div style={{ fontSize:14, color:'var(--ink)', marginBottom:4 }}>Subí fotos de tu dojo</div>
+          <div style={{ fontSize:12, color:'var(--wood-light)' }}>Click acá o arrastrá imágenes · JPG, PNG, WebP</div>
+        </div>
+      ) : (
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))', gap:12 }}>
+          {photos.map(p => (
+            <div key={p.id} style={{ position:'relative', aspectRatio:'4/3', borderRadius:6, overflow:'hidden', background:'var(--parchment-dark)' }}>
+              <img src={p.url} alt="Foto escuela" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+              <button onClick={() => deletePhoto(p.id)}
+                style={{ position:'absolute', top:6, right:6, width:26, height:26, borderRadius:'50%', background:'rgba(14,12,11,0.7)', border:'none', cursor:'pointer', color:'#fff', fontSize:12, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                ✕
+              </button>
+            </div>
+          ))}
+          {/* Agregar más */}
+          <div style={{ aspectRatio:'4/3', borderRadius:6, border:'2px dashed rgba(122,92,58,0.15)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexDirection:'column', gap:6 }}
+            onClick={() => fileRef.current?.click()}>
+            <div style={{ fontSize:24, color:'rgba(122,92,58,0.3)' }}>+</div>
+            <div style={{ fontSize:11, color:'var(--wood-light)' }}>Agregar</div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ══════════════════════════════
 // PUBLICAR ANUNCIO EN TABLERO
@@ -1127,7 +1214,12 @@ export default function DashboardPage() {
 
           {/* ═══ PERFIL ═══ */}
           {section === 'perfil' && (
-            <EditarPerfilEscuela school={school} />
+            <div>
+              <EditarPerfilEscuela school={school} />
+              <div style={{ marginTop:20 }}>
+                <FotosEditor schoolId={school.id} />
+              </div>
+            </div>
           )}
 
         </div>

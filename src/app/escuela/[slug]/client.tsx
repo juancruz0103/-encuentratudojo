@@ -33,6 +33,7 @@ export default function SchoolProfileClient({ school }: { school: School }) {
   const [isFav, setIsFav]       = useState(false)
   const [favLoading, setFavLoading] = useState(false)
   const [reviews, setReviews]     = useState<any[]>([])
+  const [photos,  setPhotos]      = useState<any[]>([])
   const [schedules, setSchedules] = useState<any[]>([])
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [reviewForm, setReviewForm] = useState({ author:'', rating:5, text:'' })
@@ -87,6 +88,9 @@ export default function SchoolProfileClient({ school }: { school: School }) {
     // Horarios
     fetch(`${url}/rest/v1/class_schedules?school_id=eq.${school.id}&order=sort_order`, { headers: h })
       .then(r => r.json()).then(data => { if (Array.isArray(data)) setSchedules(data) }).catch(() => {})
+    // Fotos
+    fetch(`${url}/rest/v1/school_photos?school_id=eq.${school.id}&order=sort_order`, { headers: h })
+      .then(r => r.json()).then(data => { if (Array.isArray(data)) setPhotos(data) }).catch(() => {})
   }, [school.id])
 
   function toggleFavorite() {
@@ -251,6 +255,29 @@ export default function SchoolProfileClient({ school }: { school: School }) {
 
         {/* Columna principal */}
         <div>
+
+          {/* Galería de fotos */}
+          {photos.length > 0 && (
+            <div className="etd-section-card">
+              <div className="etd-section-card-header">
+                <span className="etd-section-card-title">Fotos del dojo</span>
+              </div>
+              <div className="etd-section-card-body">
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))', gap:10 }}>
+                  {photos.map((p: any) => (
+                    <div key={p.id} style={{ aspectRatio:'4/3', borderRadius:6, overflow:'hidden', background:'var(--parchment-dark)' }}>
+                      <img src={p.url} alt={p.caption || 'Foto del dojo'}
+                        style={{ width:'100%', height:'100%', objectFit:'cover', cursor:'pointer', transition:'transform 0.2s' }}
+                        onMouseOver={e => (e.currentTarget.style.transform='scale(1.04)')}
+                        onMouseOut={e => (e.currentTarget.style.transform='scale(1)')}
+                        onClick={() => window.open(p.url, '_blank')}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Descripción */}
           <div className="etd-section-card">

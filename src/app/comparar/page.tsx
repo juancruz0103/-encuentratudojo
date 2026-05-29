@@ -119,7 +119,7 @@ function ComparadorContent() {
       <div style={{ maxWidth:1100, margin:'0 auto', padding:'32px clamp(16px,3vw,32px) 80px' }}>
 
         {/* SELECTORES */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr', gap:16, alignItems:'center', marginBottom:28 }}>
+        <div className='etd-compare-selectors' style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr', gap:16, alignItems:'center', marginBottom:28 }}>
           {/* Selector A */}
           <div style={{ background:'#fff', border:`2px solid ${colorA}`, borderRadius:'var(--radius)', padding:'12px 16px' }}>
             <div style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.14em', color:colorA, marginBottom:6, fontWeight:600 }}>Escuela A</div>
@@ -170,9 +170,10 @@ function ComparadorContent() {
         {/* COMPARACIÓN */}
         {!loading && (schoolA || schoolB) && (
           <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+            <div style={{ overflowX:'auto' }}>
 
             {/* Headers de las escuelas */}
-            <div style={{ display:'grid', gridTemplateColumns:'160px 1fr 1fr' }}>
+            <div className='etd-compare-header' style={{ display:'grid', gridTemplateColumns:'160px 1fr 1fr' }}>
               <div style={{ background:'var(--parchment-dark)', padding:'16px' }} />
 
               {/* Escuela A */}
@@ -213,9 +214,9 @@ function ComparadorContent() {
             {/* Tabla de comparación */}
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <colgroup>
-                <col style={{ width:160 }} />
-                <col style={{ width:'50%' }} />
-                <col style={{ width:'50%' }} />
+                <col className='etd-compare-col-label' style={{ width:120, minWidth:80 }} />
+                <col style={{ minWidth:140 }} />
+                <col style={{ minWidth:140 }} />
               </colgroup>
               <tbody>
 
@@ -315,7 +316,7 @@ function ComparadorContent() {
                 </div>
               </div>
             )}
-          </div>
+          </div></div>
         )}
       </div>
     </main>

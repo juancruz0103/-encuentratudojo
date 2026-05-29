@@ -366,3 +366,28 @@ a { text-decoration: none; }
     padding: 16px !important;
   }
 }
+
+/* ── COMPARADOR MOBILE ── */
+@media (max-width: 640px) {
+  .etd-compare-selectors {
+    grid-template-columns: 1fr !important;
+  }
+  .etd-compare-selectors > div:nth-child(2) {
+    text-align: center;
+    padding: 4px 0;
+  }
+  .etd-compare-header {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .etd-compare-header > div:first-child {
+    display: none !important;
+  }
+  .etd-compare-col-label {
+    width: 80px !important;
+    min-width: 70px !important;
+  }
+  table td, table th {
+    padding: 9px 10px !important;
+    font-size: 12px !important;
+  }
+}
