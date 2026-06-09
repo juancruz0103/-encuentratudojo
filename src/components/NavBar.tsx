@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const NAV_LINKS = [
   { label: 'Buscador',      href: '/buscador' },
@@ -13,20 +13,28 @@ const NAV_LINKS = [
 
 interface NavBarProps {
   activeLink?: string
-  /** Usar position:relative en vez de fixed (buscador usa layout flex-column) */
   relative?: boolean
 }
 
 export default function NavBar({ activeLink, relative }: NavBarProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
+
+  // Bloquear scroll del body cuando el menú está abierto
+  useEffect(() => {
+    if (!mounted) return
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [open, mounted])
 
   const isActive = (href: string) =>
     activeLink ? activeLink === href : pathname?.startsWith(href)
 
   return (
     <>
-      {/* NAV */}
       <nav
         className="etd-nav"
         style={relative ? { position: 'relative', flexShrink: 0 } : undefined}
@@ -64,77 +72,88 @@ export default function NavBar({ activeLink, relative }: NavBarProps) {
         </button>
       </nav>
 
-      {/* Overlay — solo si está abierto */}
-      {open && (
-        <div
-          onClick={() => setOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            zIndex: 9998,
-          }}
-        />
-      )}
-
-      {/* Menú mobile — siempre en el DOM, controlado por transform */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          background: '#0a0808',
-          paddingTop: 'var(--nav-h)',
-          transform: open ? 'translateY(0)' : 'translateY(-100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
-          borderBottom: '1px solid rgba(200,169,110,0.15)',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {NAV_LINKS.map(({ label, href }) => (
-          <Link
-            key={href}
-            href={href}
+      {/* Overlay y menú — solo después de mount para evitar SSR issues */}
+      {mounted && (
+        <>
+          {/* Overlay oscuro */}
+          <div
             onClick={() => setOpen(false)}
             style={{
-              display: 'block',
-              padding: '16px 24px',
-              fontSize: '13px',
-              fontWeight: 500,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              color: isActive(href) ? 'var(--gold)' : 'rgba(250,248,244,0.8)',
-              borderBottom: '1px solid rgba(200,169,110,0.06)',
-              textDecoration: 'none',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              background: 'rgba(0,0,0,0.6)',
+              zIndex: 9998,
+              opacity: open ? 1 : 0,
+              pointerEvents: open ? 'auto' : 'none',
+              transition: 'opacity 0.3s ease',
+            }}
+          />
+
+          {/* Menú mobile */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              zIndex: 9999,
+              background: '#0d0b0b',
+              paddingTop: 'var(--nav-h)',
+              transform: open ? 'translateY(0)' : 'translateY(-100%)',
+              transition: 'transform 0.32s cubic-bezier(0.4,0,0.2,1)',
+              borderBottom: '1px solid rgba(200,169,110,0.2)',
+              boxShadow: open ? '0 8px 32px rgba(0,0,0,0.6)' : 'none',
             }}
           >
-            {label}
-          </Link>
-        ))}
-        <Link
-          href="/auth"
-          onClick={() => setOpen(false)}
-          style={{
-            display: 'block',
-            margin: '16px 24px',
-            padding: '14px',
-            textAlign: 'center',
-            fontSize: '12px',
-            fontWeight: 500,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: 'var(--ink)',
-            background: 'var(--gold)',
-            borderRadius: '3px',
-            textDecoration: 'none',
-          }}
-        >
-          Ingresar
-        </Link>
-      </div>
+            {NAV_LINKS.map(({ label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setOpen(false)}
+                style={{
+                  display: 'block',
+                  padding: '18px 28px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  color: isActive(href) ? '#c8a96e' : '#f5f3ef',
+                  borderBottom: '1px solid rgba(200,169,110,0.08)',
+                  textDecoration: 'none',
+                  fontFamily: 'var(--font-body)',
+                }}
+              >
+                {label}
+              </Link>
+            ))}
+            <div style={{ padding: '20px 28px 28px' }}>
+              <Link
+                href="/auth"
+                onClick={() => setOpen(false)}
+                style={{
+                  display: 'block',
+                  padding: '16px',
+                  textAlign: 'center',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: '#1a0f0f',
+                  background: '#c8a96e',
+                  borderRadius: '4px',
+                  textDecoration: 'none',
+                  fontFamily: 'var(--font-body)',
+                }}
+              >
+                Ingresar
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
     </>
   )
 }
