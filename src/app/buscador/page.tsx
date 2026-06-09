@@ -171,7 +171,7 @@ export default function BuscadorPage() {
     <main style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
       {/* NAV */}
-<NavBar activeLink="/buscador" />
+<NavBar activeLink="/buscador" relative />
 
       <div style={{ flex:1, display:'grid', gridTemplateColumns:'340px 1fr', overflow:'hidden' }}>
 
