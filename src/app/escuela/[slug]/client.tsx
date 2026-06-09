@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
 import { trackContactEvent } from '@/lib/supabase/public'
@@ -29,16 +29,7 @@ const FEATURES = [
 ]
 
 export default function SchoolProfileClient({ school }: { school: School }) {
-  const [modal, setModal]       = useState(false)
-  const [isFav, setIsFav]       = useState(false)
-  const [favLoading, setFavLoading] = useState(false)
-  const [reviews, setReviews]     = useState<any[]>([])
-  const [photos,  setPhotos]      = useState<any[]>([])
-  const [schedules, setSchedules] = useState<any[]>([])
-  const [showReviewForm, setShowReviewForm] = useState(false)
-  const [reviewForm, setReviewForm] = useState({ author:'', rating:5, text:'' })
-  const [reviewSaving, setReviewSaving] = useState(false)
-  const [reviewSaved, setReviewSaved] = useState(false)
+  const [modal, setModal]     = useState(false)
   const [step, setStep]       = useState(1)
   const [slotIdx, setSlotIdx] = useState<number | null>(null)
   const [form, setForm]       = useState({ nombre:'', apellido:'', email:'', tel:'', nivel:'principiante' })
@@ -70,100 +61,21 @@ export default function SchoolProfileClient({ school }: { school: School }) {
 
   const STEP_LABELS = ['Tus datos', 'Elegí horario', 'Confirmación']
 
-  // Cargar reseñas y horarios
-  useEffect(() => {
-    const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    const h    = { 'apikey': anon, 'Authorization': `Bearer ${anon}` }
-    // Favorito
-    const sb_url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const sb_anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    if (typeof window !== 'undefined') {
-      const favs = (() => { try { return JSON.parse(localStorage.getItem('etd_favorites') || '[]') } catch { return [] } })()
-      setIsFav(favs.includes(school.id))
-    }
-    // Reseñas
-    fetch(`${url}/rest/v1/reviews?school_id=eq.${school.id}&reported=eq.false&order=created_at.desc&limit=10`, { headers: h })
-      .then(r => r.json()).then(data => { if (Array.isArray(data)) setReviews(data) }).catch(() => {})
-    // Horarios
-    fetch(`${url}/rest/v1/class_schedules?school_id=eq.${school.id}&order=sort_order`, { headers: h })
-      .then(r => r.json()).then(data => { if (Array.isArray(data)) setSchedules(data) }).catch(() => {})
-    // Fotos
-    fetch(`${url}/rest/v1/school_photos?school_id=eq.${school.id}&order=sort_order`, { headers: h })
-      .then(r => r.json()).then(data => { if (Array.isArray(data)) setPhotos(data) }).catch(() => {})
-  }, [school.id])
-
-  function toggleFavorite() {
-    setFavLoading(true)
-    const favs: number[] = (() => { try { return JSON.parse(localStorage.getItem('etd_favorites') || '[]') } catch { return [] } })()
-    let newFavs: number[]
-    if (isFav) {
-      newFavs = favs.filter(id => id !== school.id)
-    } else {
-      newFavs = [...favs, school.id]
-    }
-    localStorage.setItem('etd_favorites', JSON.stringify(newFavs))
-    setIsFav(!isFav)
-    setFavLoading(false)
-  }
-
-  function shareSchool() {
-    const url = window.location.href
-    if (navigator.share) {
-      navigator.share({ title: school.name, text: `Mirá esta escuela de ${school.discipline?.label} en EncuentraTuDojo`, url })
-    } else {
-      navigator.clipboard.writeText(url).then(() => alert('¡Link copiado al portapapeles!'))
-    }
-  }
-
-  async function submitReview() {
-    if (!reviewForm.author.trim() || !reviewForm.text.trim()) return
-    setReviewSaving(true)
-    const url  = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    await fetch(`${url}/rest/v1/reviews`, {
-      method: 'POST',
-      headers: {
-        'apikey': anon, 'Authorization': `Bearer ${anon}`,
-        'Content-Type': 'application/json', 'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        school_id: school.id,
-        author:    reviewForm.author,
-        rating:    reviewForm.rating,
-        text:      reviewForm.text,
-      })
-    })
-    // Agregar localmente para feedback inmediato
-    setReviews(prev => [{
-      id: Date.now(), author: reviewForm.author,
-      rating: reviewForm.rating, text: reviewForm.text,
-      created_at: new Date().toISOString()
-    }, ...prev])
-    setReviewSaving(false)
-    setReviewSaved(true)
-    setReviewForm({ author:'', rating:5, text:'' })
-    setShowReviewForm(false)
-    setTimeout(() => setReviewSaved(false), 4000)
-  }
-
   function handleWA() {
     trackContactEvent(school.id, 'whatsapp_click', { school_name: school.name })
     const msg = encodeURIComponent('Hola! Vi tu escuela en EncuentraTuDojo y me interesa más información.')
     window.open(`https://wa.me/${school.whatsapp}?text=${msg}`, '_blank')
   }
 
-  async function confirmarReserva() {
+  function confirmarReserva() {
     if (slotIdx === null) return
     trackContactEvent(school.id, 'trial_confirmed', { slot: SLOTS[slotIdx], nivel: form.nivel })
-
-    const slotStr = `${SLOTS[slotIdx].dia} ${SLOTS[slotIdx].hora}`
-    const nombreCompleto = `${form.nombre} ${form.apellido}`.trim()
-
     const reserva = {
       id: 'res-' + Date.now(), escuela: school.name, escuelaId: school.id,
-      disc: school.discipline?.label, nombre: nombreCompleto,
-      email: form.email, slot: slotStr, nivel: form.nivel, estado: 'pendiente',
+      disc: school.discipline?.label,
+      nombre: `${form.nombre} ${form.apellido}`.trim(),
+      email: form.email, slot: `${SLOTS[slotIdx].dia} ${SLOTS[slotIdx].hora}`,
+      nivel: form.nivel, estado: 'pendiente',
       fecha: new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' }),
       timestamp: Date.now(),
     }
@@ -171,31 +83,6 @@ export default function SchoolProfileClient({ school }: { school: School }) {
       const prev = JSON.parse(sessionStorage.getItem('etd_reservas') || '[]')
       sessionStorage.setItem('etd_reservas', JSON.stringify([reserva, ...prev]))
     } catch {}
-
-    // Enviar emails de notificación
-    try {
-      await fetch('/api/email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'trial_confirmed',
-          data: {
-            schoolName:    school.name,
-            schoolEmail:   school.email,
-            schoolAddress: school.address,
-            studentName:   nombreCompleto,
-            studentEmail:  form.email,
-            studentPhone:  form.tel,
-            slot:          slotStr,
-            nivel:         form.nivel,
-          }
-        })
-      })
-    } catch (e) {
-      // No bloquear el flujo si falla el email
-      console.warn('Email error:', e)
-    }
-
     setSuccess(true)
   }
 
@@ -203,7 +90,7 @@ export default function SchoolProfileClient({ school }: { school: School }) {
     <main style={{ minHeight:'100vh', background:'var(--parchment)' }}>
 
       {/* NAV */}
-      <NavBar />
+<NavBar activeLink="/buscador" />
 
       {/* COVER */}
       <div style={{ paddingTop:'var(--nav-h)', background:`linear-gradient(135deg, ${discColor}33, #0e0c0b)`, position:'relative', overflow:'hidden' }}>
@@ -255,29 +142,6 @@ export default function SchoolProfileClient({ school }: { school: School }) {
 
         {/* Columna principal */}
         <div>
-
-          {/* Galería de fotos */}
-          {photos.length > 0 && (
-            <div className="etd-section-card">
-              <div className="etd-section-card-header">
-                <span className="etd-section-card-title">Fotos del dojo</span>
-              </div>
-              <div className="etd-section-card-body">
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))', gap:10 }}>
-                  {photos.map((p: any) => (
-                    <div key={p.id} style={{ aspectRatio:'4/3', borderRadius:6, overflow:'hidden', background:'var(--parchment-dark)' }}>
-                      <img src={p.url} alt={p.caption || 'Foto del dojo'}
-                        style={{ width:'100%', height:'100%', objectFit:'cover', cursor:'pointer', transition:'transform 0.2s' }}
-                        onMouseOver={e => (e.currentTarget.style.transform='scale(1.04)')}
-                        onMouseOut={e => (e.currentTarget.style.transform='scale(1)')}
-                        onClick={() => window.open(p.url, '_blank')}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Descripción */}
           <div className="etd-section-card">
@@ -353,139 +217,16 @@ export default function SchoolProfileClient({ school }: { school: School }) {
             </div>
           )}
 
-          {/* Horarios */}
-          {schedules.length > 0 && (
-            <div className="etd-section-card">
-              <div className="etd-section-card-header">
-                <span className="etd-section-card-title">Horarios de clases</span>
-              </div>
-              <div className="etd-section-card-body" style={{ padding:0 }}>
-                <div style={{ overflowX:'auto' }}>
-                  <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                    <thead>
-                      <tr style={{ background:'var(--parchment-dark)' }}>
-                        {['Día','Horario','Clase','Nivel'].map((h,i) => (
-                          <th key={i} style={{ padding:'10px 16px', fontSize:11, textAlign:'left', fontWeight:500, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.08em', whiteSpace:'nowrap' }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {schedules.map((s, i) => (
-                        <tr key={s.id} style={{ borderTop:'1px solid rgba(122,92,58,0.06)', background: i % 2 === 0 ? 'transparent' : 'rgba(122,92,58,0.02)' }}>
-                          <td style={{ padding:'11px 16px', fontSize:13, fontWeight:500, color:'var(--ink)', whiteSpace:'nowrap' }}>{s.dia}</td>
-                          <td style={{ padding:'11px 16px', fontSize:13, color:'var(--crimson)', whiteSpace:'nowrap', fontWeight:500 }}>{s.hora_inicio} – {s.hora_fin}</td>
-                          <td style={{ padding:'11px 16px', fontSize:13, color:'var(--ink)' }}>{s.clase}</td>
-                          <td style={{ padding:'11px 16px', fontSize:12, color:'var(--wood-light)' }}>{s.nivel}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Reseñas — dentro de la columna principal */}
-          <div className="etd-section-card">
-          <div className="etd-section-card-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <span className="etd-section-card-title">Reseñas ({reviews.length || school.review_count || 0})</span>
-            <button onClick={() => setShowReviewForm(!showReviewForm)}
-              style={{ fontSize:12, fontWeight:500, color:'var(--crimson)', background:'var(--crimson-pale)', border:'1px solid rgba(139,26,26,0.2)', padding:'6px 14px', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)' }}>
-              {showReviewForm ? '✕ Cancelar' : '+ Escribir reseña'}
-            </button>
-          </div>
-          <div className="etd-section-card-body">
-            {reviewSaved && (
-              <div style={{ padding:'10px 14px', background:'rgba(39,174,96,0.1)', border:'1px solid rgba(39,174,96,0.2)', borderRadius:4, fontSize:13, color:'#27ae60', marginBottom:16 }}>
-                ✓ ¡Gracias por tu reseña! Fue publicada correctamente.
-              </div>
-            )}
-            {showReviewForm && (
-              <div style={{ background:'var(--parchment-dark)', borderRadius:6, padding:20, marginBottom:20 }}>
-                <div style={{ fontWeight:500, fontSize:14, color:'var(--ink)', marginBottom:14 }}>Tu reseña</div>
-                <div style={{ marginBottom:12 }}>
-                  <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:5 }}>Tu nombre *</label>
-                  <input value={reviewForm.author} onChange={e => setReviewForm({...reviewForm, author:e.target.value})}
-                    placeholder="Martín G." className="etd-form-input" />
-                </div>
-                <div style={{ marginBottom:12 }}>
-                  <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:8 }}>Puntuación *</label>
-                  <div style={{ display:'flex', gap:6 }}>
-                    {[1,2,3,4,5].map(n => (
-                      <button key={n} onClick={() => setReviewForm({...reviewForm, rating:n})}
-                        style={{ width:36, height:36, borderRadius:4, border:`1px solid ${reviewForm.rating >= n ? 'var(--gold)' : 'rgba(122,92,58,0.2)'}`, background: reviewForm.rating >= n ? 'rgba(200,169,110,0.15)' : 'transparent', cursor:'pointer', fontSize:18, fontFamily:'var(--font-body)' }}>
-                        ★
-                      </button>
-                    ))}
-                    <span style={{ fontSize:13, color:'var(--wood-light)', alignSelf:'center', marginLeft:4 }}>{reviewForm.rating}/5</span>
-                  </div>
-                </div>
-                <div style={{ marginBottom:14 }}>
-                  <label style={{ fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', color:'var(--wood-light)', display:'block', marginBottom:5 }}>Tu experiencia *</label>
-                  <textarea value={reviewForm.text} onChange={e => setReviewForm({...reviewForm, text:e.target.value})}
-                    rows={3} placeholder="Contá tu experiencia en la escuela..."
-                    style={{ width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'10px 14px', fontSize:14, fontFamily:'var(--font-body)', outline:'none', resize:'vertical', boxSizing:'border-box' }} />
-                </div>
-                <button onClick={submitReview} disabled={reviewSaving || !reviewForm.author.trim() || !reviewForm.text.trim()}
-                  className="etd-btn-submit" style={{ opacity: (reviewSaving || !reviewForm.author.trim() || !reviewForm.text.trim()) ? 0.5 : 1 }}>
-                  {reviewSaving ? 'Publicando...' : 'Publicar reseña →'}
-                </button>
-              </div>
-            )}
-            {reviews.length === 0 ? (
-              <div style={{ padding:'24px 0', textAlign:'center', color:'var(--wood-light)', fontSize:14 }}>
-                Todavía no hay reseñas. ¡Sé el primero en dejar la tuya!
-              </div>
-            ) : (
-              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-                {reviews.map((r: any) => (
-                  <div key={r.id} style={{ paddingBottom:16, borderBottom:'1px solid rgba(122,92,58,0.08)' }}>
-                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                        <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--crimson)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:600, color:'#fff', flexShrink:0 }}>
-                          {r.author?.charAt(0)?.toUpperCase() ?? '?'}
-                        </div>
-                        <div>
-                          <div style={{ fontSize:14, fontWeight:500, color:'var(--ink)' }}>{r.author}</div>
-                          <div style={{ fontSize:11, color:'var(--wood-light)' }}>
-                            {new Date(r.created_at).toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' })}
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ color:'var(--gold)', fontSize:14, letterSpacing:2 }}>
-                        {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
-                      </div>
-                    </div>
-                    <p style={{ fontSize:14, color:'var(--ink-soft)', lineHeight:1.7, margin:0, paddingLeft:44 }}>{r.text}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
         </div>
 
         {/* Sidebar */}
         <div>
           {/* CTA */}
           <div className="etd-cta-card">
-            <div style={{ padding:'12px 16px', borderBottom:'1px solid rgba(200,169,110,0.1)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div style={{ padding:'14px 20px', borderBottom:'1px solid rgba(200,169,110,0.1)' }}>
               <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:12, color:'#2ecc71' }}>
                 <div style={{ width:8, height:8, borderRadius:'50%', background:'#2ecc71', flexShrink:0 }} />
                 Abierto ahora
-              </div>
-              <div style={{ display:'flex', gap:8 }}>
-                <button onClick={toggleFavorite} disabled={favLoading}
-                  title={isFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
-                  style={{ width:32, height:32, borderRadius:'50%', border:'1px solid rgba(200,169,110,0.2)', background: isFav ? 'rgba(200,169,110,0.15)' : 'transparent', cursor:'pointer', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                  {isFav ? '❤️' : '🤍'}
-                </button>
-                <button onClick={shareSchool}
-                  title="Compartir"
-                  style={{ width:32, height:32, borderRadius:'50%', border:'1px solid rgba(200,169,110,0.2)', background:'transparent', cursor:'pointer', fontSize:15, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                  📤
-                </button>
               </div>
             </div>
             <div style={{ padding:'18px 20px 20px' }}>
@@ -516,16 +257,8 @@ export default function SchoolProfileClient({ school }: { school: School }) {
             </div>
           </div>
 
-          {/* Botón comparar */}
-          <div style={{ marginTop:12 }}>
-            <Link href={`/comparar?a=${school.slug}`}
-              style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', background:'rgba(122,92,58,0.08)', color:'var(--wood-light)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500, padding:11, borderRadius:3, border:'1px solid rgba(122,92,58,0.15)', textDecoration:'none' }}>
-              比 Comparar con otra escuela
-            </Link>
-          </div>
-
           {/* Quick info */}
-          <div className="etd-section-card" style={{ marginTop:12 }}>
+          <div className="etd-section-card" style={{ marginTop:16 }}>
             {quickInfo.map((row, i) => (
               <div key={`info-${i}`} style={{ display:'flex', justifyContent:'space-between', padding:'11px 20px', borderBottom: i < quickInfo.length - 1 ? '1px solid rgba(122,92,58,0.06)' : 'none', fontSize:13 }}>
                 <span style={{ color:'var(--wood-light)' }}>{row.label}</span>

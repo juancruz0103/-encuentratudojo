@@ -13,12 +13,12 @@ export default async function TableroPage() {
     <main style={{ background: 'var(--ink)', minHeight: '100vh' }}>
 
       {/* NAV */}
-      <NavBar currentPath='/tablero' />
+<NavBar activeLink="/tablero" />
 
       {/* HERO */}
       <div style={{ paddingTop: 'var(--nav-h)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position:'absolute', inset:0, backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(200,169,110,0.03) 59px,rgba(200,169,110,0.03) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(200,169,110,0.03) 59px,rgba(200,169,110,0.03) 60px)', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', right:0, top:'50%', transform:'translateY(-50%) translateX(40%)', maxWidth:'100%', fontFamily:'var(--font-jp)', fontSize:300, color:'rgba(200,169,110,0.03)', lineHeight:1, pointerEvents:'none', userSelect:'none' }}>武道</div>
+        <div style={{ position:'absolute', right:'-40px', top:'50%', transform:'translateY(-50%)', fontFamily:'var(--font-jp)', fontSize:300, color:'rgba(200,169,110,0.03)', lineHeight:1, pointerEvents:'none', userSelect:'none' }}>武道</div>
         <div style={{ maxWidth:1400, margin:'0 auto', padding:'60px 64px 48px', position:'relative', zIndex:1 }}>
           <div className="etd-eyebrow"><div className="etd-eyebrow-line" /><span className="etd-eyebrow-text">Comunidad de artes marciales</span></div>
           <h1 style={{ fontFamily:'var(--font-display)', fontSize:'clamp(36px,5vw,64px)', fontWeight:300, color:'var(--parchment)', lineHeight:0.95, letterSpacing:'-0.02em', marginBottom:16 }}>

@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import type { School, Discipline } from '@/types/database'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
@@ -32,23 +31,16 @@ const FILTROS_GENERALES = [
   { id:'gen-verificada',label:'Verificada',             fn: (s: School) => s.verified === true },
 ]
 
-function BuscadorContent() {
-  const searchParams = useSearchParams()
+export default function BuscadorPage() {
   const [schools, setSchools]     = useState<School[]>([])
-
   const [disciplines, setDiscs]   = useState<Discipline[]>([])
   const [filtered, setFiltered]   = useState<School[]>([])
   const [query, setQuery]         = useState('')
-  const [selDisc, setSelDisc]     = useState<string | null>(searchParams.get('disciplina'))
+  const [selDisc, setSelDisc]     = useState<string | null>(null)
   const [selSubcats, setSelSubcats] = useState<Set<string>>(new Set())
-  const [selGeneral, setSelGeneral]   = useState<Set<string>>(new Set())
-  const [selBarrio,  setSelBarrio]    = useState<string>('')
-  const [geoLoading, setGeoLoading]  = useState(false)
-  const [minRating,  setMinRating]   = useState<number>(0)
-  const [geoActive,  setGeoActive]   = useState(false)
+  const [selGeneral, setSelGeneral] = useState<Set<string>>(new Set())
   const [loading, setLoading]     = useState(true)
   const [selected, setSelected]   = useState<School | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const mapRef       = useRef<HTMLDivElement>(null)
   const mapInst      = useRef<any>(null)
   const markers      = useRef<any[]>([])
@@ -140,7 +132,6 @@ function BuscadorContent() {
     if (q)        result = result.filter(s => [s.name, s.neighborhood, s.city, s.discipline?.label ?? ''].some(f => norm(f).includes(norm(q))))
     if (subcats.size > 0) result = result.filter(s => [...subcats].some(sub => s.subcats?.some(sc => sc.name === sub)))
     if (general.size > 0) result = result.filter(s => [...general].every(gid => FILTROS_GENERALES.find(f => f.id === gid)?.fn(s)))
-    if (minRating > 0)   result = result.filter(s => (s.rating ?? 0) >= minRating)
     setFiltered(result)
     if (mapInst.current) addMarkers(result)
   }, [])
@@ -164,77 +155,28 @@ function BuscadorContent() {
     })
   }
   function clearAll() {
-    setSelDisc(null); setSelSubcats(new Set()); setSelGeneral(new Set()); setQuery(''); setSelBarrio(''); setMinRating(0)
+    setSelDisc(null); setSelSubcats(new Set()); setSelGeneral(new Set()); setQuery('')
   }
-  function usarMiUbicacion() {
-    if (!navigator.geolocation) { alert('Tu navegador no soporta geolocalización'); return }
-    setGeoLoading(true)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords
-        if (mapInst.current) {
-          mapInst.current.flyTo([latitude, longitude], 13, { duration: 1 })
-          // Agregar marcador de posición actual
-          const L = (window as any).L
-          if (L) {
-            const icon = L.divIcon({
-              html: `<div style="width:16px;height:16px;border-radius:50%;background:#2e86c1;border:3px solid #fff;box-shadow:0 0 0 3px rgba(46,134,193,0.3)"></div>`,
-              className:'', iconSize:[16,16], iconAnchor:[8,8]
-            })
-            L.marker([latitude, longitude], { icon })
-              .bindPopup('<div style="background:#0e0c0b;color:#faf8f4;padding:8px 12px;font-size:12px">📍 Tu ubicación</div>', { className:'etd-map-popup' })
-              .addTo(mapInst.current)
-              .openPopup()
-          }
-        }
-        setGeoActive(true)
-        setGeoLoading(false)
-      },
-      () => { alert('No se pudo obtener tu ubicación'); setGeoLoading(false) },
-      { timeout: 8000 }
-    )
-  }
-
   function flyTo(school: School) {
     if (!mapInst.current || !school.lat || !school.lng) return
     mapInst.current.flyTo([school.lat, school.lng], 15, { duration: 0.8 })
     setSelected(school)
   }
 
-  const hasFilters = selDisc || selSubcats.size > 0 || selGeneral.size > 0 || query || selBarrio || minRating > 0
+  const hasFilters = selDisc || selSubcats.size > 0 || selGeneral.size > 0 || query
   const currentSubcats = selDisc ? (SUBCATS_BY_DISC[selDisc] ?? []) : []
   const discColor = selDisc ? (DISC_COLORS[selDisc] ?? '#8b1a1a') : null
-
-  // Barrios únicos de las escuelas cargadas
-  const barrios = [...new Set(schools.map(s => s.neighborhood).filter(Boolean))].sort()
 
   return (
     <main style={{ height:'100vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
       {/* NAV */}
-      <nav className="etd-nav" style={{ position:'relative', flexShrink:0 }}>
-        <Link href="/" className="etd-nav-logo">
-          <span className="etd-nav-kanji">武</span>
-          <span className="etd-nav-name">EncuentraTuDojo</span>
-        </Link>
-        <div className="etd-nav-links">
-          <Link href='/tablero' className='etd-nav-link'>Tablero</Link>
-          <Link href='/auth' className='etd-nav-cta'>Ingresar</Link>
-        </div>
-      </nav>
+<NavBar activeLink="/buscador" />
 
       <div style={{ flex:1, display:'grid', gridTemplateColumns:'340px 1fr', overflow:'hidden' }}>
 
-        {/* Overlay mobile */}
-        <div
-          className={`etd-sidebar-overlay${sidebarOpen ? ' open' : ''}`}
-          onClick={() => setSidebarOpen(false)}
-        />
-
         {/* SIDEBAR */}
-        <div
-          className={`etd-buscador-sidebar${sidebarOpen ? ' open' : ''}`}
-          style={{ background:'var(--parchment)', borderRight:'1px solid rgba(122,92,58,0.1)', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        <div style={{ background:'var(--parchment)', borderRight:'1px solid rgba(122,92,58,0.1)', display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
           {/* Buscador */}
           <div style={{ padding:'14px 16px', borderBottom:'1px solid rgba(122,92,58,0.1)', flexShrink:0 }}>
@@ -247,27 +189,6 @@ function BuscadorContent() {
                 <button onClick={clearAll} style={{ fontSize:10, color:'var(--crimson)', background:'none', border:'none', cursor:'pointer', fontFamily:'var(--font-body)' }}>✕ Limpiar todo</button>
               )}
             </div>
-            {/* Botón geolocalización */}
-            <button onClick={usarMiUbicacion} disabled={geoLoading}
-              style={{ marginTop:8, width:'100%', padding:'7px 12px', fontSize:11, borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', border:'1px solid rgba(122,92,58,0.2)', transition:'all 0.15s',
-                background: geoActive ? 'rgba(46,134,193,0.1)' : 'transparent',
-                color: geoActive ? '#2e86c1' : 'var(--wood-light)' }}>
-              {geoLoading ? '📍 Buscando...' : geoActive ? '📍 Ubicación activa' : '📍 Cerca de mí'}
-            </button>
-          </div>
-
-          {/* Filtro por barrio/ciudad */}
-          <div style={{ padding:'10px 16px', borderBottom:'1px solid rgba(122,92,58,0.08)', flexShrink:0 }}>
-            <div style={{ fontSize:9, textTransform:'uppercase', letterSpacing:'0.15em', color:'var(--wood-light)', marginBottom:7 }}>Barrio o ciudad</div>
-            <select
-              value={selBarrio}
-              onChange={e => setSelBarrio(e.target.value)}
-              style={{ width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'7px 10px', fontSize:12, fontFamily:'var(--font-body)', outline:'none', color: selBarrio ? 'var(--ink)' : 'var(--wood-light)', background:'#fff', cursor:'pointer' }}>
-              <option value="">Todos los barrios</option>
-              {barrios.map(b => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
           </div>
 
           {/* Filtro disciplinas */}
@@ -326,22 +247,6 @@ function BuscadorContent() {
             </div>
           </div>
 
-          {/* Rating mínimo */}
-          <div style={{ padding:'10px 16px', borderBottom:'1px solid rgba(122,92,58,0.08)', flexShrink:0 }}>
-            <div style={{ fontSize:9, textTransform:'uppercase', letterSpacing:'0.15em', color:'var(--wood-light)', marginBottom:7 }}>Rating mínimo</div>
-            <div style={{ display:'flex', gap:6 }}>
-              {[0,3,4,5].map(r => (
-                <button key={r} onClick={() => setMinRating(r)}
-                  style={{ flex:1, padding:'5px 4px', fontSize:11, borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', border:'none', transition:'all 0.15s', textAlign:'center',
-                    background: minRating === r ? 'var(--ink)' : 'transparent',
-                    color: minRating === r ? 'var(--gold)' : 'var(--ink-soft)',
-                    outline: minRating === r ? 'none' : '1px solid rgba(122,92,58,0.2)' }}>
-                  {r === 0 ? 'Todos' : `${r}★+`}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Lista escuelas */}
           <div style={{ flex:1, overflowY:'auto' }}>
             {loading ? (
@@ -389,18 +294,10 @@ function BuscadorContent() {
         </div>
 
         {/* MAPA limpio */}
-        <div className="etd-buscador-map" style={{ position:'relative', height:'100%', width:'100%' }}>
+        <div style={{ position:'relative', height:'100%', width:'100%' }}>
           <div ref={mapRef} style={{ height:'100%', width:'100%', background:'#0e0c0b' }} />
         </div>
       </div>
-
-      {/* Botón flotante toggle sidebar — solo en mobile */}
-      <button
-        className="etd-search-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? '✕ Cerrar' : '☰ Filtros y lista'}
-      </button>
 
       <style>{`
         .etd-map-popup .leaflet-popup-content-wrapper { background:#0e0c0b; border:1px solid rgba(200,169,110,0.2); border-radius:6px; padding:0; box-shadow:0 12px 40px rgba(0,0,0,0.5); }
@@ -409,17 +306,5 @@ function BuscadorContent() {
         .leaflet-container { font-family:'DM Sans',sans-serif; }
       `}</style>
     </main>
-  )
-}
-
-export default function BuscadorPage() {
-  return (
-    <Suspense fallback={
-      <div style={{ minHeight:'100vh', background:'#0e0c0b', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ fontFamily:'serif', fontSize:48, color:'rgba(200,169,110,0.2)' }}>武</div>
-      </div>
-    }>
-      <BuscadorContent />
-    </Suspense>
   )
 }

@@ -1,47 +1,96 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
-export default function NavBar({ currentPath = '' }: { currentPath?: string }) {
+interface NavBarProps {
+  activeLink?: string
+}
+
+const NAV_LINKS = [
+  { label: 'Buscador',      href: '/buscador'  },
+  { label: 'Tablero',       href: '/tablero'   },
+  { label: 'Comparar',      href: '/comparar'  },
+  { label: 'Para Escuelas', href: '/registro'  },
+]
+
+export default function NavBar({ activeLink }: NavBarProps) {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isActive = (href: string) =>
+    activeLink ? activeLink === href : pathname?.startsWith(href)
 
   return (
     <>
       <nav className="etd-nav">
+        {/* Logo */}
         <Link href="/" className="etd-nav-logo" onClick={() => setOpen(false)}>
           <span className="etd-nav-kanji">武</span>
           <span className="etd-nav-name">EncuentraTuDojo</span>
         </Link>
 
         {/* Links desktop */}
-        <div className={`etd-nav-links${open ? ' open' : ''}`}>
-          <Link href="/buscador" className="etd-nav-link" onClick={() => setOpen(false)}>Buscador</Link>
-          <Link href="/tablero"  className="etd-nav-link" onClick={() => setOpen(false)}>Tablero</Link>
-          <Link href="/comparar" className="etd-nav-link" onClick={() => setOpen(false)}>Comparar</Link>
-          <Link href="/para-escuelas" className="etd-nav-link" onClick={() => setOpen(false)}>Para escuelas</Link>
-          <Link href="/auth"     className="etd-nav-cta"  onClick={() => setOpen(false)}>Ingresar</Link>
+        <div className="etd-nav-links etd-nav-desktop">
+          {NAV_LINKS.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className="etd-nav-link"
+              style={isActive(href) ? { color: 'var(--gold)' } : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+          <Link href="/auth" className="etd-nav-cta">Ingresar</Link>
         </div>
 
-        {/* Hamburguesa — solo mobile */}
+        {/* Botón hamburguesa (solo mobile) */}
         <button
           className="etd-nav-hamburger"
-          onClick={() => setOpen(!open)}
-          aria-label="Menú"
-          style={{ display: 'none' }}
-          // Se muestra via CSS en mobile
+          onClick={() => setOpen(prev => !prev)}
+          aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={open}
         >
-          {open ? '✕' : '☰'}
+          <span className={`etd-ham-bar ${open ? 'etd-ham-open-1' : ''}`} />
+          <span className={`etd-ham-bar ${open ? 'etd-ham-open-2' : ''}`} />
+          <span className={`etd-ham-bar ${open ? 'etd-ham-open-3' : ''}`} />
         </button>
       </nav>
 
-      {/* Overlay para cerrar */}
+      {/* Overlay mobile */}
       {open && (
         <div
+          className="etd-mobile-overlay"
           onClick={() => setOpen(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.3)' }}
+          aria-hidden="true"
         />
       )}
+
+      {/* Menú mobile */}
+      <div className={`etd-mobile-menu ${open ? 'etd-mobile-menu-open' : ''}`}>
+        <div className="etd-mobile-menu-inner">
+          {NAV_LINKS.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className="etd-mobile-link"
+              onClick={() => setOpen(false)}
+              style={isActive(href) ? { color: 'var(--gold)' } : undefined}
+            >
+              {label}
+            </Link>
+          ))}
+          <Link
+            href="/auth"
+            className="etd-mobile-cta"
+            onClick={() => setOpen(false)}
+          >
+            Ingresar
+          </Link>
+        </div>
+      </div>
     </>
   )
 }
