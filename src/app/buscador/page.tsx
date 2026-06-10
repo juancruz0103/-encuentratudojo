@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import type { School, Discipline } from '@/types/database'
 import Link from 'next/link'
@@ -32,7 +32,7 @@ const FILTROS_GENERALES = [
   { id:'gen-verificada',label:'Verificada',             fn: (s: School) => s.verified === true },
 ]
 
-export default function BuscadorPage() {
+function BuscadorInner() {
   const [schools, setSchools]     = useState<School[]>([])
   const [disciplines, setDiscs]   = useState<Discipline[]>([])
   const [filtered, setFiltered]   = useState<School[]>([])
@@ -359,5 +359,20 @@ export default function BuscadorPage() {
         .leaflet-container { font-family:'DM Sans',sans-serif; }
       `}</style>
     </main>
+  )
+}
+
+export default function BuscadorPage() {
+  return (
+    <Suspense fallback={
+      <main style={{ height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--parchment)' }}>
+        <div style={{ textAlign:'center', color:'var(--wood-light)' }}>
+          <div style={{ fontFamily:'var(--font-jp)', fontSize:48, marginBottom:12, opacity:.3 }}>武</div>
+          <div style={{ fontSize:13 }}>Cargando buscador...</div>
+        </div>
+      </main>
+    }>
+      <BuscadorInner />
+    </Suspense>
   )
 }
