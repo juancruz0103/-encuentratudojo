@@ -110,7 +110,7 @@ export default async function HomePage() {
 
       {/* CTA TABLERO */}
       <section style={{ background: 'var(--ink)', padding: '80px 0' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 64px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', alignItems: 'center' }}>
+        <div className="etd-tablero-grid">
           <div>
             <div style={{ fontSize: '9px', color: 'var(--gold)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '12px' }}>Comunidad marcial</div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 300, color: 'var(--parchment)', lineHeight: 1.1, marginBottom: '16px' }}>
