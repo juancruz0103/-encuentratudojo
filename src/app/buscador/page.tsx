@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { School, Discipline } from '@/types/database'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
@@ -41,6 +42,9 @@ export default function BuscadorPage() {
   const [selGeneral, setSelGeneral] = useState<Set<string>>(new Set())
   const [loading, setLoading]     = useState(true)
   const [selected, setSelected]   = useState<School | null>(null)
+  const [showPanel, setShowPanel] = useState(false)
+  const [isMobile, setIsMobile]   = useState(false)
+  const searchParams = useSearchParams()
   const mapRef       = useRef<HTMLDivElement>(null)
   const mapInst      = useRef<any>(null)
   const markers      = useRef<any[]>([])
@@ -62,10 +66,21 @@ export default function BuscadorPage() {
       const d = Array.isArray(di) ? di : []
       setSchools(s); setFiltered(s); setDiscs(d); setLoading(false)
       if (leafletReady.current && mapInst.current) addMarkers(s, mapInst.current)
+      // Leer disciplina desde URL al cargar
+      const discParam = searchParams.get('disciplina')
+      if (discParam) setSelDisc(discParam)
     }).catch(() => setLoading(false))
   }, [])
 
   // ── Mapa ──
+  // Detectar mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   useEffect(() => {
     if (!mapRef.current || mapInst.current) return
     const link = document.createElement('link')
@@ -173,10 +188,19 @@ export default function BuscadorPage() {
       {/* NAV */}
 <NavBar activeLink="/buscador" relative />
 
-      <div style={{ flex:1, display:'grid', gridTemplateColumns:'340px 1fr', overflow:'hidden' }}>
+      <div style={{ flex:1, display:'grid', gridTemplateColumns: isMobile ? '1fr' : '340px 1fr', overflow:'hidden', position:'relative' }}>
 
-        {/* SIDEBAR */}
-        <div style={{ background:'var(--parchment)', borderRight:'1px solid rgba(122,92,58,0.1)', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        {/* SIDEBAR — desktop siempre visible, mobile solo cuando showPanel=true */}
+        {(!isMobile || showPanel) && (
+        <div style={{
+          background:'var(--parchment)',
+          borderRight:'1px solid rgba(122,92,58,0.1)',
+          display:'flex', flexDirection:'column', overflow:'hidden',
+          ...(isMobile ? {
+            position:'absolute', top:0, left:0, right:0, bottom:0,
+            zIndex: 100,
+          } : {})
+        }}>
 
           {/* Buscador */}
           <div style={{ padding:'14px 16px', borderBottom:'1px solid rgba(122,92,58,0.1)', flexShrink:0 }}>
@@ -292,10 +316,39 @@ export default function BuscadorPage() {
             })}
           </div>
         </div>
+        )} {/* fin sidebar condicional */}
 
-        {/* MAPA limpio */}
+        {/* MAPA */}
         <div style={{ position:'relative', height:'100%', width:'100%' }}>
           <div ref={mapRef} style={{ height:'100%', width:'100%', background:'#0e0c0b' }} />
+
+          {/* Botón mobile: Filtros y lista */}
+          {isMobile && !showPanel && (
+            <button
+              onClick={() => setShowPanel(true)}
+              style={{
+                position:'absolute', bottom:20, left:'50%',
+                transform:'translateX(-50%)',
+                zIndex:400,
+                background:'var(--ink)',
+                color:'var(--parchment)',
+                border:'1px solid rgba(200,169,110,0.3)',
+                borderRadius:24,
+                padding:'12px 24px',
+                fontSize:12,
+                fontWeight:600,
+                letterSpacing:'0.1em',
+                textTransform:'uppercase',
+                cursor:'pointer',
+                boxShadow:'0 4px 20px rgba(0,0,0,0.5)',
+                display:'flex',
+                alignItems:'center',
+                gap:8,
+                whiteSpace:'nowrap',
+              }}>
+              ☰ Filtros y lista
+            </button>
+          )}
         </div>
       </div>
 
