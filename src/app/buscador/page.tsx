@@ -44,6 +44,7 @@ function BuscadorInner() {
   const [selected, setSelected]   = useState<School | null>(null)
   const [showPanel, setShowPanel] = useState(false)
   const [isMobile, setIsMobile]   = useState(false)
+  const [mounted, setMounted]     = useState(false)
   const searchParams = useSearchParams()
   const mapRef       = useRef<HTMLDivElement>(null)
   const mapInst      = useRef<any>(null)
@@ -75,6 +76,7 @@ function BuscadorInner() {
   // ── Mapa ──
   // Detectar mobile
   useEffect(() => {
+    setMounted(true)
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
@@ -188,19 +190,31 @@ function BuscadorInner() {
       {/* NAV */}
 <NavBar activeLink="/buscador" relative />
 
-      <div style={{ flex:1, display:'grid', gridTemplateColumns: isMobile ? '1fr' : '340px 1fr', overflow:'hidden', position:'relative' }}>
+      <div style={{ flex:1, display:'grid', gridTemplateColumns: (mounted && isMobile) ? '1fr' : '340px 1fr', overflow:'hidden', position:'relative' }}>
 
         {/* SIDEBAR — desktop siempre visible, mobile solo cuando showPanel=true */}
-        {(!isMobile || showPanel) && (
+        {(!mounted || !isMobile || showPanel) && (
         <div style={{
           background:'var(--parchment)',
           borderRight:'1px solid rgba(122,92,58,0.1)',
           display:'flex', flexDirection:'column', overflow:'hidden',
-          ...(isMobile ? {
-            position:'absolute', top:0, left:0, right:0, bottom:0,
-            zIndex: 100,
+          ...(mounted && isMobile ? {
+            position:'fixed', top:0, left:0, right:0, bottom:0,
+            zIndex: 500,
           } : {})
         }}>
+
+          {/* Botón cerrar — solo mobile */}
+          {mounted && isMobile && (
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 16px', background:'var(--ink)', flexShrink:0 }}>
+              <span style={{ fontSize:12, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:'var(--parchment)' }}>☰ Filtros y lista</span>
+              <button
+                onClick={() => setShowPanel(false)}
+                style={{ background:'none', border:'1px solid rgba(200,169,110,0.3)', borderRadius:20, color:'var(--parchment)', fontSize:12, padding:'6px 14px', cursor:'pointer', fontFamily:'var(--font-body)', fontWeight:600, letterSpacing:'0.08em' }}>
+                ✕ Cerrar
+              </button>
+            </div>
+          )}
 
           {/* Buscador */}
           <div style={{ padding:'14px 16px', borderBottom:'1px solid rgba(122,92,58,0.1)', flexShrink:0 }}>
@@ -323,24 +337,24 @@ function BuscadorInner() {
           <div ref={mapRef} style={{ height:'100%', width:'100%', background:'#0e0c0b' }} />
 
           {/* Botón mobile: Filtros y lista */}
-          {isMobile && !showPanel && (
+          {mounted && isMobile && !showPanel && (
             <button
               onClick={() => setShowPanel(true)}
               style={{
-                position:'absolute', bottom:20, left:'50%',
+                position:'absolute', bottom:80, left:'50%',
                 transform:'translateX(-50%)',
                 zIndex:400,
                 background:'var(--ink)',
                 color:'var(--parchment)',
                 border:'1px solid rgba(200,169,110,0.3)',
                 borderRadius:24,
-                padding:'12px 24px',
-                fontSize:12,
+                padding:'14px 28px',
+                fontSize:13,
                 fontWeight:600,
                 letterSpacing:'0.1em',
                 textTransform:'uppercase',
                 cursor:'pointer',
-                boxShadow:'0 4px 20px rgba(0,0,0,0.5)',
+                boxShadow:'0 4px 20px rgba(0,0,0,0.6)',
                 display:'flex',
                 alignItems:'center',
                 gap:8,
