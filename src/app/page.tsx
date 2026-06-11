@@ -109,7 +109,7 @@ export default async function HomePage() {
       </section>
 
       {/* CTA TABLERO */}
-      <section style={{ background: 'var(--ink)', padding: '80px 0' }}>
+      <section style={{ background: 'var(--ink)', padding: '48px 0' }}>
         <div className="etd-tablero-grid">
           <div>
             <div style={{ fontSize: '9px', color: 'var(--gold)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '12px' }}>Comunidad marcial</div>
