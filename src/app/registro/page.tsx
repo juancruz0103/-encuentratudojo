@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { COMMISSION_TIERS } from '@/types/database'
@@ -21,6 +21,7 @@ export default function RegistroPage() {
   const [error, setError]     = useState<string|null>(null)
   const [isFranchise, setIsFranchise] = useState(false)
   const [students, setStudents] = useState(70)
+  const [loggedUser, setLoggedUser] = useState<{ id: string; email: string; firstName: string } | null>(null)
   const [form, setForm] = useState({
     schoolName:'', discipline:'karate', city:'', neighborhood:'', address:'',
     phone:'', whatsapp:'', email:'', instagram:'',
@@ -30,27 +31,55 @@ export default function RegistroPage() {
   const commission = calcTier(students)
   const tierInfo   = COMMISSION_TIERS[commission.tier]
 
-  async function handleSubmit() {
-    if (form.password !== form.confirm) { setError('Las contraseñas no coinciden'); return }
-    if (form.password.length < 8) { setError('Mínimo 8 caracteres'); return }
-    setLoading(true); setError(null)
-
+  // Detectar si ya hay sesión activa
+  useEffect(() => {
     const sb = createClient()
-    const { data, error: authErr } = await sb.auth.signUp({
-      email: form.userEmail,
-      password: form.password,
-      options: { data: { first_name: form.firstName, last_name: form.lastName, type: 'escuela' } }
+    sb.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        setLoggedUser({
+          id: data.user.id,
+          email: data.user.email ?? '',
+          firstName: data.user.user_metadata?.first_name ?? '',
+        })
+        // Pre-rellenar campos de cuenta con los datos del usuario logueado
+        setForm(prev => ({
+          ...prev,
+          firstName: data.user!.user_metadata?.first_name ?? '',
+          lastName:  data.user!.user_metadata?.last_name ?? '',
+          userEmail: data.user!.email ?? '',
+        }))
+      }
     })
+  }, [])
 
-    if (authErr) { setError(authErr.message); setLoading(false); return }
+  async function handleSubmit() {
+    setLoading(true); setError(null)
+    const sb = createClient()
+    let userId: string
+
+    if (loggedUser) {
+      // Usuario ya logueado — usar su ID directamente
+      userId = loggedUser.id
+    } else {
+      // Usuario nuevo — crear cuenta
+      if (form.password !== form.confirm) { setError('Las contraseñas no coinciden'); setLoading(false); return }
+      if (form.password.length < 8) { setError('Mínimo 8 caracteres'); setLoading(false); return }
+      const { data, error: authErr } = await sb.auth.signUp({
+        email: form.userEmail,
+        password: form.password,
+        options: { data: { first_name: form.firstName, last_name: form.lastName, type: 'escuela' } }
+      })
+      if (authErr || !data.user) { setError(authErr?.message ?? 'Error al crear la cuenta'); setLoading(false); return }
+      userId = data.user.id
+    }
 
     // Crear la escuela en la DB
     const slug = form.schoolName.toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
 
-    await sb.from('schools').insert({
-      owner_id:     data.user?.id,
+    const { error: insertErr } = await sb.from('schools').insert({
+      owner_id:     userId,
       name:         form.schoolName,
       slug:         slug + '-' + Date.now(),
       discipline_id: form.discipline,
@@ -65,6 +94,8 @@ export default function RegistroPage() {
       is_franchise:  isFranchise,
       status:       'pending',
     })
+
+    if (insertErr) { setError('Error al registrar la escuela: ' + insertErr.message); setLoading(false); return }
 
     setLoading(false)
     setStep(4) // Éxito
@@ -120,7 +151,7 @@ export default function RegistroPage() {
           ))}
         </div>
 
-        {error && (
+        {error && step !== 3 && (
           <div style={{ padding:'10px 16px', background:'rgba(192,57,43,0.15)', border:'1px solid rgba(192,57,43,0.3)', borderRadius:4, color:'var(--crimson-bright)', fontSize:13, marginBottom:16 }}>
             {error}
           </div>
@@ -245,20 +276,59 @@ export default function RegistroPage() {
           {/* PASO 3 — Cuenta */}
           {step === 3 && (
             <div style={{ padding:'clamp(20px,5vw,32px)' }}>
-              <h2 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, marginBottom:20, color:'var(--ink)' }}>Creá tu cuenta</h2>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:12 }}>
-                <div className="etd-form-field"><label className="etd-form-label">Nombre *</label><input className="etd-form-input" value={form.firstName} onChange={e => setForm({...form, firstName:e.target.value})} placeholder="Martín" /></div>
-                <div className="etd-form-field"><label className="etd-form-label">Apellido</label><input className="etd-form-input" value={form.lastName} onChange={e => setForm({...form, lastName:e.target.value})} placeholder="González" /></div>
-              </div>
-              <div className="etd-form-field"><label className="etd-form-label">Email de la cuenta *</label><input className="etd-form-input" type="email" value={form.userEmail} onChange={e => setForm({...form, userEmail:e.target.value})} placeholder="tu@email.com" /></div>
-              <div className="etd-form-field"><label className="etd-form-label">Contraseña *</label><input className="etd-form-input" type="password" value={form.password} onChange={e => setForm({...form, password:e.target.value})} placeholder="Mínimo 8 caracteres" /></div>
-              <div className="etd-form-field"><label className="etd-form-label">Confirmar contraseña *</label><input className="etd-form-input" type="password" value={form.confirm} onChange={e => setForm({...form, confirm:e.target.value})} placeholder="Repetí tu contraseña" /></div>
-              <div style={{ display:'flex', gap:10, marginTop:8 }}>
-                <button onClick={() => setStep(2)} style={{ padding:'12px 20px', background:'var(--parchment-dark)', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', fontSize:12 }}>← Volver</button>
-                <button onClick={handleSubmit} disabled={loading} className="etd-btn-submit" style={{ flex:1 }}>
-                  {loading ? 'Registrando...' : 'Registrar mi escuela'}
-                </button>
-              </div>
+              {loggedUser ? (
+                // Ya está logueado — mostrar resumen y confirmar
+                <>
+                  <h2 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, marginBottom:8, color:'var(--ink)' }}>Tu cuenta</h2>
+                  <p style={{ fontSize:13, color:'var(--wood-light)', marginBottom:20, lineHeight:1.6 }}>
+                    La escuela quedará asociada a tu cuenta actual.
+                  </p>
+                  <div style={{ background:'var(--parchment-dark)', borderRadius:6, padding:'16px 20px', marginBottom:20 }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(122,92,58,0.07)', fontSize:13 }}>
+                      <span style={{ color:'var(--wood-light)' }}>Cuenta</span>
+                      <span style={{ color:'var(--ink)', fontWeight:500 }}>{loggedUser.email}</span>
+                    </div>
+                    <div style={{ display:'flex', justifyContent:'space-between', padding:'8px 0', fontSize:13 }}>
+                      <span style={{ color:'var(--wood-light)' }}>Escuela</span>
+                      <span style={{ color:'var(--ink)', fontWeight:500 }}>{form.schoolName}</span>
+                    </div>
+                  </div>
+                  {error && (
+                    <div style={{ padding:'10px 14px', background:'rgba(192,57,43,0.1)', border:'1px solid rgba(192,57,43,0.25)', borderRadius:4, color:'var(--crimson)', fontSize:13, marginBottom:16 }}>
+                      {error}
+                    </div>
+                  )}
+                  <div style={{ display:'flex', gap:10 }}>
+                    <button onClick={() => setStep(2)} style={{ padding:'12px 20px', background:'var(--parchment-dark)', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', fontSize:12 }}>← Volver</button>
+                    <button onClick={handleSubmit} disabled={loading} className="etd-btn-submit" style={{ flex:1 }}>
+                      {loading ? 'Registrando...' : 'Registrar mi escuela'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // No está logueado — mostrar formulario de cuenta nueva
+                <>
+                  <h2 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, marginBottom:20, color:'var(--ink)' }}>Creá tu cuenta</h2>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:12 }}>
+                    <div className="etd-form-field"><label className="etd-form-label">Nombre *</label><input className="etd-form-input" value={form.firstName} onChange={e => setForm({...form, firstName:e.target.value})} placeholder="Martín" /></div>
+                    <div className="etd-form-field"><label className="etd-form-label">Apellido</label><input className="etd-form-input" value={form.lastName} onChange={e => setForm({...form, lastName:e.target.value})} placeholder="González" /></div>
+                  </div>
+                  <div className="etd-form-field"><label className="etd-form-label">Email de la cuenta *</label><input className="etd-form-input" type="email" value={form.userEmail} onChange={e => setForm({...form, userEmail:e.target.value})} placeholder="tu@email.com" /></div>
+                  <div className="etd-form-field"><label className="etd-form-label">Contraseña *</label><input className="etd-form-input" type="password" value={form.password} onChange={e => setForm({...form, password:e.target.value})} placeholder="Mínimo 8 caracteres" /></div>
+                  <div className="etd-form-field"><label className="etd-form-label">Confirmar contraseña *</label><input className="etd-form-input" type="password" value={form.confirm} onChange={e => setForm({...form, confirm:e.target.value})} placeholder="Repetí tu contraseña" /></div>
+                  {error && (
+                    <div style={{ padding:'10px 14px', background:'rgba(192,57,43,0.1)', border:'1px solid rgba(192,57,43,0.25)', borderRadius:4, color:'var(--crimson)', fontSize:13, marginBottom:8 }}>
+                      {error}
+                    </div>
+                  )}
+                  <div style={{ display:'flex', gap:10, marginTop:8 }}>
+                    <button onClick={() => setStep(2)} style={{ padding:'12px 20px', background:'var(--parchment-dark)', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, cursor:'pointer', fontFamily:'var(--font-body)', fontSize:12 }}>← Volver</button>
+                    <button onClick={handleSubmit} disabled={loading} className="etd-btn-submit" style={{ flex:1 }}>
+                      {loading ? 'Registrando...' : 'Registrar mi escuela'}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
