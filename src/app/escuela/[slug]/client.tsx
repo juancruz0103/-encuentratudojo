@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
 import { trackContactEvent } from '@/lib/supabase/public'
@@ -34,6 +34,24 @@ export default function SchoolProfileClient({ school }: { school: School }) {
   const [slotIdx, setSlotIdx] = useState<number | null>(null)
   const [form, setForm]       = useState({ nombre:'', apellido:'', email:'', tel:'', nivel:'principiante' })
   const [success, setSuccess] = useState(false)
+  const [isFav, setIsFav]     = useState(false)
+
+  // Leer favoritos de localStorage al montar
+  useEffect(() => {
+    try {
+      const favs: number[] = JSON.parse(localStorage.getItem('etd_favoritos') || '[]')
+      setIsFav(favs.includes(school.id))
+    } catch {}
+  }, [school.id])
+
+  function toggleFav() {
+    try {
+      const favs: number[] = JSON.parse(localStorage.getItem('etd_favoritos') || '[]')
+      const next = isFav ? favs.filter(id => id !== school.id) : [...favs, school.id]
+      localStorage.setItem('etd_favoritos', JSON.stringify(next))
+      setIsFav(!isFav)
+    } catch {}
+  }
 
   const discColor = school.discipline?.color ?? '#8b1a1a'
 
@@ -133,6 +151,21 @@ export default function SchoolProfileClient({ school }: { school: School }) {
                 ✓ Verificada
               </span>
             )}
+            {/* Botón favorito */}
+            <button
+              onClick={toggleFav}
+              title={isFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                background: isFav ? 'rgba(192,57,43,0.15)' : 'rgba(250,248,244,0.08)',
+                border: `1px solid ${isFav ? 'rgba(192,57,43,0.4)' : 'rgba(250,248,244,0.2)'}`,
+                borderRadius: 20, padding: '5px 14px', cursor: 'pointer',
+                fontSize: 12, color: isFav ? '#e74c3c' : 'rgba(250,248,244,0.6)',
+                fontFamily: 'var(--font-body)', fontWeight: 500,
+                transition: 'all 0.2s',
+              }}>
+              {isFav ? '❤️' : '🤍'} {isFav ? 'Guardada' : 'Guardar'}
+            </button>
           </div>
         </div>
       </div>
