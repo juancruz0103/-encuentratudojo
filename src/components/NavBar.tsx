@@ -293,11 +293,28 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
           <div
             onClick={e => e.stopPropagation()}
             style={{
+              position: 'relative',
               background: '#0d0b0b',
               paddingTop: 'var(--nav-h)',
               borderBottom: '1px solid rgba(200,169,110,0.15)',
             }}
           >
+            {/* Botón cerrar — el hamburguesa original queda tapado por el fondo
+                opaco de este panel (que se dibuja encima, en la franja de
+                paddingTop), así que se repite acá mismo, visible y tappeable. */}
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Cerrar menú"
+              style={{
+                position: 'absolute', top: 0, right: 0,
+                width: 'var(--nav-h)', height: 'var(--nav-h)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                color: 'rgba(250,248,244,0.85)', fontSize: 24, lineHeight: 1,
+              }}>
+              ✕
+            </button>
+
             {NAV_LINKS.map(({ label, href }) => (
               <Link key={href} href={href}
                 onClick={() => setOpen(false)}
