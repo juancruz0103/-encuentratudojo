@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { createClient } from '@/lib/supabase/client'
 
 const NAV_LINKS = [
@@ -21,8 +22,10 @@ type AuthInfo =
 export default function NavBar({ activeLink, relative }: { activeLink?: string; relative?: boolean }) {
   const [open, setOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null)
   const [auth, setAuth] = useState<AuthInfo>({ status: 'loading' })
-  const menuRef = useRef<HTMLDivElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
   const isActive = (href: string) =>
@@ -84,14 +87,41 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     return () => { active = false; listener.subscription.unsubscribe() }
   }, [])
 
-  // Cerrar el dropdown del avatar al hacer click afuera
+  // Cerrar el dropdown del avatar al hacer click afuera (botón o el dropdown en portal)
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
+      const t = e.target as Node
+      if (btnRef.current?.contains(t)) return
+      if (dropdownRef.current?.contains(t)) return
+      setMenuOpen(false)
     }
     document.addEventListener('mousedown', onDocClick)
     return () => document.removeEventListener('mousedown', onDocClick)
   }, [])
+
+  // Recalcular posición del dropdown si se hace scroll/resize mientras está abierto
+  useEffect(() => {
+    if (!menuOpen) return
+    function reposition() {
+      if (!btnRef.current) return
+      const r = btnRef.current.getBoundingClientRect()
+      setMenuPos({ top: r.bottom + 8, right: window.innerWidth - r.right })
+    }
+    window.addEventListener('scroll', reposition, true)
+    window.addEventListener('resize', reposition)
+    return () => {
+      window.removeEventListener('scroll', reposition, true)
+      window.removeEventListener('resize', reposition)
+    }
+  }, [menuOpen])
+
+  function toggleMenu() {
+    if (!menuOpen && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setMenuPos({ top: r.bottom + 8, right: window.innerWidth - r.right })
+    }
+    setMenuOpen(p => !p)
+  }
 
   async function handleLogout() {
     const sb = createClient()
@@ -109,8 +139,8 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     if (auth.status !== 'alumno' && auth.status !== 'escuela') return null
     const isEscuela = auth.status === 'escuela'
     return (
-      <div ref={menuRef} style={{ position: 'relative' }}>
-        <button onClick={() => setMenuOpen(p => !p)} aria-label="Mi cuenta" aria-expanded={menuOpen}
+      <>
+        <button ref={btnRef} onClick={toggleMenu} aria-label="Mi cuenta" aria-expanded={menuOpen}
           style={{
             width: 36, height: 36,
             borderRadius: isEscuela ? 6 : '50%',
@@ -131,11 +161,14 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
             : auth.kanji}
         </button>
 
-        {menuOpen && (
-          <div style={{
-            position: 'absolute', top: 46, right: 0, minWidth: 190,
+        {/* Portal directo a <body>: así el dropdown nunca queda atrapado detrás
+            de elementos con z-index propio (mapas, modales, etc.) en páginas
+            donde el nav usa position:relative en vez de fixed. */}
+        {menuOpen && menuPos && typeof document !== 'undefined' && createPortal(
+          <div ref={dropdownRef} style={{
+            position: 'fixed', top: menuPos.top, right: menuPos.right, minWidth: 190,
             background: '#0d0b0b', border: '1px solid rgba(200,169,110,0.18)',
-            borderRadius: 6, overflow: 'hidden', zIndex: 200,
+            borderRadius: 6, overflow: 'hidden', zIndex: 99999,
             boxShadow: '0 8px 28px rgba(0,0,0,0.45)',
           }}>
             <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(200,169,110,0.1)', fontSize: 12, color: 'rgba(250,248,244,0.4)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -155,9 +188,10 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
               style={{ display: 'block', width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: 13, color: 'var(--crimson-bright, #d9534f)', background: 'none', border: 'none', borderTop: '1px solid rgba(200,169,110,0.1)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
               Cerrar sesión
             </button>
-          </div>
+          </div>,
+          document.body
         )}
-      </div>
+      </>
     )
   }
 
