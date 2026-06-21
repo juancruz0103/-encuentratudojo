@@ -120,6 +120,73 @@ function FotosEditor({ schoolId }: { schoolId: number }) {
 }
 
 // ══════════════════════════════
+// CAMPO DE FECHA DD/MM/AAAA
+// (reemplaza <input type="date"> nativo: el navegador arma mal los
+// segmentos día/mes/año cuando se tipea una fecha completa rápido)
+// ══════════════════════════════
+function DateFieldDMY({ label, value, onChange }: { label: string; value: string; onChange: (iso: string) => void }) {
+  const [day,   setDay]   = useState('')
+  const [month, setMonth] = useState('')
+  const [year,  setYear]  = useState('')
+
+  const dayRef   = useRef<HTMLInputElement>(null)
+  const monthRef = useRef<HTMLInputElement>(null)
+  const yearRef  = useRef<HTMLInputElement>(null)
+
+  // Sincroniza si el value externo cambia (ej: al abrir "Editar" en un anuncio existente)
+  useEffect(() => {
+    const [y, m, d] = value ? value.split('-') : ['', '', '']
+    setDay(d ?? ''); setMonth(m ?? ''); setYear(y ?? '')
+  }, [value])
+
+  function emit(d: string, m: string, y: string) {
+    if (d.length === 2 && m.length === 2 && y.length === 4) onChange(`${y}-${m}-${d}`)
+    else if (!d && !m && !y) onChange('')
+  }
+
+  function handleDay(raw: string) {
+    let v = raw.replace(/\D/g, '').slice(0, 2)
+    if (v.length === 2 && parseInt(v) > 31) v = '31'
+    setDay(v); emit(v, month, year)
+    if (v.length === 2) { monthRef.current?.focus(); monthRef.current?.select() }
+  }
+  function handleMonth(raw: string) {
+    let v = raw.replace(/\D/g, '').slice(0, 2)
+    if (v.length === 2 && parseInt(v) > 12) v = '12'
+    setMonth(v); emit(day, v, year)
+    if (v.length === 2) { yearRef.current?.focus(); yearRef.current?.select() }
+  }
+  function handleYear(raw: string) {
+    const v = raw.replace(/\D/g, '').slice(0, 4)
+    setYear(v); emit(day, month, v)
+  }
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>, field: 'month' | 'year') {
+    if (e.key !== 'Backspace') return
+    if (field === 'month' && month === '') { dayRef.current?.focus(); dayRef.current?.select() }
+    if (field === 'year' && year === '') { monthRef.current?.focus(); monthRef.current?.select() }
+  }
+
+  const dateLbl = { fontSize:11, textTransform:'uppercase' as const, letterSpacing:'0.1em', color:'var(--wood-light)', display:'block' as const, marginBottom:5, fontWeight:500 }
+  const seg = { border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'10px 0', fontSize:14, fontFamily:'var(--font-body)', outline:'none', background:'#fff', textAlign:'center' as const, boxSizing:'border-box' as const }
+
+  return (
+    <div>
+      <label style={dateLbl}>{label}</label>
+      <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+        <input ref={dayRef} value={day} onChange={e => handleDay(e.target.value)}
+          placeholder="DD" maxLength={2} inputMode="numeric" style={{ ...seg, width:38 }} />
+        <span style={{ color:'var(--wood-light)' }}>/</span>
+        <input ref={monthRef} value={month} onChange={e => handleMonth(e.target.value)} onKeyDown={e => handleKeyDown(e,'month')}
+          placeholder="MM" maxLength={2} inputMode="numeric" style={{ ...seg, width:38 }} />
+        <span style={{ color:'var(--wood-light)' }}>/</span>
+        <input ref={yearRef} value={year} onChange={e => handleYear(e.target.value)} onKeyDown={e => handleKeyDown(e,'year')}
+          placeholder="AAAA" maxLength={4} inputMode="numeric" style={{ ...seg, width:56 }} />
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════
 // PUBLICAR ANUNCIO EN TABLERO
 // ══════════════════════════════
 const TIPOS_ANUNCIO = [
@@ -262,8 +329,8 @@ function PublicarAnuncioPanel({ schoolId, schoolName }: { schoolId: number; scho
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))', gap:12, marginTop:12 }}>
-            <div><label style={lbl}>Fecha inicio</label><input type="date" style={inp} value={form.date_start} onChange={e => set('date_start', e.target.value)} /></div>
-            <div><label style={lbl}>Fecha fin</label><input type="date" style={inp} value={form.date_end} onChange={e => set('date_end', e.target.value)} /></div>
+            <DateFieldDMY label="Fecha inicio" value={form.date_start} onChange={v => set('date_start', v)} />
+            <DateFieldDMY label="Fecha fin" value={form.date_end} onChange={v => set('date_end', v)} />
             <div><label style={lbl}>Horario</label><input style={inp} value={form.time_info} onChange={e => set('time_info', e.target.value)} placeholder="14:00 a 18:00 hs" /></div>
             <div><label style={lbl}>Inscripción</label><input style={inp} value={form.enrollment} onChange={e => set('enrollment', e.target.value)} placeholder="$2.500 / Gratuita" /></div>
             <div><label style={lbl}>Ubicación</label><input style={inp} value={form.location} onChange={e => set('location', e.target.value)} /></div>
