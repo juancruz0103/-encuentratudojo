@@ -73,8 +73,6 @@ export default function AdminPage() {
       const { data: revenueData } = await sb.from('schools').select('monthly_fee_usd, status').eq('status', 'active')
       const totalRevenue = revenueData?.reduce((s: number, r: any) => s + (parseFloat(r.monthly_fee_usd) || 0), 0) ?? 0
 
-      setStats({ totalSchools, activeSchools, totalUsers: (usrs ?? []).length, reportedReviews, totalRevenue })
-
       // Escuelas
       const { data: sc } = await sb.from('schools')
         .select('*, discipline:disciplines(label), owner:users(email, first_name, last_name)')
@@ -84,6 +82,8 @@ export default function AdminPage() {
       // Usuarios (con ban status via RPC)
       const { data: usrs } = await sb.rpc('admin_get_users_with_ban_status')
       setUsers(usrs ?? [])
+
+      setStats({ totalSchools, activeSchools, totalUsers: (usrs ?? []).length, reportedReviews, totalRevenue })
 
       // Reseñas
       const { data: revs } = await sb.from('reviews')
