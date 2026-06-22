@@ -63,21 +63,17 @@ export default function AdminPage() {
       const [
         { count: totalSchools },
         { count: activeSchools },
-        { count: totalUsers },
-        { count: bannedUsers },
         { count: reportedReviews },
       ] = await Promise.all([
         sb.from('schools').select('*', { count: 'exact', head: true }),
         sb.from('schools').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-        sb.from('users').select('*', { count: 'exact', head: true }).neq('type', 'admin'),
-        sb.from('users').select('*', { count: 'exact', head: true }).neq('type', 'admin'),  // unused slot — keeps tuple length
         sb.from('reviews').select('*', { count: 'exact', head: true }).eq('reported', true),
       ])
 
       const { data: revenueData } = await sb.from('schools').select('monthly_fee_usd, status').eq('status', 'active')
       const totalRevenue = revenueData?.reduce((s: number, r: any) => s + (parseFloat(r.monthly_fee_usd) || 0), 0) ?? 0
 
-      setStats({ totalSchools, activeSchools, totalUsers, reportedReviews, totalRevenue })
+      setStats({ totalSchools, activeSchools, totalUsers: (usrs ?? []).length, reportedReviews, totalRevenue })
 
       // Escuelas
       const { data: sc } = await sb.from('schools')
