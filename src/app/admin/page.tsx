@@ -70,7 +70,7 @@ export default function AdminPage() {
         sb.from('schools').select('*', { count: 'exact', head: true }),
         sb.from('schools').select('*', { count: 'exact', head: true }).eq('status', 'active'),
         sb.from('users').select('*', { count: 'exact', head: true }).neq('type', 'admin'),
-        sb.from('users').select('*', { count: 'exact', head: true }),  // placeholder
+        sb.from('users').select('*', { count: 'exact', head: true }).neq('type', 'admin'),  // unused slot — keeps tuple length
         sb.from('reviews').select('*', { count: 'exact', head: true }).eq('reported', true),
       ])
 
@@ -380,11 +380,11 @@ export default function AdminPage() {
                 <span style={{ fontSize: 12, color: 'var(--crimson)' }}>{reportedRev.length} reportadas</span>
               </div>
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
                   <thead>
                     <tr style={{ background: 'var(--parchment-dark)' }}>
-                      {['Autor', 'Escuela', 'Rating', 'Reseña', 'Estado', 'Acciones'].map((h, i) => (
-                        <th key={i} style={th}>{h}</th>
+                      {[['Autor','15%'], ['Escuela','18%'], ['Rating','12%'], ['Reseña','28%'], ['Estado','12%'], ['Acciones','15%']].map(([h,w], i) => (
+                        <th key={i} style={{ ...th, width: w }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -396,7 +396,7 @@ export default function AdminPage() {
                           <Link href={`/escuela/${r.school?.slug}`} style={{ color: 'var(--gold)', textDecoration: 'none' }}>{r.school?.name}</Link>
                         </td>
                         <td style={td_({ color: 'var(--gold)', fontWeight: 600 })}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</td>
-                        <td style={td_({ maxWidth: 280 })}>
+                        <td style={td_({ maxWidth: 240, width: 240 })}>
                           <div style={{ fontSize: 12, color: 'var(--ink-soft)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.text}</div>
                           <div style={{ display: 'flex', gap: 6, marginTop: 3 }}>
                             {r.reported   && <span style={{ fontSize: 10, color: '#e74c3c', fontWeight: 600 }}>🚨 REPORTADA</span>}
