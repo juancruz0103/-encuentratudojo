@@ -44,13 +44,20 @@ export default function SchoolProfileClient({ school }: { school: School }) {
   const [reviewError, setReviewError]   = useState<string | null>(null)
   const [reviewSuccess, setReviewSuccess] = useState(false)
   const [currentUser, setCurrentUser]   = useState<any>(null)
+  const [isFav, setIsFav]               = useState(false)
 
   const discColor = school.discipline?.color ?? '#8b1a1a'
 
-  // Cargar reseñas y usuario actual
+  // Cargar reseñas, usuario actual y favoritos
   useEffect(() => {
     const sb = createClient()
     sb.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
+
+    // Favoritos desde localStorage
+    try {
+      const favs: number[] = JSON.parse(localStorage.getItem('etd_favorites') || '[]')
+      setIsFav(favs.includes(school.id))
+    } catch {}
 
     sb.from('reviews')
       .select('*')
@@ -62,6 +69,15 @@ export default function SchoolProfileClient({ school }: { school: School }) {
         setReviewsLoading(false)
       })
   }, [school.id])
+
+  function toggleFav() {
+    try {
+      const favs: number[] = JSON.parse(localStorage.getItem('etd_favorites') || '[]')
+      const next = isFav ? favs.filter((id: number) => id !== school.id) : [...favs, school.id]
+      localStorage.setItem('etd_favorites', JSON.stringify(next))
+      setIsFav(!isFav)
+    } catch {}
+  }
 
   async function handleSubmitReview() {
     if (!reviewForm.text.trim()) { setReviewError('Escribí un comentario'); return }
@@ -404,6 +420,11 @@ export default function SchoolProfileClient({ school }: { school: School }) {
                 style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', background:'transparent', color:'rgba(250,248,244,0.5)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500, padding:14, borderRadius:3, border:'1px solid rgba(250,248,244,0.15)', cursor:'pointer', fontFamily:'var(--font-body)', textDecoration:'none' }}>
                 ✉ Enviar mensaje
               </a>
+              <button
+                onClick={toggleFav}
+                style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', background:'transparent', color: isFav ? 'var(--crimson)' : 'rgba(250,248,244,0.5)', fontSize:11, textTransform:'uppercase', letterSpacing:'0.1em', fontWeight:500, padding:14, borderRadius:3, border:`1px solid ${isFav ? 'rgba(139,26,26,0.5)' : 'rgba(250,248,244,0.15)'}`, cursor:'pointer', fontFamily:'var(--font-body)', marginTop:8 }}>
+                {isFav ? '♥ En favoritos' : '♡ Guardar en favoritos'}
+              </button>
             </div>
           </div>
 

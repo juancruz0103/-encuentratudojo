@@ -273,6 +273,8 @@ function EditarPerfilAlumno({ profile, userId }: { profile: any; userId?: string
     const { error: err } = await sb.from('users').update(form).eq('id', userId)
     setSaving(false)
     if (err) { setError(err.message); return }
+    // Recargar form con datos guardados para reflejar en pantalla
+    setForm(f => ({ ...f }))
     setSaved(true); setTimeout(() => setSaved(false), 3000)
   }
 
