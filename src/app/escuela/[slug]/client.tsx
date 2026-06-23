@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NavBar from '@/components/NavBar'
+import { createClient } from '@/lib/supabase/client'
 import { trackContactEvent } from '@/lib/supabase/public'
 import type { School } from '@/types/database'
 
@@ -34,26 +35,63 @@ export default function SchoolProfileClient({ school }: { school: School }) {
   const [slotIdx, setSlotIdx] = useState<number | null>(null)
   const [form, setForm]       = useState({ nombre:'', apellido:'', email:'', tel:'', nivel:'principiante' })
   const [success, setSuccess] = useState(false)
-  const [isFav, setIsFav]     = useState(false)
 
-  // Leer favoritos de localStorage al montar
-  useEffect(() => {
-    try {
-      const favs: number[] = JSON.parse(localStorage.getItem('etd_favoritos') || '[]')
-      setIsFav(favs.includes(school.id))
-    } catch {}
-  }, [school.id])
-
-  function toggleFav() {
-    try {
-      const favs: number[] = JSON.parse(localStorage.getItem('etd_favoritos') || '[]')
-      const next = isFav ? favs.filter(id => id !== school.id) : [...favs, school.id]
-      localStorage.setItem('etd_favoritos', JSON.stringify(next))
-      setIsFav(!isFav)
-    } catch {}
-  }
+  // Reseñas
+  const [reviews, setReviews]           = useState<any[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(true)
+  const [reviewForm, setReviewForm]     = useState({ rating: 5, text: '' })
+  const [reviewSaving, setReviewSaving] = useState(false)
+  const [reviewError, setReviewError]   = useState<string | null>(null)
+  const [reviewSuccess, setReviewSuccess] = useState(false)
+  const [currentUser, setCurrentUser]   = useState<any>(null)
 
   const discColor = school.discipline?.color ?? '#8b1a1a'
+
+  // Cargar reseñas y usuario actual
+  useEffect(() => {
+    const sb = createClient()
+    sb.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
+
+    sb.from('reviews')
+      .select('*')
+      .eq('school_id', school.id)
+      .eq('suspended', false)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setReviews(data ?? [])
+        setReviewsLoading(false)
+      })
+  }, [school.id])
+
+  async function handleSubmitReview() {
+    if (!reviewForm.text.trim()) { setReviewError('Escribí un comentario'); return }
+    if (!currentUser) { setReviewError('Tenés que estar logueado para dejar una reseña'); return }
+
+    setReviewSaving(true); setReviewError(null)
+    const sb = createClient()
+    const { data: prof } = await sb.from('users').select('first_name,last_name').eq('id', currentUser.id).single()
+    const authorName = prof ? `${prof.first_name ?? ''} ${prof.last_name ?? ''}`.trim() : 'Alumno ETD'
+
+    const { error } = await sb.from('reviews').insert({
+      school_id: school.id,
+      user_id:   currentUser.id,
+      author:    authorName || 'Alumno ETD',
+      rating:    reviewForm.rating,
+      text:      reviewForm.text.trim(),
+    })
+
+    setReviewSaving(false)
+    if (error) { setReviewError('No se pudo guardar la reseña: ' + error.message); return }
+
+    // Recargar reseñas
+    const { data: fresh } = await sb.from('reviews')
+      .select('*').eq('school_id', school.id).eq('suspended', false)
+      .order('created_at', { ascending: false })
+    setReviews(fresh ?? [])
+    setReviewForm({ rating: 5, text: '' })
+    setReviewSuccess(true)
+    setTimeout(() => setReviewSuccess(false), 4000)
+  }
 
   const quickInfo = [
     { label:'Ubicación',       val:`${school.neighborhood}, ${school.city}` },
@@ -85,22 +123,42 @@ export default function SchoolProfileClient({ school }: { school: School }) {
     window.open(`https://wa.me/${school.whatsapp}?text=${msg}`, '_blank')
   }
 
-  function confirmarReserva() {
+  async function confirmarReserva() {
     if (slotIdx === null) return
     trackContactEvent(school.id, 'trial_confirmed', { slot: SLOTS[slotIdx], nivel: form.nivel })
-    const reserva = {
-      id: 'res-' + Date.now(), escuela: school.name, escuelaId: school.id,
-      disc: school.discipline?.label,
-      nombre: `${form.nombre} ${form.apellido}`.trim(),
-      email: form.email, slot: `${SLOTS[slotIdx].dia} ${SLOTS[slotIdx].hora}`,
-      nivel: form.nivel, estado: 'pendiente',
-      fecha: new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' }),
-      timestamp: Date.now(),
-    }
+
+    const sb = createClient()
+    const { data: { user } } = await sb.auth.getUser()
+
+    // Guardar en Supabase
+    await sb.from('bookings').insert({
+      school_id: school.id,
+      user_id:   user?.id ?? null,
+      name:      `${form.nombre} ${form.apellido}`.trim(),
+      email:     form.email,
+      phone:     form.tel || '—',
+      level:     form.nivel,
+      slot_day:  SLOTS[slotIdx].dia,
+      slot_time: SLOTS[slotIdx].hora,
+      note:      '',
+      status:    'pendiente',
+    })
+
+    // También guardar en sessionStorage como respaldo visual inmediato
     try {
+      const reserva = {
+        id: 'res-' + Date.now(), escuela: school.name, escuelaId: school.id,
+        disc: school.discipline?.label,
+        nombre: `${form.nombre} ${form.apellido}`.trim(),
+        email: form.email, slot: `${SLOTS[slotIdx].dia} ${SLOTS[slotIdx].hora}`,
+        nivel: form.nivel, estado: 'pendiente',
+        fecha: new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' }),
+        timestamp: Date.now(),
+      }
       const prev = JSON.parse(sessionStorage.getItem('etd_reservas') || '[]')
       sessionStorage.setItem('etd_reservas', JSON.stringify([reserva, ...prev]))
     } catch {}
+
     setSuccess(true)
   }
 
@@ -151,21 +209,6 @@ export default function SchoolProfileClient({ school }: { school: School }) {
                 ✓ Verificada
               </span>
             )}
-            {/* Botón favorito */}
-            <button
-              onClick={toggleFav}
-              title={isFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                background: isFav ? 'rgba(192,57,43,0.15)' : 'rgba(250,248,244,0.08)',
-                border: `1px solid ${isFav ? 'rgba(192,57,43,0.4)' : 'rgba(250,248,244,0.2)'}`,
-                borderRadius: 20, padding: '5px 14px', cursor: 'pointer',
-                fontSize: 12, color: isFav ? '#e74c3c' : 'rgba(250,248,244,0.6)',
-                fontFamily: 'var(--font-body)', fontWeight: 500,
-                transition: 'all 0.2s',
-              }}>
-              {isFav ? '❤️' : '🤍'} {isFav ? 'Guardada' : 'Guardar'}
-            </button>
           </div>
         </div>
       </div>
@@ -249,6 +292,80 @@ export default function SchoolProfileClient({ school }: { school: School }) {
               </div>
             </div>
           )}
+
+          {/* ── RESEÑAS ── */}
+          <div className="etd-section-card">
+            <div className="etd-section-card-header">
+              <span className="etd-section-card-title">Reseñas</span>
+              <span style={{ fontSize:13, color:'var(--wood-light)' }}>{reviews.length} {reviews.length === 1 ? 'reseña' : 'reseñas'}</span>
+            </div>
+            <div className="etd-section-card-body">
+
+              {/* Formulario nueva reseña */}
+              {currentUser ? (
+                <div style={{ background:'var(--parchment-dark)', borderRadius:6, padding:16, marginBottom:20 }}>
+                  <div style={{ fontSize:13, fontWeight:500, color:'var(--ink)', marginBottom:12 }}>Dejá tu reseña</div>
+
+                  {/* Estrellas */}
+                  <div style={{ display:'flex', gap:6, marginBottom:10 }}>
+                    {[1,2,3,4,5].map(n => (
+                      <button key={n} onClick={() => setReviewForm(p => ({ ...p, rating: n }))}
+                        style={{ fontSize:22, background:'none', border:'none', cursor:'pointer', color: n <= reviewForm.rating ? 'var(--gold)' : 'rgba(122,92,58,0.25)', padding:0, lineHeight:1 }}>
+                        ★
+                      </button>
+                    ))}
+                    <span style={{ fontSize:12, color:'var(--wood-light)', alignSelf:'center', marginLeft:4 }}>{reviewForm.rating}/5</span>
+                  </div>
+
+                  <textarea
+                    value={reviewForm.text}
+                    onChange={e => setReviewForm(p => ({ ...p, text: e.target.value }))}
+                    placeholder="Contá tu experiencia con esta escuela..."
+                    rows={3}
+                    style={{ width:'100%', border:'1px solid rgba(122,92,58,0.2)', borderRadius:3, padding:'10px 12px', fontSize:13, fontFamily:'var(--font-body)', resize:'vertical', outline:'none', color:'var(--ink)', background:'#fff', boxSizing:'border-box' }}
+                  />
+
+                  {reviewError   && <p style={{ fontSize:12, color:'var(--crimson)', marginTop:6 }}>{reviewError}</p>}
+                  {reviewSuccess && <p style={{ fontSize:12, color:'#27ae60', marginTop:6 }}>✓ ¡Reseña publicada!</p>}
+
+                  <button onClick={handleSubmitReview} disabled={reviewSaving}
+                    style={{ marginTop:10, padding:'9px 20px', background:'var(--crimson)', color:'#fff', border:'none', borderRadius:3, cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)', fontWeight:500, opacity: reviewSaving ? 0.7 : 1 }}>
+                    {reviewSaving ? 'Publicando...' : 'Publicar reseña'}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ background:'var(--parchment-dark)', borderRadius:6, padding:14, marginBottom:20, fontSize:13, color:'var(--wood-light)', textAlign:'center' }}>
+                  <Link href="/auth" style={{ color:'var(--crimson)', fontWeight:500 }}>Iniciá sesión</Link> para dejar una reseña
+                </div>
+              )}
+
+              {/* Lista de reseñas */}
+              {reviewsLoading ? (
+                <div style={{ textAlign:'center', padding:20, color:'var(--wood-light)', fontSize:13 }}>Cargando reseñas...</div>
+              ) : reviews.length === 0 ? (
+                <div style={{ textAlign:'center', padding:20, color:'var(--wood-light)', fontSize:13 }}>
+                  Todavía no hay reseñas. ¡Sé el primero!
+                </div>
+              ) : (
+                <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                  {reviews.map((r, i) => (
+                    <div key={r.id ?? i} style={{ paddingBottom:14, borderBottom: i < reviews.length - 1 ? '1px solid rgba(122,92,58,0.07)' : 'none' }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:4 }}>
+                        <div>
+                          <span style={{ fontSize:13, fontWeight:500, color:'var(--ink)' }}>{r.author}</span>
+                          <span style={{ fontSize:12, color:'var(--gold)', marginLeft:8 }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                        </div>
+                        <span style={{ fontSize:11, color:'var(--wood-light)' }}>
+                          {new Date(r.created_at).toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' })}
+                        </span>
+                      </div>
+                      <p style={{ fontSize:13, color:'var(--ink-soft)', lineHeight:1.6, margin:0 }}>{r.text}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
 
         </div>
 
