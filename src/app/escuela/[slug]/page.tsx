@@ -1,4 +1,4 @@
-import { getPublicSchoolBySlug, getPublicSchools } from '@/lib/supabase/public'
+import { getPublicSchoolBySlug, getPublicSchools, getPublicSchoolSchedules } from '@/lib/supabase/public'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import SchoolProfileClient from './client'
@@ -22,5 +22,6 @@ export default async function SchoolPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params
   const school = await getPublicSchoolBySlug(slug)
   if (!school) notFound()
-  return <SchoolProfileClient school={school} />
+  const schedules = await getPublicSchoolSchedules(school.id)
+  return <SchoolProfileClient school={school} schedules={schedules ?? []} />
 }

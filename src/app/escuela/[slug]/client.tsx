@@ -29,7 +29,7 @@ const FEATURES = [
   'Cuota familiar disponible',
 ]
 
-export default function SchoolProfileClient({ school }: { school: School }) {
+export default function SchoolProfileClient({ school, schedules = [] }: { school: School; schedules?: any[] }) {
   const [modal, setModal]     = useState(false)
   const [step, setStep]       = useState(1)
   const [slotIdx, setSlotIdx] = useState<number | null>(null)
@@ -306,6 +306,38 @@ export default function SchoolProfileClient({ school }: { school: School }) {
                       </div>
                     ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── HORARIOS ── */}
+          {schedules.length > 0 && (
+            <div className="etd-section-card">
+              <div className="etd-section-card-header">
+                <span className="etd-section-card-title">Horarios de clases</span>
+              </div>
+              <div className="etd-section-card-body" style={{ padding: 0 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ background: 'var(--parchment-dark)' }}>
+                      {['Día', 'Horario', 'Clase', 'Nivel'].map((h, i) => (
+                        <th key={i} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: 'var(--wood-light)', textTransform: 'uppercase', letterSpacing: '0.07em', borderBottom: '1px solid rgba(122,92,58,0.1)' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {schedules.map((s: any, i: number) => (
+                      <tr key={s.id ?? i} style={{ borderBottom: '1px solid rgba(122,92,58,0.06)' }}>
+                        <td style={{ padding: '11px 16px', fontWeight: 500, color: 'var(--ink)' }}>{s.dia}</td>
+                        <td style={{ padding: '11px 16px', color: 'var(--ink-soft)', whiteSpace: 'nowrap' }}>{s.hora_inicio}{s.hora_fin ? ` — ${s.hora_fin}` : ''}</td>
+                        <td style={{ padding: '11px 16px', color: 'var(--ink-soft)' }}>{s.clase}</td>
+                        <td style={{ padding: '11px 16px' }}>
+                          <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 10, background: 'var(--crimson-pale)', color: 'var(--crimson)', fontWeight: 500 }}>{s.nivel}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
