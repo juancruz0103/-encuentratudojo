@@ -60,8 +60,12 @@ function AuthContent() {
   // Estilo del botón ojo
   const eyeBtn: React.CSSProperties = {
     position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-    background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
-    color: 'var(--wood-light)', fontSize: 16, lineHeight: 1, display: 'flex', alignItems: 'center',
+    background: 'none', border: 'none', cursor: 'pointer', padding: '0 2px',
+    color: 'rgba(122,92,58,0.5)', fontSize: 15, lineHeight: 1,
+    display: 'flex', alignItems: 'center', zIndex: 2,
+  }
+  const pwWrap: React.CSSProperties = {
+    position: 'relative', display: 'flex', alignItems: 'center',
   }
 
   return (
@@ -109,10 +113,13 @@ function AuthContent() {
                 </div>
                 <div className="etd-form-field">
                   <label className="etd-form-label">Contraseña</label>
-                  <div style={{ position: 'relative' }}>
-                    <input name="password" type={showPw ? 'text' : 'password'} required autoComplete="current-password" className="etd-form-input" placeholder="••••••••" style={{ paddingRight: 38 }} />
-                    <button type="button" onClick={() => setShowPw(p => !p)} style={eyeBtn} tabIndex={-1} aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
-                      {showPw ? '🙈' : '👁'}
+                  <div style={pwWrap}>
+                    <input name="password" type={showPw ? 'text' : 'password'} required autoComplete="current-password" className="etd-form-input" placeholder="••••••••" style={{ paddingRight: 36, width: '100%' }} />
+                    <button type="button" onClick={() => setShowPw(p => !p)} style={eyeBtn} tabIndex={-1} aria-label={showPw ? 'Ocultar' : 'Mostrar'}>
+                      {showPw
+                        ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
                     </button>
                   </div>
                 </div>
@@ -146,19 +153,25 @@ function AuthContent() {
                 </div>
                 <div className="etd-form-field">
                   <label className="etd-form-label">Contraseña *</label>
-                  <div style={{ position: 'relative' }}>
-                    <input name="password" type={showPw ? 'text' : 'password'} required className="etd-form-input" placeholder="Mínimo 8 caracteres" style={{ paddingRight: 38 }} />
+                  <div style={pwWrap}>
+                    <input name="password" type={showPw ? 'text' : 'password'} required className="etd-form-input" placeholder="Mínimo 8 caracteres" style={{ paddingRight: 36, width: '100%' }} />
                     <button type="button" onClick={() => setShowPw(p => !p)} style={eyeBtn} tabIndex={-1} aria-label={showPw ? 'Ocultar' : 'Mostrar'}>
-                      {showPw ? '🙈' : '👁'}
+                      {showPw
+                        ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
                     </button>
                   </div>
                 </div>
                 <div className="etd-form-field">
                   <label className="etd-form-label">Confirmar contraseña *</label>
-                  <div style={{ position: 'relative' }}>
-                    <input name="confirm" type={showPwConfirm ? 'text' : 'password'} required className="etd-form-input" placeholder="Repetí tu contraseña" style={{ paddingRight: 38 }} />
+                  <div style={pwWrap}>
+                    <input name="confirm" type={showPwConfirm ? 'text' : 'password'} required className="etd-form-input" placeholder="Repetí tu contraseña" style={{ paddingRight: 36, width: '100%' }} />
                     <button type="button" onClick={() => setShowPwConfirm(p => !p)} style={eyeBtn} tabIndex={-1} aria-label={showPwConfirm ? 'Ocultar' : 'Mostrar'}>
-                      {showPwConfirm ? '🙈' : '👁'}
+                      {showPwConfirm
+                        ? <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      }
                     </button>
                   </div>
                 </div>
