@@ -8,9 +8,8 @@ import Link from 'next/link'
 function AuthContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [mode, setMode]       = useState<'login' | 'register'>('login')
+  const [mode, setMode] = useState<'login' | 'register'>('login')
 
-  // Leer error del callback y redirect destino
   useEffect(() => {
     const err = searchParams.get('error')
     const msg = searchParams.get('message')
@@ -19,10 +18,12 @@ function AuthContent() {
   }, [searchParams])
 
   const redirectTo = searchParams.get('redirect') ?? ''
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState<string | null>(null)
+  const [success, setSuccess]   = useState<string | null>(null)
   const [userType, setUserType] = useState<'alumno' | 'escuela'>('alumno')
+  const [showPw, setShowPw]     = useState(false)
+  const [showPwConfirm, setShowPwConfirm] = useState(false)
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -52,38 +53,27 @@ function AuthContent() {
     if (error) { setError('Error al crear la cuenta. Intentá de nuevo.'); setLoading(false); return }
     setSuccess(userType === 'escuela'
       ? '¡Cuenta creada! Revisá tu email para confirmar. Luego podrás registrar tu escuela.'
-      : '¡Bienvenido! Revisá tu email para confirmar tu cuenta.')
+      : '¡Bienvenido! Ya podés ingresar con tu cuenta.')
     setLoading(false)
+  }
+
+  // Estilo del botón ojo
+  const eyeBtn: React.CSSProperties = {
+    position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+    background: 'none', border: 'none', cursor: 'pointer', padding: '4px',
+    color: 'var(--wood-light)', fontSize: 16, lineHeight: 1, display: 'flex', alignItems: 'center',
   }
 
   return (
     <div className="etd-auth-wrap" style={{ position: 'relative' }}>
-      {/* Grid de fondo igual al hero */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: [
-          'repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,169,110,0.03) 59px, rgba(200,169,110,0.03) 60px)',
-          'repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,169,110,0.03) 59px, rgba(200,169,110,0.03) 60px)',
-        ].join(','),
-      }} />
-      {/* Acento vertical izquierdo */}
-      <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, pointerEvents: 'none',
-        background: 'linear-gradient(to bottom, transparent, var(--crimson) 20%, var(--crimson-bright) 80%, transparent)',
-      }} />
-      {/* Kanji de fondo */}
-      <div style={{
-        position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%) translateX(40%)', maxWidth: '100%',
-        fontFamily: 'var(--font-jp)', fontSize: 360, lineHeight: 1,
-        color: 'rgba(200,169,110,0.03)', pointerEvents: 'none', userSelect: 'none',
-      }}>武道</div>
-      {/* Kanji de fondo */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: ['repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,169,110,0.03) 59px, rgba(200,169,110,0.03) 60px)', 'repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,169,110,0.03) 59px, rgba(200,169,110,0.03) 60px)'].join(',') }} />
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, pointerEvents: 'none', background: 'linear-gradient(to bottom, transparent, var(--crimson) 20%, var(--crimson-bright) 80%, transparent)' }} />
+      <div style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%) translateX(40%)', maxWidth: '100%', fontFamily: 'var(--font-jp)', fontSize: 360, lineHeight: 1, color: 'rgba(200,169,110,0.03)', pointerEvents: 'none', userSelect: 'none' }}>武道</div>
       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden' }}>
         <span style={{ fontFamily: 'var(--font-jp)', fontSize: '400px', color: 'rgba(200,169,110,0.025)', lineHeight: 1, userSelect: 'none' }}>武</span>
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '440px' }}>
-        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
             <span className="etd-nav-kanji">武</span>
@@ -92,7 +82,6 @@ function AuthContent() {
         </div>
 
         <div className="etd-auth-card">
-          {/* Tabs */}
           <div className="etd-auth-tabs">
             <button onClick={() => { setMode('login'); setError(null) }} className={`etd-auth-tab${mode === 'login' ? ' active' : ''}`}>Ingresar</button>
             <button onClick={() => { setMode('register'); setError(null) }} className={`etd-auth-tab${mode === 'register' ? ' active' : ''}`}>Registrarse</button>
@@ -120,7 +109,12 @@ function AuthContent() {
                 </div>
                 <div className="etd-form-field">
                   <label className="etd-form-label">Contraseña</label>
-                  <input name="password" type="password" required autoComplete="current-password" className="etd-form-input" placeholder="••••••••" />
+                  <div style={{ position: 'relative' }}>
+                    <input name="password" type={showPw ? 'text' : 'password'} required autoComplete="current-password" className="etd-form-input" placeholder="••••••••" style={{ paddingRight: 38 }} />
+                    <button type="button" onClick={() => setShowPw(p => !p)} style={eyeBtn} tabIndex={-1} aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
+                      {showPw ? '🙈' : '👁'}
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" disabled={loading} className="etd-btn-submit">
                   {loading ? 'Ingresando...' : 'Ingresar'}
@@ -128,7 +122,6 @@ function AuthContent() {
               </form>
             ) : (
               <form onSubmit={handleRegister}>
-                {/* Tipo de cuenta */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
                   {(['alumno', 'escuela'] as const).map(type => (
                     <button key={type} type="button" onClick={() => setUserType(type)}
@@ -153,11 +146,21 @@ function AuthContent() {
                 </div>
                 <div className="etd-form-field">
                   <label className="etd-form-label">Contraseña *</label>
-                  <input name="password" type="password" required className="etd-form-input" placeholder="Mínimo 8 caracteres" />
+                  <div style={{ position: 'relative' }}>
+                    <input name="password" type={showPw ? 'text' : 'password'} required className="etd-form-input" placeholder="Mínimo 8 caracteres" style={{ paddingRight: 38 }} />
+                    <button type="button" onClick={() => setShowPw(p => !p)} style={eyeBtn} tabIndex={-1} aria-label={showPw ? 'Ocultar' : 'Mostrar'}>
+                      {showPw ? '🙈' : '👁'}
+                    </button>
+                  </div>
                 </div>
                 <div className="etd-form-field">
                   <label className="etd-form-label">Confirmar contraseña *</label>
-                  <input name="confirm" type="password" required className="etd-form-input" placeholder="Repetí tu contraseña" />
+                  <div style={{ position: 'relative' }}>
+                    <input name="confirm" type={showPwConfirm ? 'text' : 'password'} required className="etd-form-input" placeholder="Repetí tu contraseña" style={{ paddingRight: 38 }} />
+                    <button type="button" onClick={() => setShowPwConfirm(p => !p)} style={eyeBtn} tabIndex={-1} aria-label={showPwConfirm ? 'Ocultar' : 'Mostrar'}>
+                      {showPwConfirm ? '🙈' : '👁'}
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" disabled={loading} className="etd-btn-submit">
                   {loading ? 'Creando cuenta...' : 'Crear cuenta'}

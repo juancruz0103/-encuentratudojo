@@ -18,6 +18,7 @@ type AuthInfo =
   | { status: 'guest' }
   | { status: 'alumno'; initials: string; avatarUrl: string | null; firstName: string }
   | { status: 'escuela'; kanji: string; slug: string; name: string }
+  | { status: 'admin'; initials: string; firstName: string }
 
 export default function NavBar({ activeLink, relative }: { activeLink?: string; relative?: boolean }) {
   const [open, setOpen] = useState(false)
@@ -31,7 +32,6 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
   const isActive = (href: string) =>
     activeLink ? activeLink === href : pathname?.startsWith(href)
 
-  // Bloquear scroll del body cuando el menú está abierto
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden'
@@ -41,7 +41,6 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  // Detectar sesión y tipo de usuario (alumno / escuela)
   useEffect(() => {
     let active = true
     const sb = createClient()
@@ -49,6 +48,15 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     sb.auth.getUser().then(async ({ data: { user } }) => {
       if (!active) return
       if (!user) { setAuth({ status: 'guest' }); return }
+
+      // Detectar admin por app_metadata o user_metadata
+      const appType = user.app_metadata?.type
+      const metaType = user.user_metadata?.type
+      if (appType === 'admin' || metaType === 'admin') {
+        const name = user.user_metadata?.first_name || user.email?.split('@')[0] || 'Admin'
+        setAuth({ status: 'admin', initials: 'AD', firstName: name })
+        return
+      }
 
       const { data: profile } = await sb.from('users')
         .select('type, first_name, last_name, avatar_url')
@@ -79,7 +87,6 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
       }
     })
 
-    // Mantener sincronizado si se loguea/desloguea en otra pestaña o acción
     const { data: listener } = sb.auth.onAuthStateChange((_event, session) => {
       if (!session?.user) setAuth({ status: 'guest' })
     })
@@ -87,7 +94,6 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     return () => { active = false; listener.subscription.unsubscribe() }
   }, [])
 
-  // Cerrar el dropdown del avatar al hacer click afuera (botón o el dropdown en portal)
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       const t = e.target as Node
@@ -99,7 +105,6 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     return () => document.removeEventListener('mousedown', onDocClick)
   }, [])
 
-  // Recalcular posición del dropdown si se hace scroll/resize mientras está abierto
   useEffect(() => {
     if (!menuOpen) return
     function reposition() {
@@ -132,38 +137,39 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     window.location.href = '/'
   }
 
-  const isLoggedIn = auth.status === 'alumno' || auth.status === 'escuela'
+  const isLoggedIn = auth.status === 'alumno' || auth.status === 'escuela' || auth.status === 'admin'
 
-  // ── Avatar (círculo alumno / cuadrado escuela) — versión desktop con dropdown ──
   function DesktopAvatar() {
-    if (auth.status !== 'alumno' && auth.status !== 'escuela') return null
+    if (auth.status !== 'alumno' && auth.status !== 'escuela' && auth.status !== 'admin') return null
     const isEscuela = auth.status === 'escuela'
+    const isAdmin   = auth.status === 'admin'
+
+    const avatarStyle: React.CSSProperties = {
+      width: 36, height: 36,
+      borderRadius: isEscuela ? 6 : '50%',
+      background: isAdmin ? 'rgba(139,26,26,0.25)' : isEscuela ? 'rgba(200,169,110,0.12)' : 'var(--crimson)',
+      border: isAdmin ? '1px solid rgba(139,26,26,0.5)' : '1px solid rgba(200,169,110,0.35)',
+      color: isAdmin ? 'var(--crimson-bright, #d9534f)' : isEscuela ? 'var(--gold)' : '#fff',
+      fontFamily: isEscuela ? 'var(--font-jp)' : 'var(--font-body)',
+      fontSize: isEscuela ? 17 : 12,
+      fontWeight: 600,
+      cursor: 'pointer',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      overflow: 'hidden', flexShrink: 0,
+    }
+
     return (
       <>
-        <button ref={btnRef} onClick={toggleMenu} aria-label="Mi cuenta" aria-expanded={menuOpen}
-          style={{
-            width: 36, height: 36,
-            borderRadius: isEscuela ? 6 : '50%',
-            background: isEscuela ? 'rgba(200,169,110,0.12)' : 'var(--crimson)',
-            border: '1px solid rgba(200,169,110,0.35)',
-            color: isEscuela ? 'var(--gold)' : '#fff',
-            fontFamily: isEscuela ? 'var(--font-jp)' : 'var(--font-body)',
-            fontSize: isEscuela ? 17 : 13,
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            overflow: 'hidden', flexShrink: 0,
-          }}>
+        <button ref={btnRef} onClick={toggleMenu} aria-label="Mi cuenta" aria-expanded={menuOpen} style={avatarStyle}>
           {auth.status === 'alumno'
             ? (auth.avatarUrl
                 ? <img src={auth.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : auth.initials)
-            : auth.kanji}
+            : auth.status === 'escuela'
+            ? auth.kanji
+            : 'A'}
         </button>
 
-        {/* Portal directo a <body>: así el dropdown nunca queda atrapado detrás
-            de elementos con z-index propio (mapas, modales, etc.) en páginas
-            donde el nav usa position:relative en vez de fixed. */}
         {menuOpen && menuPos && typeof document !== 'undefined' && createPortal(
           <div ref={dropdownRef} style={{
             position: 'fixed', top: menuPos.top, right: menuPos.right, minWidth: 190,
@@ -171,19 +177,32 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
             borderRadius: 6, overflow: 'hidden', zIndex: 99999,
             boxShadow: '0 8px 28px rgba(0,0,0,0.45)',
           }}>
+            {/* Nombre */}
             <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(200,169,110,0.1)', fontSize: 12, color: 'rgba(250,248,244,0.4)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {auth.status === 'alumno' ? auth.firstName : auth.name}
+              {auth.status === 'admin' ? 'Administrador' : auth.status === 'alumno' ? auth.firstName : auth.name}
             </div>
-            <Link href={auth.status === 'alumno' ? '/panel' : '/dashboard'} onClick={() => setMenuOpen(false)}
-              style={{ display: 'block', padding: '11px 16px', fontSize: 13, color: 'rgba(250,248,244,0.85)', textDecoration: 'none' }}>
-              {auth.status === 'alumno' ? 'Mi panel' : 'Mi dashboard'}
-            </Link>
+
+            {/* Link principal */}
+            {auth.status === 'admin' ? (
+              <Link href="/admin" onClick={() => setMenuOpen(false)}
+                style={{ display: 'block', padding: '11px 16px', fontSize: 13, color: 'rgba(250,248,244,0.85)', textDecoration: 'none' }}>
+                Panel de administración
+              </Link>
+            ) : (
+              <Link href={auth.status === 'alumno' ? '/panel' : '/dashboard'} onClick={() => setMenuOpen(false)}
+                style={{ display: 'block', padding: '11px 16px', fontSize: 13, color: 'rgba(250,248,244,0.85)', textDecoration: 'none' }}>
+                {auth.status === 'alumno' ? 'Mi panel' : 'Mi dashboard'}
+              </Link>
+            )}
+
+            {/* Ver perfil público (solo escuela) */}
             {auth.status === 'escuela' && auth.slug && (
               <Link href={`/escuela/${auth.slug}`} onClick={() => setMenuOpen(false)}
                 style={{ display: 'block', padding: '11px 16px', fontSize: 13, color: 'rgba(250,248,244,0.85)', textDecoration: 'none' }}>
                 Ver perfil público
               </Link>
             )}
+
             <button onClick={handleLogout}
               style={{ display: 'block', width: '100%', textAlign: 'left', padding: '11px 16px', fontSize: 13, color: 'var(--crimson-bright, #d9534f)', background: 'none', border: 'none', borderTop: '1px solid rgba(200,169,110,0.1)', cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
               Cerrar sesión
@@ -195,9 +214,8 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
     )
   }
 
-  // ── Bloque equivalente para el menú mobile ──
   function MobileAuthBlock() {
-    if (auth.status !== 'alumno' && auth.status !== 'escuela') {
+    if (auth.status !== 'alumno' && auth.status !== 'escuela' && auth.status !== 'admin') {
       return (
         <Link href="/auth" onClick={() => setOpen(false)}
           style={{
@@ -213,31 +231,43 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
       )
     }
     const isEscuela = auth.status === 'escuela'
+    const isAdmin   = auth.status === 'admin'
+    const displayName = isAdmin ? 'Administrador' : isEscuela ? (auth as any).name : (auth as any).firstName
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 4px 10px' }}>
           <div style={{
             width: 34, height: 34, flexShrink: 0,
             borderRadius: isEscuela ? 6 : '50%',
-            background: isEscuela ? 'rgba(200,169,110,0.12)' : 'var(--crimson)',
-            border: '1px solid rgba(200,169,110,0.35)',
-            color: isEscuela ? 'var(--gold)' : '#fff',
+            background: isAdmin ? 'rgba(139,26,26,0.25)' : isEscuela ? 'rgba(200,169,110,0.12)' : 'var(--crimson)',
+            border: isAdmin ? '1px solid rgba(139,26,26,0.5)' : '1px solid rgba(200,169,110,0.35)',
+            color: isAdmin ? 'var(--crimson-bright, #d9534f)' : isEscuela ? 'var(--gold)' : '#fff',
             fontFamily: isEscuela ? 'var(--font-jp)' : 'var(--font-body)',
-            fontSize: isEscuela ? 16 : 13, fontWeight: 600,
+            fontSize: isEscuela ? 16 : 12, fontWeight: 600,
             display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
           }}>
-            {auth.status === 'alumno'
-              ? (auth.avatarUrl ? <img src={auth.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : auth.initials)
-              : auth.kanji}
+            {isAdmin ? 'A' : isEscuela ? (auth as any).kanji : (auth as any).avatarUrl
+              ? <img src={(auth as any).avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : (auth as any).initials}
           </div>
-          <span style={{ fontSize: 13, color: 'rgba(250,248,244,0.75)' }}>
-            {auth.status === 'alumno' ? auth.firstName : auth.name}
-          </span>
+          <span style={{ fontSize: 13, color: 'rgba(250,248,244,0.75)' }}>{displayName}</span>
         </div>
-        <Link href={auth.status === 'alumno' ? '/panel' : '/dashboard'} onClick={() => setOpen(false)}
+
+        <Link
+          href={isAdmin ? '/admin' : isEscuela ? '/dashboard' : '/panel'}
+          onClick={() => setOpen(false)}
           style={{ display: 'block', padding: '13px', textAlign: 'center', fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#0e0c0b', background: '#c8a96e', borderRadius: 3, textDecoration: 'none' }}>
-          {auth.status === 'alumno' ? 'Mi panel' : 'Mi dashboard'}
+          {isAdmin ? 'Panel de administración' : isEscuela ? 'Mi dashboard' : 'Mi panel'}
         </Link>
+
+        {isEscuela && (auth as any).slug && (
+          <Link href={`/escuela/${(auth as any).slug}`} onClick={() => setOpen(false)}
+            style={{ display: 'block', padding: '12px', textAlign: 'center', fontSize: 12, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(250,248,244,0.7)', background: 'none', border: '1px solid rgba(250,248,244,0.15)', borderRadius: 3, textDecoration: 'none' }}>
+            Ver perfil público
+          </Link>
+        )}
+
         <button onClick={handleLogout}
           style={{ padding: '12px', textAlign: 'center', fontSize: 12, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(250,248,244,0.55)', background: 'none', border: '1px solid rgba(250,248,244,0.15)', borderRadius: 3, cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
           Cerrar sesión
@@ -254,7 +284,6 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
           <span className="etd-nav-name">EncuentraTuDojo</span>
         </Link>
 
-        {/* Links desktop */}
         <div className="etd-nav-links etd-nav-desktop">
           {NAV_LINKS.map(({ label, href }) => (
             <Link key={href} href={href} className="etd-nav-link"
@@ -267,7 +296,6 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
             : <Link href="/auth" className="etd-nav-cta">Ingresar</Link>}
         </div>
 
-        {/* Botón hamburguesa */}
         <button className="etd-nav-hamburger"
           onClick={() => setOpen(p => !p)}
           aria-label={open ? 'Cerrar menu' : 'Abrir menu'}
@@ -278,57 +306,16 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
         </button>
       </nav>
 
-      {/* Menú mobile — solo en DOM cuando está abierto, evita cualquier overflow */}
       {open && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            zIndex: 9999,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {/* Panel oscuro del menú */}
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              position: 'relative',
-              background: '#0d0b0b',
-              paddingTop: 'var(--nav-h)',
-              borderBottom: '1px solid rgba(200,169,110,0.15)',
-            }}
-          >
-            {/* Botón cerrar — el hamburguesa original queda tapado por el fondo
-                opaco de este panel (que se dibuja encima, en la franja de
-                paddingTop), así que se repite acá mismo, visible y tappeable. */}
-            <button
-              onClick={() => setOpen(false)}
-              aria-label="Cerrar menú"
-              style={{
-                position: 'absolute', top: 0, right: 0,
-                width: 'var(--nav-h)', height: 'var(--nav-h)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                color: 'rgba(250,248,244,0.85)', fontSize: 24, lineHeight: 1,
-              }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', flexDirection: 'column' }}>
+          <div onClick={e => e.stopPropagation()} style={{ position: 'relative', background: '#0d0b0b', paddingTop: 'var(--nav-h)', borderBottom: '1px solid rgba(200,169,110,0.15)' }}>
+            <button onClick={() => setOpen(false)} aria-label="Cerrar menú"
+              style={{ position: 'absolute', top: 0, right: 0, width: 'var(--nav-h)', height: 'var(--nav-h)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'rgba(250,248,244,0.85)', fontSize: 24, lineHeight: 1 }}>
               ✕
             </button>
-
             {NAV_LINKS.map(({ label, href }) => (
-              <Link key={href} href={href}
-                onClick={() => setOpen(false)}
-                style={{
-                  display: 'block',
-                  padding: '18px 24px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: isActive(href) ? '#c8a96e' : 'rgba(250,248,244,0.85)',
-                  borderBottom: '1px solid rgba(200,169,110,0.07)',
-                  textDecoration: 'none',
-                }}>
+              <Link key={href} href={href} onClick={() => setOpen(false)}
+                style={{ display: 'block', padding: '18px 24px', fontSize: '13px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: isActive(href) ? '#c8a96e' : 'rgba(250,248,244,0.85)', borderBottom: '1px solid rgba(200,169,110,0.07)', textDecoration: 'none' }}>
                 {label}
               </Link>
             ))}
@@ -336,12 +323,7 @@ export default function NavBar({ activeLink, relative }: { activeLink?: string; 
               <MobileAuthBlock />
             </div>
           </div>
-
-          {/* Overlay semitransparente — tap para cerrar */}
-          <div
-            onClick={() => setOpen(false)}
-            style={{ flex: 1, background: 'rgba(0,0,0,0.65)' }}
-          />
+          <div onClick={() => setOpen(false)} style={{ flex: 1, background: 'rgba(0,0,0,0.65)' }} />
         </div>
       )}
     </>

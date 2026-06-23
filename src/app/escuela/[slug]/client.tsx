@@ -71,6 +71,7 @@ export default function SchoolProfileClient({ school }: { school: School }) {
   }, [school.id])
 
   function toggleFav() {
+    if (!currentUser) { window.location.href = '/auth?redirect=' + encodeURIComponent(window.location.pathname); return }
     try {
       const favs: number[] = JSON.parse(localStorage.getItem('etd_favorites') || '[]')
       const next = isFav ? favs.filter((id: number) => id !== school.id) : [...favs, school.id]
@@ -81,7 +82,7 @@ export default function SchoolProfileClient({ school }: { school: School }) {
 
   async function handleSubmitReview() {
     if (!reviewForm.text.trim()) { setReviewError('Escribí un comentario'); return }
-    if (!currentUser) { setReviewError('Tenés que estar logueado para dejar una reseña'); return }
+    if (!currentUser) { window.location.href = '/auth?redirect=' + encodeURIComponent(window.location.pathname); return }
 
     setReviewSaving(true); setReviewError(null)
     const sb = createClient()
