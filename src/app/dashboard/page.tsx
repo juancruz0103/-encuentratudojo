@@ -8,11 +8,11 @@ import type { CommissionTier } from '@/types/database'
 
 function calcTier(n: number): { tier: CommissionTier; rate: number; fee: number; min: number; max: number } {
   if (n <= 0)   return { tier:'sin_alumnos', rate:0,    fee:0,                    min:0,   max:40   }
-  if (n <= 40)  return { tier:'pequeño',     rate:1.20, fee:+(n*1.20).toFixed(2), min:1,   max:40   }
-  if (n <= 100) return { tier:'media',       rate:1.00, fee:+(n*1.00).toFixed(2), min:41,  max:100  }
-  if (n <= 200) return { tier:'grande',      rate:0.80, fee:+(n*0.80).toFixed(2), min:101, max:200  }
-  if (n <= 400) return { tier:'premium',     rate:0.65, fee:+(n*0.65).toFixed(2), min:201, max:400  }
-  return               { tier:'multisede',   rate:0.50, fee:+(n*0.50).toFixed(2), min:401, max:999  }
+  if (n <= 40)  return { tier:'pequeño',     rate:0.30, fee:+(n*0.30).toFixed(2), min:1,   max:40   }
+  if (n <= 100) return { tier:'media',       rate:0.25, fee:+(n*0.25).toFixed(2), min:41,  max:100  }
+  if (n <= 200) return { tier:'grande',      rate:0.20, fee:+(n*0.20).toFixed(2), min:101, max:200  }
+  if (n <= 400) return { tier:'premium',     rate:0.15, fee:+(n*0.15).toFixed(2), min:201, max:400  }
+  return               { tier:'multisede',   rate:0.10, fee:+(n*0.10).toFixed(2), min:401, max:999  }
 }
 
 const SECTIONS = ['overview','leads','anuncios','publicar','metricas','comision','perfil'] as const

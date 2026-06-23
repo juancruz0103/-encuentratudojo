@@ -94,11 +94,11 @@ export const COMMISSION_TIERS: Record<CommissionTier, {
   label: string; range: string; rate: number; color: string
 }> = {
   sin_alumnos: { label: 'Sin alumnos',   range: '0',        rate: 0,    color: '#888780' },
-  pequeño:     { label: 'Dojo pequeño',  range: '1 – 40',   rate: 1.20, color: '#888780' },
-  media:       { label: 'Escuela media', range: '41 – 100', rate: 1.00, color: '#185FA5' },
-  grande:      { label: 'Academia grande', range: '101 – 200', rate: 0.80, color: '#3B6D11' },
-  premium:     { label: 'Centro premium',  range: '201 – 400', rate: 0.65, color: '#BA7517' },
-  multisede:   { label: 'Multi-sede',      range: '401+',      rate: 0.50, color: '#A32D2D' },
+  pequeño:     { label: 'Dojo pequeño',  range: '1 – 40',   rate: 0.30, color: '#888780' },
+  media:       { label: 'Escuela media', range: '41 – 100', rate: 0.25, color: '#185FA5' },
+  grande:      { label: 'Academia grande', range: '101 – 200', rate: 0.20, color: '#3B6D11' },
+  premium:     { label: 'Centro premium',  range: '201 – 400', rate: 0.15, color: '#BA7517' },
+  multisede:   { label: 'Multi-sede',      range: '401+',      rate: 0.10, color: '#A32D2D' },
   franquicia:  { label: 'Franquicia',      range: 'Acuerdo especial', rate: 0, color: '#C8A96E' },
 }
 
