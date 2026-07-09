@@ -43,7 +43,7 @@ function CompareRow({ label, a, b, highlight }: { label: string; a: any; b: any;
 
   return (
     <tr style={{ borderTop:'1px solid rgba(122,92,58,0.07)' }}>
-      <td style={{ padding:'12px 16px', fontSize:12, fontWeight:500, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.08em', background:'var(--parchment-dark)', width:160, verticalAlign:'middle' }}>
+      <td style={{ padding:'10px 10px', fontSize:11, fontWeight:500, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.06em', background:'var(--parchment-dark)', width:90, verticalAlign:'middle' }}>
         {label}
       </td>
       <td style={{ padding:'12px 20px', fontSize:14, color: aBetter ? 'var(--crimson)' : 'var(--ink)', fontWeight: aBetter ? 600 : 400, textAlign:'center', background: aBetter ? 'rgba(139,26,26,0.04)' : 'transparent', verticalAlign:'middle' }}>
@@ -119,7 +119,7 @@ function ComparadorContent() {
       <div style={{ maxWidth:1100, margin:'0 auto', padding:'32px clamp(16px,3vw,32px) 80px' }}>
 
         {/* SELECTORES */}
-        <div className='etd-compare-selectors' style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr', gap:16, alignItems:'center', marginBottom:28 }}>
+        <div className='etd-compare-selectors' style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr', gap:16, alignItems:'center', marginBottom:28, gridTemplateRows:'auto' }}>
           {/* Selector A */}
           <div style={{ background:'#fff', border:`2px solid ${colorA}`, borderRadius:'var(--radius)', padding:'12px 16px' }}>
             <div style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'0.14em', color:colorA, marginBottom:6, fontWeight:600 }}>Escuela A</div>
@@ -169,11 +169,11 @@ function ComparadorContent() {
 
         {/* COMPARACIÓN */}
         {!loading && (schoolA || schoolB) && (
-          <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', overflow:'hidden' }}>
-            <div style={{ overflowX:'auto' }}>
+          <div style={{ background:'#fff', border:'1px solid rgba(122,92,58,0.1)', borderRadius:'var(--radius)', overflow:'hidden', maxWidth:'100%' }}>
+            <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', maxWidth:'100%' }}>
 
             {/* Headers de las escuelas */}
-            <div className='etd-compare-header' style={{ display:'grid', gridTemplateColumns:'160px 1fr 1fr' }}>
+            <div className='etd-compare-header' style={{ display:'grid', gridTemplateColumns:'100px 1fr 1fr', minWidth:480 }}>
               <div style={{ background:'var(--parchment-dark)', padding:'16px' }} />
 
               {/* Escuela A */}
@@ -212,11 +212,11 @@ function ComparadorContent() {
             </div>
 
             {/* Tabla de comparación */}
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <table style={{ width:'100%', borderCollapse:'collapse', minWidth:380 }}>
               <colgroup>
-                <col className='etd-compare-col-label' style={{ width:120, minWidth:80 }} />
-                <col style={{ minWidth:140 }} />
-                <col style={{ minWidth:140 }} />
+                <col className='etd-compare-col-label' style={{ width:90, minWidth:70 }} />
+                <col style={{ minWidth:120 }} />
+                <col style={{ minWidth:120 }} />
               </colgroup>
               <tbody>
 
@@ -282,7 +282,7 @@ function ComparadorContent() {
                   </td>
                 </tr>
                 <tr style={{ borderTop:'1px solid rgba(122,92,58,0.07)' }}>
-                  <td style={{ padding:'12px 16px', fontSize:12, fontWeight:500, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.08em', background:'var(--parchment-dark)', verticalAlign:'top' }}>Sobre la escuela</td>
+                  <td style={{ padding:'10px 10px', fontSize:11, fontWeight:500, color:'var(--wood-light)', textTransform:'uppercase', letterSpacing:'0.06em', background:'var(--parchment-dark)', verticalAlign:'top', width:90 }}>Sobre la escuela</td>
                   <td style={{ padding:'14px 20px', fontSize:13, color:'var(--ink-soft)', lineHeight:1.7, verticalAlign:'top' }}>
                     {schoolA?.description ?? '—'}
                   </td>
@@ -296,7 +296,7 @@ function ComparadorContent() {
 
             {/* CTAs finales */}
             {(schoolA || schoolB) && (
-              <div style={{ display:'grid', gridTemplateColumns:'160px 1fr 1fr', borderTop:'1px solid rgba(122,92,58,0.08)' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'100px 1fr 1fr', borderTop:'1px solid rgba(122,92,58,0.08)', minWidth:480 }}>
                 <div style={{ background:'var(--parchment-dark)', padding:'20px 16px' }} />
                 <div style={{ padding:'20px 24px' }}>
                   {schoolA && (

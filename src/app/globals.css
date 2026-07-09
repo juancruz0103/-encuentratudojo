@@ -249,4 +249,8 @@ a { text-decoration: none; }
   .etd-section-card { margin-bottom: 12px; }
   /* Footer */
   .etd-footer-inner { flex-direction: column; gap: 12px; text-align: center; padding: 20px !important; }
+  /* Comparador */
+  .etd-compare-selectors { grid-template-columns: 1fr !important; gap: 8px !important; }
+  .etd-compare-selectors > div:nth-child(2) { display: none; }
+  .etd-compare-header { min-width: 480px; }
 }
